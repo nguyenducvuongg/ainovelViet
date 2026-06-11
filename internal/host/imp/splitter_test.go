@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 func TestSplitText_Chinese(t *testing.T) {
@@ -202,6 +204,31 @@ END OF EBOOK`
 	}
 }
 
+func TestSplitText_FullWidthSpace(t *testing.T) {
+	src := "第一章　风起\n北风卷地。\n\n第2章　\n云动。\n"
+	got := splitText(src, defaultChapterRegex)
+	if len(got) != 2 {
+		t.Fatalf("want 2, got %d", len(got))
+	}
+	if got[0].Title != "风起" {
+		t.Errorf("ch1 title: %q", got[0].Title)
+	}
+	if got[1].Title != "第2章" { // 仅尾随全角空格 → 回退占位标题
+		t.Errorf("ch2 title: %q", got[1].Title)
+	}
+}
+
+func TestSplitText_BodyPrefix(t *testing.T) {
+	src := "正文 第一章 风起\n北风。\n\n正文　第二章　云涌\n乌云。\n"
+	got := splitText(src, defaultChapterRegex)
+	if len(got) != 2 {
+		t.Fatalf("want 2, got %d", len(got))
+	}
+	if got[0].Title != "风起" || got[1].Title != "云涌" {
+		t.Errorf("titles: %+v", got)
+	}
+}
+
 func TestSplitFile_ReadsAndSplits(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "novel.txt")
@@ -227,6 +254,45 @@ func TestSplitFile_EmptyError(t *testing.T) {
 	_, err := SplitFile(path, "")
 	if err == nil {
 		t.Fatal("want error for empty file")
+	}
+}
+
+func TestSplitFile_GBKEncoded(t *testing.T) {
+	src := "第一章 起\n正文 A\n\n第二章 终\n正文 B\n"
+	data, err := simplifiedchinese.GB18030.NewEncoder().Bytes([]byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	path := filepath.Join(dir, "gbk.txt")
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := SplitFile(path, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("want 2, got %d", len(got))
+	}
+	if got[0].Title != "起" || got[1].Title != "终" {
+		t.Errorf("titles: %+v", got)
+	}
+}
+
+func TestSplitFile_UTF8BOM(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bom.txt")
+	src := "\uFEFF第一章 起\n正文 A\n"
+	if err := os.WriteFile(path, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := SplitFile(path, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].Title != "起" {
+		t.Fatalf("BOM file: %+v", got)
 	}
 }
 

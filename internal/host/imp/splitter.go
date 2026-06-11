@@ -5,10 +5,13 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/voocel/ainovel-cli/internal/utils"
 )
 
 // 默认章节标题正则。覆盖常见中文（第N章/回/话/卷、卷N、序章/楔子/尾声/番外 等）
-// 与英文（Chapter N、Prologue、Epilogue）标题，兼容 Markdown 标题前缀（# / ##）。
+// 与英文（Chapter N、Prologue、Epilogue）标题，兼容 Markdown 标题前缀（# / ##）
+// 与起点系 txt 的「正文 第N章」前缀。
 // 其它格式（自定义编号、剧本式等）由 Options.CustomRegex 覆盖。
 //
 // 命名分组：副标题组优先于关键词组（提取时按 priority 顺序回退）：
@@ -18,20 +21,25 @@ import (
 //   - en    英文章节副标题（Chapter X / Prologue / Epilogue 之后的文字）
 //   - spkw  特殊单元关键词本身（无副标题时作标题，如「楔子」「番外」）
 //   - enkw  英文特殊单元关键词本身（无副标题时作标题，如「Prologue」）
+
+// ws 是字符类内容：ASCII 空白 + 全角空格。Go RE2 的 \s 只含 ASCII 空白，
+// 而中文排版的标题分隔常用 U+3000（「第一章　风起」）。
+const ws = `\s\x{3000}`
+
 var defaultChapterRegex = regexp.MustCompile(
-	`(?im)^#{0,2}\s*(?:` +
+	`(?im)^#{0,2}[` + ws + `]*(?:正文[` + ws + `]*)?(?:` +
 		`第\s*(?:[零〇○Ｏ０一二三四五六七八九十百千万\d]+)\s*(?:章|回|话|卷)` +
-		`(?:[:：．\.\s]+(?P<cn>.*))?` +
+		`(?:[:：．\.` + ws + `]+(?P<cn>.*))?` +
 		`|` +
 		`卷\s*(?:[零〇○Ｏ０一二三四五六七八九十百千万\d]+)` +
-		`(?:[:：．\.\s]+(?P<vol>.*))?` +
+		`(?:[:：．\.` + ws + `]+(?P<vol>.*))?` +
 		`|` +
 		`(?P<spkw>序章|序幕|楔子|引子|前言|序言|尾声|终章|后记|番外)` +
-		`(?:[:：．\.\s]+(?P<sp>.*))?` +
+		`(?:[:：．\.` + ws + `]+(?P<sp>.*))?` +
 		`|` +
 		`(?:Chapter\s+(?:\d+|[IVXLCDM]+)|(?P<enkw>Prologue|Epilogue))` +
-		`(?:[:：．\.\s]+(?P<en>.*))?` +
-		`)\s*$`,
+		`(?:[:：．\.` + ws + `]+(?P<en>.*))?` +
+		`)[` + ws + `]*$`,
 )
 
 // SplitFile 把单个文本文件切分成章节列表。
@@ -41,7 +49,7 @@ func SplitFile(path string, customRegex string) ([]Chapter, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read source: %w", err)
 	}
-	text := string(data)
+	text := utils.DecodeText(data)
 	if strings.TrimSpace(text) == "" {
 		return nil, fmt.Errorf("source file is empty: %s", path)
 	}
