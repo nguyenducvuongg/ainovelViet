@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/utils"
+	"github.com/nguyenducvuongg/ainovelViet/internal/utils"
 )
 
 // Chuẩn hóa tiêu đề chương mặc định. Bao gồm tiếng Trung thông dụng (Chương N/chương/tập/tập/phần/hành động, tập N, mở đầu/nêm/kết thúc/ngoại truyện/truyện bên lề, v.v.)

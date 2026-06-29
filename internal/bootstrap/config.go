@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/voocel/agentcore/llm"
-	"github.com/voocel/ainovel-cli/internal/errs"
-	"github.com/voocel/ainovel-cli/internal/models"
-	"github.com/voocel/ainovel-cli/internal/utils"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/models"
+	"github.com/nguyenducvuongg/ainovelViet/internal/utils"
 )
 
 // DefaultContextWindow Kích thước cửa sổ mặc định khi mô hình chưa được đăng ký trong sổ đăng ký.

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // DraftStore quản lý ý tưởng chương, bản nháp và bản nháp cuối cùng.

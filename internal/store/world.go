@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // WorldStore quản lý các mốc thời gian, điềm báo, mối quan hệ nhân vật, thay đổi trạng thái, quy tắc thế giới, quy tắc phong cách, đánh giá và chuyển giao.

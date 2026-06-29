@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/store"
-	"github.com/voocel/ainovel-cli/internal/tools"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/tools"
 )
 
 // validHookTypes/validStrands nhất quán với lược đồ commit_chapter.

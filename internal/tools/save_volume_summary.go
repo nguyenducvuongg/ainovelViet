@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/voocel/agentcore/schema"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // SaveVolumeSummaryTool lưu bản tóm tắt theo cấp độ tập, được Trình chỉnh sửa gọi ở cuối tập.

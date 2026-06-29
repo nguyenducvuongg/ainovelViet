@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/bootstrap"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/models"
-	storepkg "github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/bootstrap"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/models"
+	storepkg "github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // nearSampleCap là kích thước cửa sổ trượt: chỉ N lệnh gọi gần đây nhất của mỗi vai trò (cacheRead, input) được giữ lại

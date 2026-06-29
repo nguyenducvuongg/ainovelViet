@@ -3,9 +3,9 @@ package tools
 import (
 	"fmt"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/errs"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // EnsureChapterExpanded verifies that a chapter is inside the currently

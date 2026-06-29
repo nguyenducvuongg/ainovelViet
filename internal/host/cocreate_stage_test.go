@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/host/imp"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/host/imp"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // newFlagTestHost tạo một Máy chủ tối thiểu, vừa đủ để điều khiển máy trạng thái cờ đồng tạo và các bộ bảo vệ đồng thời.

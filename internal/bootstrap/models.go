@@ -11,7 +11,7 @@ import (
 
 	"github.com/voocel/agentcore"
 	"github.com/voocel/agentcore/llm"
-	"github.com/voocel/ainovel-cli/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
 )
 
 // Trong kịch bản đầu ra dài + ctx dài, nhà cung cấp nhận thức lý luận (mimo / deepseek-r1, v.v.)

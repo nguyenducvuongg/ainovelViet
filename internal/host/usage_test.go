@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/models"
+	"github.com/nguyenducvuongg/ainovelViet/internal/models"
 )
 
 // makeUsageMsg Xây dựng một thông báo (có Cách sử dụng) mà lệnh gọi lại OnMessage có thể chấp nhận.

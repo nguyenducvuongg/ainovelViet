@@ -1,6 +1,6 @@
 services:
   ainovel:
-    image: ghcr.io/voocel/ainovel-cli:latest
+    image: ghcr.io/nguyenducvuongg/ainovelViet:latest
     build:
       context: .
     volumes:

@@ -7,8 +7,8 @@ import (
 
 	"github.com/voocel/agentcore"
 	corecontext "github.com/voocel/agentcore/context"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	storepkg "github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	storepkg "github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 func TestStoreSummaryCompactApplyUsesPersistentStoreData(t *testing.T) {

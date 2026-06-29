@@ -1,7 +1,7 @@
 package flow
 
 import (
-	storepkg "github.com/voocel/ainovel-cli/internal/store"
+	storepkg "github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // LoadState đọc tất cả thông tin mà Tuyến đường yêu cầu từ Cửa hàng.

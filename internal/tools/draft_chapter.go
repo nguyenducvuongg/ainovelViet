@@ -8,9 +8,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/voocel/agentcore/schema"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/errs"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // DraftChapterTool viết toàn bộ bản nháp của chương, thay thế quy trình write_scene + Polish_chapter cũ.

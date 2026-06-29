@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // InvalidPendingRewrites phát hiện các chương chưa hoàn thành nằm trong hàng đợi làm lại.

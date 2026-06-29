@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // Sự kiện là các sự kiện có cấu trúc được TUI sử dụng.

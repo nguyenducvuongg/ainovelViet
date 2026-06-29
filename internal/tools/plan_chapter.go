@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/voocel/agentcore/schema"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/errs"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // PlanChapterTool lưu ý tưởng chương và Tác nhân xác định mức độ chi tiết của kế hoạch một cách độc lập.

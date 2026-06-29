@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/voocel/agentcore/schema"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/errs"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // SaveArcSummaryTool Lưu các bản tóm tắt ở cấp độ cung và ảnh chụp nhanh ký tự, được Trình chỉnh sửa gọi ở cuối cung.

@@ -9,8 +9,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/voocel/ainovel-cli/internal/rules"
-	"github.com/voocel/ainovel-cli/internal/utils"
+	"github.com/nguyenducvuongg/ainovelViet/internal/rules"
+	"github.com/nguyenducvuongg/ainovelViet/internal/utils"
 )
 
 // exampleConfig là một mẫu có chú thích được ghi vào ~/.ainovel/config.example.jsonc sau khi khởi động.

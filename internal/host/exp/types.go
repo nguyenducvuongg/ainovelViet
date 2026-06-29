@@ -6,7 +6,7 @@
 // Phiên bản đầu tiên chỉ hỗ trợ TXT; EPUB còn lại cho vòng tiếp theo.
 package exp
 
-import "github.com/voocel/ainovel-cli/internal/store"
+import "github.com/nguyenducvuongg/ainovelViet/internal/store"
 
 // Định dạng xác định định dạng xuất.
 type Format string

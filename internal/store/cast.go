@@ -5,7 +5,7 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // CastStore quản lý danh sách diễn viên phụ (meta/cast_ledger.json).

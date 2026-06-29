@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // trọng điểm là một đoạn "văn bản mới" không bao giờ xuất hiện trong bản xuất.

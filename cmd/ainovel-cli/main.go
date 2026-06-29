@@ -6,12 +6,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/assets"
-	"github.com/voocel/ainovel-cli/internal/bootstrap"
-	"github.com/voocel/ainovel-cli/internal/entry/headless"
-	"github.com/voocel/ainovel-cli/internal/entry/tui"
-	"github.com/voocel/ainovel-cli/internal/rules"
-	buildversion "github.com/voocel/ainovel-cli/internal/version"
+	"github.com/nguyenducvuongg/ainovelViet/assets"
+	"github.com/nguyenducvuongg/ainovelViet/internal/bootstrap"
+	"github.com/nguyenducvuongg/ainovelViet/internal/entry/headless"
+	"github.com/nguyenducvuongg/ainovelViet/internal/entry/tui"
+	"github.com/nguyenducvuongg/ainovelViet/internal/rules"
+	buildversion "github.com/nguyenducvuongg/ainovelViet/internal/version"
 )
 
 var (
@@ -201,7 +201,7 @@ func versionInfo() buildversion.Info {
 func runSelfUpdate(target string) error {
 	info := versionInfo()
 	result, err := buildversion.Update(context.Background(), buildversion.UpdateOptions{
-		Repo:           "voocel/ainovel-cli",
+		Repo:           "nguyenducvuongg/ainovelViet",
 		BinaryName:     "ainovel-cli",
 		TargetVersion:  target,
 		CurrentVersion: info.Version,

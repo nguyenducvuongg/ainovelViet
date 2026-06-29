@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // CompletedBook xây dựng một cuốn tiểu thuyết N-chương đã hoàn thành (giai đoạn=hoàn thành, CompletedChapters=1..n).

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/store"
-	"github.com/voocel/ainovel-cli/internal/tools"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/tools"
 )
 
 const validAnalyzerEnvelope = `=== SUMMARY ===

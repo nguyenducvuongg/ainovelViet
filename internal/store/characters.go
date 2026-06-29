@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // CharacterStore quản lý kho lưu trữ ký tự và ảnh chụp nhanh trạng thái.

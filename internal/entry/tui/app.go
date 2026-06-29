@@ -2,10 +2,10 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/voocel/ainovel-cli/assets"
-	"github.com/voocel/ainovel-cli/internal/bootstrap"
-	"github.com/voocel/ainovel-cli/internal/host"
-	"github.com/voocel/ainovel-cli/internal/logger"
+	"github.com/nguyenducvuongg/ainovelViet/assets"
+	"github.com/nguyenducvuongg/ainovelViet/internal/bootstrap"
+	"github.com/nguyenducvuongg/ainovelViet/internal/host"
+	"github.com/nguyenducvuongg/ainovelViet/internal/logger"
 )
 
 // Chạy khởi động TUI.

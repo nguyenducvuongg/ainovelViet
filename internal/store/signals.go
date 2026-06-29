@@ -3,7 +3,7 @@ package store
 import (
 	"os"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // SignalStore quản lý các tệp tín hiệu một lần (kết quả cam kết/xem xét, trạng thái khôi phục đang chờ xử lý).

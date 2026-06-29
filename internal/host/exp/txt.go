@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // chươngTitleIndex tìm kiếm tiêu đề theo số chương, nếu thiếu, trả về một chuỗi trống.

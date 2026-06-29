@@ -14,14 +14,14 @@ import (
 	corecontext "github.com/voocel/agentcore/context"
 	"github.com/voocel/agentcore/llm"
 	"github.com/voocel/agentcore/subagent"
-	"github.com/voocel/ainovel-cli/assets"
-	"github.com/voocel/ainovel-cli/internal/agents/ctxpack"
-	"github.com/voocel/ainovel-cli/internal/bootstrap"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/host/reminder"
-	"github.com/voocel/ainovel-cli/internal/rules"
-	"github.com/voocel/ainovel-cli/internal/store"
-	"github.com/voocel/ainovel-cli/internal/tools"
+	"github.com/nguyenducvuongg/ainovelViet/assets"
+	"github.com/nguyenducvuongg/ainovelViet/internal/agents/ctxpack"
+	"github.com/nguyenducvuongg/ainovelViet/internal/bootstrap"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/host/reminder"
+	"github.com/nguyenducvuongg/ainovelViet/internal/rules"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/tools"
 )
 
 // logRulesLoaded in trạng thái tải quy tắc trong quá trình lắp ráp: thư mục quy tắc của cuốn sách này, nguồn thực sự đã đọc và giá trị hiệu quả kiểm tra số từ.

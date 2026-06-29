@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/voocel/ainovel-cli/internal/tools"
+	"github.com/nguyenducvuongg/ainovelViet/internal/tools"
 )
 
 func TestTerminalAskUserSingleSelect(t *testing.T) {

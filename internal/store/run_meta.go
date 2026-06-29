@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // RunMetaStore quản lý siêu thông tin chạy (mô hình, lịch sử can thiệp, cấp độ lập kế hoạch, v.v.).

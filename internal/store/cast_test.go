@@ -3,7 +3,7 @@ package store
 import (
 	"testing"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 func newCastTestStore(t *testing.T) *Store {

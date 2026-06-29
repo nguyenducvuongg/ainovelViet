@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // buildStoryStateSummary tập hợp một bản tóm tắt cô đọng về trạng thái hiện tại của câu chuyện để trợ lý đồng sáng tạo sân khấu hiểu "những gì đã được viết".

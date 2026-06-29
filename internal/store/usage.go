@@ -3,7 +3,7 @@ package store
 import (
 	"os"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // UsageStore duy trì mức sử dụng tích lũy mã thông báo/chi phí cho meta/usage.json.

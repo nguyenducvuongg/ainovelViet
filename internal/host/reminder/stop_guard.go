@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/host/flow"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/host/flow"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // StopGuard là tuyến phòng thủ cuối cùng dành cho các hệ thống "không thể ngăn cản về mặt vật lý".

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // subagentMaxConsecutiveBlocks nâng cấp để chấm dứt sau khi chặn N lần liên tục để tránh vòng lặp vô hạn của các mô hình yếu.

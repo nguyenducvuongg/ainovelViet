@@ -3,7 +3,7 @@ package domain
 import (
 	"fmt"
 
-	"github.com/voocel/ainovel-cli/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
 )
 
 // Quy tắc di chuyển tiểu bang (phiên bản tối thiểu)

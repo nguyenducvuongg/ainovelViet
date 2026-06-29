@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/bootstrap"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/bootstrap"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // Đồng sáng tạo bắt đầu từ đầu: làm rõ các yêu cầu ngay từ đầu và đưa ra hướng dẫn sáng tạo cho toàn bộ cuốn sách.

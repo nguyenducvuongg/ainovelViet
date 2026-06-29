@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // OutlineStore quản lý tiền đề câu chuyện, dàn ý (phẳng/xếp lớp) và la bàn.

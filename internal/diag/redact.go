@@ -9,7 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // SkelEvent là bộ khung hành vi được giải mẫn cảm của thông báo phiên: giữ lại các tín hiệu cấu trúc (vai trò/công cụ/lỗi/

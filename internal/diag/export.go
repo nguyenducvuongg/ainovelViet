@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // XuấtRelPath là vị trí cố định (bản sao được ghi đè) của tệp chẩn đoán giải mẫn cảm liên quan đến thư mục đầu ra.

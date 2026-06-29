@@ -7,7 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/voocel/agentcore/schema"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // ReadChapterTool đọc văn bản gốc của chương, cho phép Tác nhân đọc lại văn bản của chính nó và văn bản trước đó.

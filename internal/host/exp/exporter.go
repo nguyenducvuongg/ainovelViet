@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // Chạy thực hiện xuất. Trả về đồng bộ, khối lượng IO nhỏ (đọc và ghi tệp cục bộ).

@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
-	storepkg "github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	storepkg "github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // buildResumePrompt tạo lời nhắc ngắn và nhãn giao diện người dùng cho Resume dựa trên thực tế.

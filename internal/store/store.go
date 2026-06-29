@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // Store là gốc tổng hợp của quản lý trạng thái và chứa tất cả các kho con.

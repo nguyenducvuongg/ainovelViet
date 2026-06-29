@@ -1,14 +1,14 @@
 #!/bin/sh
 # tập lệnh cài đặt bằng một cú nhấp chuột ainovel-cli
 #
-#   curl -fsSL https://raw.githubusercontent.com/voocel/ainovel-cli/main/scripts/install.sh | sh
-#   curl -fsSL https://raw.githubusercontent.com/voocel/ainovel-cli/main/scripts/install.sh | sh -s -- v1.2.3
+#   curl -fsSL https://raw.githubusercontent.com/nguyenducvuongg/ainovelViet/main/scripts/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/nguyenducvuongg/ainovelViet/main/scripts/install.sh | sh -s -- v1.2.3
 #
 # Thư mục cài đặt tùy chỉnh: AINOVEL_INSTALL_DIR=~/.local/bincurl -fsSL ... | sh
 # Chỉ định phiên bản: AINOVEL_VERSION=v1.2.3curl -fsSL ... | sh
 set -e
 
-REPO="voocel/ainovel-cli"
+REPO="nguyenducvuongg/ainovelViet"
 BIN="ainovel-cli"
 DEST="${AINOVEL_INSTALL_DIR:-/usr/local/bin}"
 VERSION="${AINOVEL_VERSION:-${1:-latest}}"

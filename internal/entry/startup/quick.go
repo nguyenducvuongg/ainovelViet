@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/host"
+	"github.com/nguyenducvuongg/ainovelViet/internal/host"
 )
 
 // Chuẩn bị nhanh tổ chức đầu vào trực tiếp thành một kế hoạch bắt đầu nhanh có thể được đưa vào Công cụ.

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // Ảnh chụp nhanh là ảnh chụp nhanh chỉ đọc của tất cả các tạo phẩm trong thư mục đầu ra.

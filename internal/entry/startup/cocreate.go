@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/voocel/ainovel-cli/internal/host"
+	"github.com/nguyenducvuongg/ainovelViet/internal/host"
 )
 
 // CoCreateSession mang trạng thái không phải UI cho chế độ đồng sáng tạo.

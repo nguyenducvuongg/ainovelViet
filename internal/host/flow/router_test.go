@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/voocel/agentcore"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	storepkg "github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	storepkg "github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // Người trợ giúp: Xây dựng Tiến trình trong giai đoạn Viết và chế độ phân cấp.

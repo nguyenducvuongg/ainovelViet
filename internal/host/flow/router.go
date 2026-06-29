@@ -12,8 +12,8 @@ package flow
 import (
 	"fmt"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
-	storepkg "github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	storepkg "github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // Hướng dẫn hướng dẫn Máy chủ yêu cầu Điều phối viên gọi tác nhân và tác vụ phụ tiếp theo.

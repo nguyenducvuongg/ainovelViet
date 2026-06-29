@@ -8,9 +8,9 @@ import (
 
 	"github.com/voocel/agentcore/schema"
 	agentcoretools "github.com/voocel/agentcore/tools"
-	"github.com/voocel/ainovel-cli/internal/domain"
-	"github.com/voocel/ainovel-cli/internal/errs"
-	"github.com/voocel/ainovel-cli/internal/store"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/errs"
+	"github.com/nguyenducvuongg/ainovelViet/internal/store"
 )
 
 // EditChapterTool thực hiện thay thế chuỗi điểm cố định trên các bản nháp chương, phù hợp với các tình huống đánh bóng.

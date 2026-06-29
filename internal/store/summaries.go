@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/voocel/ainovel-cli/internal/domain"
+	"github.com/nguyenducvuongg/ainovelViet/internal/domain"
 )
 
 // SummaryStore quản lý các bản tóm tắt chương, phần và tập.
