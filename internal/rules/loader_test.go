@@ -218,7 +218,7 @@ func TestEnsureRulesDirAt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("README.txt should be written: %v", err)
 	}
-	if !strings.Contains(string(data), "front matter") {
+	if !strings.Contains(string(data), "YAML") {
 		t.Errorf("README.txt missing guidance, got %q", data)
 	}
 

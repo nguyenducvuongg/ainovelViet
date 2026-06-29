@@ -7,69 +7,69 @@ import (
 )
 
 func TestParsePremiseSections(t *testing.T) {
-	premise := `# Premise
+	premise := `#tiền đề
 
-## 题材和基调
-东方玄幻，冷硬成长。
+## Chủ đề và giai điệu
+Ảo tưởng phương Đông, tăng trưởng lạnh lùng và khó khăn.
 
-## 题材定位
-东方玄幻升级流，面向追求爽点和关系推进的读者。
+## Định vị chủ đề
+Dòng truyện giả tưởng phương Đông được nâng cấp nhắm đến những độc giả đang tìm kiếm sự phấn khích và thăng tiến trong mối quan hệ.
 
-## 核心冲突
-主角必须在宗门规则与个人良知之间做选择。
+## Xung đột cốt lõi
+Nhân vật chính phải lựa chọn giữa quy định của giáo phái và lương tâm cá nhân.
 
-## 中期转向
-旧有修炼路线失效，必须转向禁术体系。
+## Lượt chuyển tiếp giữa kỳ
+Con đường tu luyện cũ đã trở nên kém hiệu quả và phải chuyển sang hệ thống cấm thuật.
 `
 
 	sections := parsePremiseSections(premise)
-	if sections["题材和基调"] == "" {
-		t.Fatalf("expected 题材和基调 section, got %+v", sections)
+	if sections["chủ đề và giọng điệu"] == "" {
+		t.Fatalf("phần chủ đề và giai điệu dự kiến, có %+v", sections)
 	}
-	if sections["题材定位"] == "" {
-		t.Fatalf("expected 题材定位 section, got %+v", sections)
+	if sections["Định vị chủ đề"] == "" {
+		t.Fatalf("phần định vị chủ đề dự kiến, có %+v", sections)
 	}
-	if sections["核心冲突"] == "" {
-		t.Fatalf("expected 核心冲突 section, got %+v", sections)
+	if sections["xung đột cốt lõi"] == "" {
+		t.Fatalf("phần xung đột cốt lõi dự kiến, có %+v", sections)
 	}
-	if sections["中段转折"] == "" {
-		t.Fatalf("expected 中期转向 alias normalized to 中段转折, got %+v", sections)
+	if sections["giữa lượt"] == "" {
+		t.Fatalf("bí danh giữa lượt dự kiến ​​được chuẩn hóa thành giữa lượt, có %+v", sections)
 	}
 }
 
 func TestPremiseStructure(t *testing.T) {
-	premise := `## 题材和基调
-升级流，偏冷硬。
+	premise := `## Chủ đề và giai điệu
+Dòng chảy nâng cấp, lạnh lùng và cứng rắn hơn.
 
-## 题材定位
-升级流
+## Định vị chủ đề
+Luồng nâng cấp
 
-## 核心冲突
-冲突
+## Xung đột cốt lõi
+xung đột
 
-## 主角目标
-目标
+## Mục tiêu của nhân vật chính
+mục tiêu
 
-## 终局方向
-终局
+## Hướng đi cuối cùng
+Đêm chung kết
 
-## 写作禁区
-禁区
+## Vùng hạn chế viết
+khu vực hạn chế
 
-## 差异化卖点
-卖点
+##Điểm bán hàng khác biệt
+điểm bán hàng
 
-## 差异化钩子
-钩子
+## Móc phân biệt
+cái móc
 
-## 核心兑现承诺
-兑现
+## Thực hiện cốt lõi những lời hứa
+rút tiền
 
-## 故事引擎
-引擎
+## Công cụ câu chuyện
+động cơ
 
-## 中段转折
-转折
+## Bước ngoặt đoạn giữa
+bước ngoặt
 `
 
 	structure := premiseStructure(premise, domain.PlanningTierMid)
@@ -83,35 +83,35 @@ func TestPremiseStructure(t *testing.T) {
 }
 
 func TestPremiseStructureShortAcceptsLegacyHeadingAlias(t *testing.T) {
-	premise := `## 题材和基调
-单卷高压营救。
+	premise := `## Chủ đề và giai điệu
+Cứu hộ áp lực cao cuộn đơn.
 
-## 题材定位
-短篇高密度冒险。
+## Định vị chủ đề
+Một cuộc phiêu lưu mật độ cao ngắn.
 
-## 核心冲突
-主角必须在一夜内救出人质。
+## Xung đột cốt lõi
+Nhân vật chính phải giải cứu con tin trong một đêm.
 
-## 主角目标
-救出人质并活着离开。
+## Mục tiêu của nhân vật chính
+Giải cứu con tin và sống sót thoát ra ngoài.
 
-## 结局方向
-完成任务但付出代价。
+## Hướng kết thúc
+Hoàn thành nhiệm vụ nhưng phải trả giá.
 
-## 写作禁区
-不扩展成长期连载。
+## Vùng hạn chế viết
+Việc tuần tự hóa thời kỳ tăng trưởng sẽ không được kéo dài.
 
-## 差异化卖点
-时限压力与连续反转。
+##Điểm bán hàng khác biệt
+Áp lực thời gian và sự đảo chiều liên tục.
 
-## 差异化钩子
-每次选择都缩短救援时间。
+## Móc phân biệt
+Mỗi lựa chọn sẽ rút ngắn thời gian giải cứu.
 
-## 核心兑现承诺
-紧迫感、抉择与反转。
+## Thực hiện cốt lõi những lời hứa
+Sự khẩn cấp, sự lựa chọn và sự đảo ngược.
 
-## 本作为什么适合短篇/单卷收束
-核心矛盾和人物弧线都能在单次任务中完成。
+##Tại sao cuốn sách này lại phù hợp với truyện ngắn/tập đơn?
+Cả xung đột cốt lõi và cốt truyện của nhân vật đều có thể được hoàn thành trong một nhiệm vụ duy nhất.
 `
 
 	structure := premiseStructure(premise, domain.PlanningTierShort)

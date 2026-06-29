@@ -20,7 +20,7 @@ var (
 	date    = "unknown"
 )
 
-// headlessMode 记录本次是否 headless 启动，供 die 决定错误退出时是否暂停。
+// headlessMode ghi lại xem headless có được khởi động lần này hay không, do đó khuôn có thể quyết định có nên tạm dừng khi thoát khi gặp lỗi hay không.
 var headlessMode bool
 
 func main() {
@@ -41,21 +41,21 @@ func main() {
 	}
 	headlessMode = opts.Headless
 
-	// 首次引导
+	// lần khởi động đầu tiên
 	if bootstrap.NeedsSetup(opts.ConfigPath) {
 		if opts.Headless {
-			die("error: headless 模式不支持首次引导，请先运行一次 TUI 完成配置")
+			die("lỗi: chế độ không đầu không hỗ trợ khởi động lần đầu. Vui lòng chạy TUI trước để hoàn tất cấu hình.")
 		}
 		setupCfg, err := bootstrap.RunSetup()
 		if err != nil {
 			die("setup: %v", err)
 		}
-		// 引导完成后使用生成的配置继续
+		// Sau khi khởi động xong, tiếp tục sử dụng cấu hình đã tạo
 		runWithConfig(setupCfg, opts, args)
 		return
 	}
 
-	// 加载配置
+	// Tải cấu hình
 	cfg, err := bootstrap.LoadConfig(opts.ConfigPath)
 	if err != nil {
 		die("config: %v", err)
@@ -64,24 +64,24 @@ func main() {
 	runWithConfig(cfg, opts, args)
 }
 
-// die 统一处理致命错误退出：打印到 stderr、落盘到 ~/.ainovel/last-error.log，
-// 并在交互式终端（非 headless）下暂停等待回车——双击启动时控制台会随进程退出
-// 立即关闭，不暂停的话错误一闪而过，正是 issue #37 里用户无从排查的根因。
+// die xử lý thống nhất các lỗi thoát nghiêm trọng: in ra stderr, thả xuống ~/.ainovel/last-error.log,
+// Và tạm dừng trong thiết bị đầu cuối tương tác (không có đầu) và đợi trả lại dòng - bảng điều khiển sẽ thoát cùng với quy trình khi bạn nhấp đúp để bắt đầu.
+// Đóng ngay lập tức. Nếu bạn không tạm dừng, lỗi sẽ xuất hiện. Đây là nguyên nhân cốt lõi của sự cố số 37 mà người dùng không thể khắc phục được.
 func die(format string, args ...any) {
 	msg := fmt.Sprintf(format, args...)
 	fmt.Fprintln(os.Stderr, msg)
 	if path := bootstrap.WriteStartupError(msg); path != "" {
-		fmt.Fprintf(os.Stderr, "（详细错误已记录到 %s）\n", path)
+		fmt.Fprintf(os.Stderr, "(Lỗi chi tiết ghi vào %s) \n", path)
 	}
 	if !headlessMode && stdinIsTerminal() {
-		fmt.Fprint(os.Stderr, "\n按回车键退出...")
+		fmt.Fprint(os.Stderr, "\n Nhấn Enter để thoát...")
 		fmt.Fscanln(os.Stdin)
 	}
 	os.Exit(1)
 }
 
-// stdinIsTerminal 判断标准输入是否连接到终端（字符设备）。双击启动 / 交互式终端
-// 为 true；管道、重定向、CI 为 false。零依赖近似，足够区分要不要暂停。
+// stdinIsTerminal xác định xem đầu vào tiêu chuẩn có được kết nối với thiết bị đầu cuối (thiết bị ký tự) hay không. Nhấp đúp để bắt đầu/thiết bị đầu cuối tương tác
+// là đúng; đường ống, chuyển hướng, CI là sai. Xấp xỉ không phụ thuộc là đủ để phân biệt có nên tạm dừng hay không.
 func stdinIsTerminal() bool {
 	fi, err := os.Stdin.Stat()
 	if err != nil {
@@ -94,7 +94,7 @@ func runWithConfig(cfg bootstrap.Config, opts cliOptions, args []string) {
 	rules.EnsureHomeRulesDir()
 
 	if len(args) > 0 {
-		die("error: 不再支持命令行直接传入小说需求，请启动后在 TUI 输入框中输入")
+		die("lỗi: Việc chuyển trực tiếp các yêu cầu mới từ dòng lệnh không còn được hỗ trợ. Vui lòng nhập nó vào hộp nhập TUI sau khi khởi động.")
 	}
 
 	bundle := assets.Load(cfg.Style)
@@ -109,7 +109,7 @@ func runWithConfig(cfg bootstrap.Config, opts cliOptions, args []string) {
 		return
 	}
 	if opts.Prompt != "" || opts.PromptFile != "" {
-		die("error: --prompt/--prompt-file 仅能在 --headless 模式下使用")
+		die("lỗi: --prompt/--prompt-file chỉ có thể được sử dụng ở chế độ --headless")
 	}
 	if err := tui.Run(cfg, bundle, versionInfo().Version); err != nil {
 		die("error: %v", err)
@@ -126,7 +126,7 @@ type cliOptions struct {
 	UpdateVersion string
 }
 
-// parseCLIOptions 提取 CLI flag，返回选项和剩余参数。
+// ParsCLIOptions trích xuất cờ CLI, trả về các tùy chọn và các tham số còn lại.
 func parseCLIOptions(argv []string) (cliOptions, []string, error) {
 	var opts cliOptions
 	var args []string
@@ -136,27 +136,27 @@ func parseCLIOptions(argv []string) (cliOptions, []string, error) {
 			opts.Version = true
 		case "version":
 			if i+1 < len(argv) {
-				return opts, nil, fmt.Errorf("version 不接受参数")
+				return opts, nil, fmt.Errorf("phiên bản không chấp nhận tham số")
 			}
 			opts.Version = true
 		case "update":
 			if opts.Update {
-				return opts, nil, fmt.Errorf("update 只能指定一次")
+				return opts, nil, fmt.Errorf("cập nhật chỉ có thể được chỉ định một lần")
 			}
 			opts.Update = true
 			if i+1 < len(argv) {
 				if strings.HasPrefix(argv[i+1], "-") {
-					return opts, nil, fmt.Errorf("update 只接受一个可选版本参数")
+					return opts, nil, fmt.Errorf("cập nhật chỉ chấp nhận tham số phiên bản tùy chọn")
 				}
 				opts.UpdateVersion = argv[i+1]
 				i++
 			}
 			if i+1 < len(argv) {
-				return opts, nil, fmt.Errorf("update 只接受一个可选版本参数")
+				return opts, nil, fmt.Errorf("cập nhật chỉ chấp nhận tham số phiên bản tùy chọn")
 			}
 		case "--config":
 			if i+1 >= len(argv) {
-				return opts, nil, fmt.Errorf("--config 缺少值")
+				return opts, nil, fmt.Errorf("--config thiếu giá trị")
 			}
 			opts.ConfigPath = argv[i+1]
 			i++
@@ -164,13 +164,13 @@ func parseCLIOptions(argv []string) (cliOptions, []string, error) {
 			opts.Headless = true
 		case "--prompt":
 			if i+1 >= len(argv) {
-				return opts, nil, fmt.Errorf("--prompt 缺少值")
+				return opts, nil, fmt.Errorf("--giá trị bị thiếu nhắc nhở")
 			}
 			opts.Prompt = argv[i+1]
 			i++
 		case "--prompt-file":
 			if i+1 >= len(argv) {
-				return opts, nil, fmt.Errorf("--prompt-file 缺少值")
+				return opts, nil, fmt.Errorf("--prompt-file thiếu giá trị")
 			}
 			opts.PromptFile = argv[i+1]
 			i++
@@ -179,13 +179,13 @@ func parseCLIOptions(argv []string) (cliOptions, []string, error) {
 		}
 	}
 	if opts.Prompt != "" && opts.PromptFile != "" {
-		return opts, nil, fmt.Errorf("--prompt 和 --prompt-file 不能同时使用")
+		return opts, nil, fmt.Errorf("--prompt và --prompt-file không thể được sử dụng cùng lúc")
 	}
 	if opts.Version && (opts.Update || opts.ConfigPath != "" || opts.Headless || opts.Prompt != "" || opts.PromptFile != "" || len(args) > 0) {
-		return opts, nil, fmt.Errorf("version 不能与其他启动参数混用")
+		return opts, nil, fmt.Errorf("phiên bản không thể trộn lẫn với các tham số khởi động khác")
 	}
 	if opts.Update && (opts.ConfigPath != "" || opts.Headless || opts.Prompt != "" || opts.PromptFile != "" || len(args) > 0) {
-		return opts, nil, fmt.Errorf("update 不能与其他启动参数混用")
+		return opts, nil, fmt.Errorf("cập nhật không thể trộn lẫn với các tham số khởi động khác")
 	}
 	return opts, args, nil
 }
@@ -210,11 +210,11 @@ func runSelfUpdate(target string) error {
 		return err
 	}
 	if !result.Updated {
-		fmt.Printf("ainovel-cli 已是最新版本 %s\n", result.Version)
+		fmt.Printf("ainovel-cli là phiên bản mới nhất %s\n", result.Version)
 		return nil
 	}
-	fmt.Printf("ainovel-cli 已更新到 %s\n", result.Version)
-	fmt.Printf("安装位置：%s\n", result.Path)
+	fmt.Printf("ainovel-cli đã được cập nhật lên %s\n", result.Version)
+	fmt.Printf("Vị trí lắp đặt: %s\n", result.Path)
 	return nil
 }
 
@@ -231,7 +231,7 @@ func loadPrompt(opts cliOptions) (string, error) {
 		data, err = os.ReadFile(opts.PromptFile)
 	}
 	if err != nil {
-		return "", fmt.Errorf("读取 prompt 失败: %w", err)
+		return "", fmt.Errorf("Không đọc được lời nhắc: %w", err)
 	}
 	return strings.TrimSpace(string(data)), nil
 }

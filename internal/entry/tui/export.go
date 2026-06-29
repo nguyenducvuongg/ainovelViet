@@ -13,24 +13,24 @@ import (
 	"github.com/voocel/ainovel-cli/internal/host/exp"
 )
 
-// exportDoneMsg 是 /export 命令的最终结果。
+// exportDoneMsg là kết quả cuối cùng của lệnh /export.
 //
-// 不像 /import 走事件流：导出是同步本地 IO，没有中间进度可言；
-// 在 goroutine 里跑完后一次性回投这条消息。
+// Không giống như /import, sử dụng luồng sự kiện: xuất là IO cục bộ đồng bộ và không có tiến trình trung gian nào để nói đến;
+// Sau khi chạy goroutine, hãy trả lại thông báo này một lần.
 type exportDoneMsg struct {
 	result *exp.Result
 	err    error
 }
 
-// startExport 解析参数并返回 tea.Cmd。
-// 真正的导出在 tea.Cmd 里跑（避免阻塞 UI），完成后投递 exportDoneMsg。
+// startExport phân tích các tham số và trả về tea.Cmd.
+// Quá trình xuất thực sự được chạy trong tea.Cmd (để tránh chặn giao diện người dùng) và xuấtDoneMsg được phân phối sau khi hoàn thành.
 func startExport(rt *host.Host, args []string) (tea.Cmd, error) {
 	opts, err := parseExportArgs(args)
 	if err != nil {
 		return nil, err
 	}
 	return func() tea.Msg {
-		// 30s 足够本地写一本中长篇小说；超时只是兜底防卡死。
+		// 30 giây là đủ để viết một cuốn tiểu thuyết dài vừa phải tại địa phương; thời gian chờ chỉ để tránh bị mắc kẹt.
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		res, err := rt.Export(ctx, opts)
@@ -38,9 +38,9 @@ func startExport(rt *host.Host, args []string) (tea.Cmd, error) {
 	}, nil
 }
 
-// parseExportArgs 解析 `/export [path] [from=N] [to=M] [--overwrite]`。
+// ParseExportArgs phân tích cú pháp `/export [path] [from=N] [to=M] [--overwrite]`.
 //
-// 位置参数：最多一个，作为输出路径；缺省由 exp.Run 决定（{novelDir}/{NovelName}.txt）。
+// Tham số vị trí: nhiều nhất là một, làm đường dẫn đầu ra; mặc định được xác định bởi exp.Run ({novelDir}/{NovelName}.txt).
 func parseExportArgs(args []string) (exp.Options, error) {
 	var opts exp.Options
 	for _, a := range args {
@@ -53,37 +53,37 @@ func parseExportArgs(args []string) (exp.Options, error) {
 			case "from":
 				n, err := strconv.Atoi(v)
 				if err != nil || n < 0 {
-					return exp.Options{}, fmt.Errorf("from 需为非负整数：%q", v)
+					return exp.Options{}, fmt.Errorf("from cần phải là số nguyên không âm: %q", v)
 				}
 				opts.From = n
 			case "to":
 				n, err := strconv.Atoi(v)
 				if err != nil || n < 0 {
-					return exp.Options{}, fmt.Errorf("to 需为非负整数：%q", v)
+					return exp.Options{}, fmt.Errorf("cần phải là số nguyên không âm: %q", v)
 				}
 				opts.To = n
 			default:
-				return exp.Options{}, fmt.Errorf("未知参数 %q（支持：from / to）", k)
+				return exp.Options{}, fmt.Errorf("Tham số %q không xác định (hỗ trợ: từ/đến)", k)
 			}
 			continue
 		}
 		if strings.HasPrefix(a, "-") {
-			return exp.Options{}, fmt.Errorf("未知 flag %q", a)
+			return exp.Options{}, fmt.Errorf("Cờ không xác định %q", a)
 		}
 		if opts.OutPath != "" {
-			return exp.Options{}, fmt.Errorf("仅支持一个路径参数：%q", a)
+			return exp.Options{}, fmt.Errorf("Chỉ hỗ trợ một tham số đường dẫn: %q", a)
 		}
 		opts.OutPath = a
 	}
 	return opts, nil
 }
 
-// formatExportSuccess 把 Result 渲染成事件 Summary。
+// formatExportSuccess hiển thị Kết quả thành bản tóm tắt sự kiện.
 func formatExportSuccess(res *exp.Result) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "✓ 已导出 %d 章 / %s 到 %s", res.Chapters, humanBytes(res.Bytes), res.Path)
+	fmt.Fprintf(&b, "✓ Chương %d/%s sang %s được xuất", res.Chapters, humanBytes(res.Bytes), res.Path)
 	if n := len(res.Skipped); n > 0 {
-		fmt.Fprintf(&b, "（跳过 %d 章未完成：%s）", n, briefIntList(res.Skipped, 5))
+		fmt.Fprintf(&b, "(Bỏ qua %d Chương Chưa Hoàn Thành: %s)", n, briefIntList(res.Skipped, 5))
 	}
 	return b.String()
 }

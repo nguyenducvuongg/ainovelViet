@@ -7,13 +7,13 @@ import (
 	"path/filepath"
 )
 
-// Setup 初始化 slog 默认 logger。
-// w 为日志输出目标，level 为最低日志级别。
+// Thiết lập khởi tạo trình ghi nhật ký mặc định của nhật ký.
+// w là mục tiêu đầu ra của nhật ký và cấp độ là mức nhật ký thấp nhất.
 func Setup(w io.Writer, level slog.Level) {
 	h := slog.NewTextHandler(w, &slog.HandlerOptions{
 		Level: level,
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			// 时间只保留时分秒，节省空间
+			// Thời gian chỉ giữ lại giờ, phút, giây để tiết kiệm diện tích
 			if a.Key == slog.TimeKey {
 				a.Value = slog.StringValue(a.Value.Time().Format("15:04:05"))
 			}
@@ -23,8 +23,8 @@ func Setup(w io.Writer, level slog.Level) {
 	slog.SetDefault(slog.New(h))
 }
 
-// SetupFile 初始化日志到文件，返回清理函数。
-// alsoStderr=true 时同时输出到 stderr。
+// SetupFile khởi tạo nhật ký thành một tệp và trả về chức năng dọn dẹp.
+// Khi cũngStderr=true, xuất ra stderr cùng lúc.
 func SetupFile(outputDir, filename string, alsoStderr bool) func() {
 	logPath := filepath.Join(outputDir, "logs", filename)
 	if err := os.MkdirAll(filepath.Dir(logPath), 0o755); err != nil {

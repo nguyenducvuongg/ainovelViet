@@ -2,8 +2,8 @@ package diag
 
 import "fmt"
 
-// PlanActions 根据高置信 Finding 生成可执行动作。
-// 只有 Confidence==high && AutoLevel==safe 的 Finding 才会产出 Action。
+// PlanActions tạo ra các hành động thực thi dựa trên các Kết quả có độ tin cậy cao.
+// Chỉ Tìm kiếm với Sự tự tin==cao && AutoLevel==safe mới tạo ra Hành động.
 func PlanActions(findings []Finding) []Action {
 	var actions []Action
 	seen := make(map[string]struct{})
@@ -29,15 +29,15 @@ func planRule(f Finding) []Action {
 	case "PhaseFlowMismatch":
 		return []Action{
 			{SourceRule: f.Rule, Kind: ActionEmitNotice, Severity: f.Severity, Summary: f.Title, Message: f.Title, Fingerprint: key},
-			{SourceRule: f.Rule, Kind: ActionEnqueueFollowUp, Severity: f.Severity, Summary: "状态机异常修复", Message: "状态机异常：" + f.Evidence + "。请先检查并修正 progress 的 phase/flow 状态，再继续运行。", Fingerprint: key},
+			{SourceRule: f.Rule, Kind: ActionEnqueueFollowUp, Severity: f.Severity, Summary: "Sửa chữa ngoại lệ máy trạng thái", Message: "Ngoại lệ máy trạng thái:" + f.Evidence + ". Vui lòng kiểm tra và sửa trạng thái pha/luồng của tiến trình trước khi tiếp tục.", Fingerprint: key},
 		}
 	case "OutlineExhausted":
 		return []Action{
-			{SourceRule: f.Rule, Kind: ActionEnqueueFollowUp, Severity: f.Severity, Summary: "大纲耗尽处理", Message: "已完成章节数达到已规划上限。请优先调用 Architect 展开下一弧或追加新卷，再继续写作。", Fingerprint: key},
+			{SourceRule: f.Rule, Kind: ActionEnqueueFollowUp, Severity: f.Severity, Summary: "Phác thảo xử lý cạn kiệt", Message: "Số lượng chương hoàn thành đã đạt đến giới hạn trên theo kế hoạch. Vui lòng gọi cho Architect trước để mở rộng phần tiếp theo hoặc thêm tập mới trước khi tiếp tục viết.", Fingerprint: key},
 		}
 	case "OrphanedSteer":
 		return []Action{
-			{SourceRule: f.Rule, Kind: ActionEnqueueFollowUp, Severity: f.Severity, Summary: "消费未处理的用户干预", Message: "存在未消费的用户干预指令，请优先处理 pending steer 后再继续当前任务。", Fingerprint: key},
+			{SourceRule: f.Rule, Kind: ActionEnqueueFollowUp, Severity: f.Severity, Summary: "Tiêu thụ sự can thiệp của người dùng chưa được xử lý", Message: "Có hướng dẫn can thiệp của người dùng chưa sử dụng. Vui lòng ưu tiên chỉ đạo đang chờ xử lý trước khi tiếp tục nhiệm vụ hiện tại.", Fingerprint: key},
 		}
 	default:
 		return nil

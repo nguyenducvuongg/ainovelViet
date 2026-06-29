@@ -21,11 +21,11 @@ func TestDirectivesLoadEmpty(t *testing.T) {
 func TestDirectivesAddAndLoad(t *testing.T) {
 	store := NewStore(t.TempDir())
 
-	list, err := store.Directives.Add(domain.UserDirective{Text: "对话占比提高", Chapter: 3, CreatedAt: "2026-06-11T10:00:00+08:00"})
+	list, err := store.Directives.Add(domain.UserDirective{Text: "Tỷ lệ hội thoại tăng lên", Chapter: 3, CreatedAt: "2026-06-11T10:00:00+08:00"})
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
-	if len(list) != 1 || list[0].Text != "对话占比提高" {
+	if len(list) != 1 || list[0].Text != "Tỷ lệ hội thoại tăng lên" {
 		t.Fatalf("unexpected list after add: %+v", list)
 	}
 
@@ -41,10 +41,10 @@ func TestDirectivesAddAndLoad(t *testing.T) {
 func TestDirectivesAddDeduplicates(t *testing.T) {
 	store := NewStore(t.TempDir())
 
-	if _, err := store.Directives.Add(domain.UserDirective{Text: "标题只用中文"}); err != nil {
+	if _, err := store.Directives.Add(domain.UserDirective{Text: "Tiêu đề chỉ bằng tiếng Trung"}); err != nil {
 		t.Fatalf("Add: %v", err)
 	}
-	list, err := store.Directives.Add(domain.UserDirective{Text: "标题只用中文"})
+	list, err := store.Directives.Add(domain.UserDirective{Text: "Tiêu đề chỉ bằng tiếng Trung"})
 	if err != nil {
 		t.Fatalf("Add duplicate: %v", err)
 	}
@@ -57,7 +57,7 @@ func TestDirectivesRemove(t *testing.T) {
 	store := NewStore(t.TempDir())
 
 	for i := 1; i <= 3; i++ {
-		if _, err := store.Directives.Add(domain.UserDirective{Text: fmt.Sprintf("要求%d", i)}); err != nil {
+		if _, err := store.Directives.Add(domain.UserDirective{Text: fmt.Sprintf("Yêu cầu %d", i)}); err != nil {
 			t.Fatalf("Add %d: %v", i, err)
 		}
 	}
@@ -66,7 +66,7 @@ func TestDirectivesRemove(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Remove: %v", err)
 	}
-	if len(list) != 2 || list[0].Text != "要求1" || list[1].Text != "要求3" {
+	if len(list) != 2 || list[0].Text != "Yêu cầu 1" || list[1].Text != "Yêu cầu 3" {
 		t.Errorf("unexpected list after remove: %+v", list)
 	}
 
@@ -82,19 +82,19 @@ func TestDirectivesAddCapacityLimit(t *testing.T) {
 	store := NewStore(t.TempDir())
 
 	for i := 1; i <= maxDirectives; i++ {
-		if _, err := store.Directives.Add(domain.UserDirective{Text: fmt.Sprintf("要求%d", i)}); err != nil {
+		if _, err := store.Directives.Add(domain.UserDirective{Text: fmt.Sprintf("Yêu cầu %d", i)}); err != nil {
 			t.Fatalf("Add %d: %v", i, err)
 		}
 	}
-	if _, err := store.Directives.Add(domain.UserDirective{Text: "超限的要求"}); err == nil {
+	if _, err := store.Directives.Add(domain.UserDirective{Text: "Yêu cầu vượt quá giới hạn"}); err == nil {
 		t.Error("expected error when exceeding capacity")
 	}
 
-	// 删一条后应能再加
+	// Bạn sẽ có thể thêm một cái sau khi xóa một cái.
 	if _, err := store.Directives.Remove(1); err != nil {
 		t.Fatalf("Remove: %v", err)
 	}
-	if _, err := store.Directives.Add(domain.UserDirective{Text: "腾出名额后的要求"}); err != nil {
+	if _, err := store.Directives.Add(domain.UserDirective{Text: "Yêu cầu sau khi hết hạn ngạch"}); err != nil {
 		t.Errorf("Add after remove should succeed: %v", err)
 	}
 }

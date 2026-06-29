@@ -15,24 +15,24 @@ import (
 
 const checkpointsFile = "meta/checkpoints.jsonl"
 
-// CheckpointStore 管理 step 级 checkpoint 的追加与查询。
-// 磁盘格式：meta/checkpoints.jsonl，只追加；查询走内存镜像。
-// 不变量：cache 是 checkpoints.jsonl 的镜像，由 Append/Reset 单点维护。
-// 并发：cache 受 io.mu 保护，写走 Lock、读走 RLock。
+// CheckpointStore quản lý việc bổ sung và truy vấn các điểm kiểm tra cấp độ.
+// Định dạng đĩa: meta/checkpoints.jsonl, chỉ nối thêm; truy vấn hình ảnh bộ nhớ.
+// Bất biến: bộ đệm là bản sao của checkpoints.jsonl và được Append/Reset duy trì tại một điểm duy nhất.
+// Đồng thời: Bộ đệm được bảo vệ bởi io.mu và Khóa được sử dụng để ghi và RLock được sử dụng để đọc.
 type CheckpointStore struct {
 	io     *IO
 	seqGen atomic.Int64
 	cache  []domain.Checkpoint
 }
 
-// NewCheckpointStore 创建 checkpoint 存储，从磁盘一次性加载已有 checkpoint 到 cache。
+// NewCheckpointStore tạo bộ lưu trữ điểm kiểm tra và tải các điểm kiểm tra hiện có từ đĩa vào bộ đệm cùng một lúc.
 func NewCheckpointStore(io *IO) *CheckpointStore {
 	cs := &CheckpointStore{io: io}
 	cs.loadFromDisk()
 	return cs
 }
 
-// loadFromDisk 一次性把磁盘 jsonl 读进 cache 并恢复 seqGen。
+// LoadFromDisk đọc đĩa jsonl vào bộ đệm và khôi phục seqGen ngay lập tức.
 func (cs *CheckpointStore) loadFromDisk() {
 	cs.io.mu.Lock()
 	defer cs.io.mu.Unlock()
@@ -47,8 +47,8 @@ func (cs *CheckpointStore) loadFromDisk() {
 	cs.seqGen.Store(maxSeq)
 }
 
-// Append 追加一条 checkpoint。
-// 幂等：相同 Scope + Step + Digest 已存在则跳过写入，直接返回已有记录。
+// Nối thêm một điểm kiểm tra.
+// Idempotent: Tương tự như Phạm vi + Bước + Thông báo. Nếu bản ghi đã tồn tại, bỏ qua việc ghi và trực tiếp trả lại bản ghi hiện có.
 func (cs *CheckpointStore) Append(scope domain.Scope, step, artifact, digest string) (*domain.Checkpoint, error) {
 	cs.io.mu.Lock()
 	defer cs.io.mu.Unlock()
@@ -62,8 +62,8 @@ func (cs *CheckpointStore) Append(scope domain.Scope, step, artifact, digest str
 		}
 	}
 
-	// seq 写成功后才推进，避免写失败留下永久跳号。
-	// 已持 io.mu 写锁，Load+Store 之间不会被并发抢占。
+	// Seq chỉ được nâng cao sau khi nó được viết thành công để tránh các bước nhảy vĩnh viễn do ghi không thành công.
+	// Khóa ghi io.mu đã được giữ và Load+Store sẽ không được ưu tiên đồng thời.
 	seq := cs.seqGen.Load() + 1
 	cp := domain.Checkpoint{
 		Seq:        seq,
@@ -87,7 +87,7 @@ func (cs *CheckpointStore) Append(scope domain.Scope, step, artifact, digest str
 	return &cp, nil
 }
 
-// AppendArtifact 计算 artifact 内容指纹后追加 checkpoint。
+// AppendArtifact tính toán dấu vân tay nội dung giả tạo và thêm điểm kiểm tra.
 func (cs *CheckpointStore) AppendArtifact(scope domain.Scope, step, artifact string) (*domain.Checkpoint, error) {
 	if artifact == "" {
 		return cs.Append(scope, step, "", "")
@@ -100,7 +100,7 @@ func (cs *CheckpointStore) AppendArtifact(scope domain.Scope, step, artifact str
 	return cs.Append(scope, step, artifact, "sha256:"+hex.EncodeToString(sum[:]))
 }
 
-// Latest 返回指定 scope 的最新 checkpoint。
+// Mới nhất trả về điểm kiểm tra mới nhất cho phạm vi được chỉ định.
 func (cs *CheckpointStore) Latest(scope domain.Scope) *domain.Checkpoint {
 	cs.io.mu.RLock()
 	defer cs.io.mu.RUnlock()
@@ -113,7 +113,7 @@ func (cs *CheckpointStore) Latest(scope domain.Scope) *domain.Checkpoint {
 	return nil
 }
 
-// LatestByStep 返回指定 scope + step 的最新 checkpoint。
+// LastByStep trả về điểm kiểm tra mới nhất của phạm vi + bước được chỉ định.
 func (cs *CheckpointStore) LatestByStep(scope domain.Scope, step string) *domain.Checkpoint {
 	cs.io.mu.RLock()
 	defer cs.io.mu.RUnlock()
@@ -126,7 +126,7 @@ func (cs *CheckpointStore) LatestByStep(scope domain.Scope, step string) *domain
 	return nil
 }
 
-// LatestGlobal 返回全局最新 checkpoint（不区分 scope）。
+// LastGlobal trả về điểm kiểm tra toàn cầu mới nhất (không phân biệt giữa các phạm vi).
 func (cs *CheckpointStore) LatestGlobal() *domain.Checkpoint {
 	cs.io.mu.RLock()
 	defer cs.io.mu.RUnlock()
@@ -137,7 +137,7 @@ func (cs *CheckpointStore) LatestGlobal() *domain.Checkpoint {
 	return &cp
 }
 
-// All 返回全部 checkpoint 列表副本（按 seq 递增）。
+// Tất cả trả về một bản sao của toàn bộ danh sách điểm kiểm tra (tăng theo seq).
 func (cs *CheckpointStore) All() []domain.Checkpoint {
 	cs.io.mu.RLock()
 	defer cs.io.mu.RUnlock()
@@ -149,8 +149,8 @@ func (cs *CheckpointStore) All() []domain.Checkpoint {
 	return out
 }
 
-// Reset 清空 checkpoint 文件与 cache。仅在新建小说时使用。
-// 先删文件再清内存：删除失败时保留 cache 与 seqGen，避免内存与磁盘状态错位。
+// Đặt lại sẽ xóa tệp điểm kiểm tra và bộ đệm. Chỉ được sử dụng khi tạo một cuốn tiểu thuyết mới.
+// Xóa tệp trước rồi xóa bộ nhớ: giữ lại bộ đệm và seqGen khi xóa không thành công để tránh tình trạng bộ nhớ và ổ đĩa bị sai lệch.
 func (cs *CheckpointStore) Reset() error {
 	cs.io.mu.Lock()
 	defer cs.io.mu.Unlock()
@@ -162,7 +162,7 @@ func (cs *CheckpointStore) Reset() error {
 	return nil
 }
 
-// readCheckpointsFile 解析 jsonl；跳过格式错误行以容忍尾部截断。
+// readCheckpointsFile phân tích cú pháp jsonl; bỏ qua các dòng không đúng định dạng để chấp nhận việc cắt đuôi.
 func readCheckpointsFile(path string) []domain.Checkpoint {
 	f, err := os.Open(path)
 	if err != nil {

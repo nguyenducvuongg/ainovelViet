@@ -5,19 +5,19 @@ forbidden_chars:
   - "——"
   - "（"
 forbidden_phrases:
-  - "不是……而是"
-  - "核心动机"
+  - "Không phải...nhưng"
+  - "Động lực cốt lõi"
 fatigue_words:
-  不禁: 1
-  竟然: 1
-  仿佛: 2
+  Không thể không: 1
+  Trên thực tế: 1
+  Như thể: 2
 ---
 
-# 风格
+# phong cách
 
-- 严禁破折号代替逗号。
-- 避免分析报告式表达。
+- Nghiêm cấm sử dụng dấu gạch ngang thay cho dấu phẩy.
+- Tránh thể hiện phong cách báo cáo mang tính phân tích.
 
-# 角色
+# Vai trò
 
-- 主角必须冷静克制。
+- Nhân vật chính phải bình tĩnh và kiềm chế.

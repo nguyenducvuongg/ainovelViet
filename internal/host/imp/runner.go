@@ -11,27 +11,27 @@ import (
 	"github.com/voocel/ainovel-cli/internal/tools"
 )
 
-// Deps 把 runner 需要的可插拔依赖一次性传入，方便测试 mock。
+// Deps chuyển ngay lập tức các phần phụ thuộc có thể cắm được mà người chạy yêu cầu để tạo điều kiện thuận lợi cho việc thử nghiệm các mô hình.
 type Deps struct {
 	Store      *store.Store
 	CommitTool *tools.CommitChapterTool
-	LLM        LLMChat // 同一模型即可，foundation/analyzer 都是结构化反推
+	LLM        LLMChat // Mô hình giống nhau là đủ, nền tảng/bộ phân tích đều là suy luận có cấu trúc
 	Prompts    Prompts
 }
 
-// Prompts 是 imp 流程使用的两段提示词。
+// Lời nhắc là hai đoạn chứa các từ nhắc nhở được quy trình imp sử dụng.
 type Prompts struct {
-	Foundation string // 反推 foundation
-	Analyzer   string // 反推单章
+	Foundation string // nền tảng đảo ngược
+	Analyzer   string // Đảo ngược một chương
 }
 
-// Run 执行完整 import 流程：split → foundation → chapter loop。
-// 在自己的 goroutine 中跑；Events 通道由本函数关闭。
+// Run thực hiện quá trình nhập hoàn chỉnh: tách → nền tảng → vòng lặp chương.
+// Chạy trong goroutine riêng của nó; kênh Sự kiện bị đóng bởi chức năng này.
 //
-// 设计取舍：
-//   - 完整流程是阻塞执行（CLI 长任务），调用方负责开 goroutine 监听通道；
-//   - 任意一步失败都直接结束，发 StageError 事件；
-//   - chapter 阶段对已完成章节静默跳过（commit_chapter 的幂等是兜底，但跳过 LLM 更省 token）。
+// Sự cân bằng trong thiết kế:
+//   - Quá trình hoàn tất đang chặn thực thi (tác vụ dài CLI) và người gọi có trách nhiệm mở kênh nghe goroutine;
+//   - Nếu bất kỳ bước nào không thành công, nó sẽ kết thúc trực tiếp và gửi sự kiện StageError;
+//   - Giai đoạn chương âm thầm bỏ qua các chương đã hoàn thành (commit_chapter là bình thường, nhưng bỏ qua LLM sẽ tiết kiệm mã thông báo).
 func Run(ctx context.Context, deps Deps, opts Options) (<-chan Event, error) {
 	if deps.Store == nil || deps.CommitTool == nil || deps.LLM == nil {
 		return nil, fmt.Errorf("deps incomplete")
@@ -52,46 +52,46 @@ func Run(ctx context.Context, deps Deps, opts Options) (<-chan Event, error) {
 			}
 		}
 
-		// ── 1. 切分 ──
-		emit(StageSplitting, 0, 0, "切分章节...", nil)
+		// ── 1. Chia ──
+		emit(StageSplitting, 0, 0, "Chia thành các chương...", nil)
 		chapters, err := SplitFile(opts.SourcePath)
 		if err != nil {
-			emit(StageError, 0, 0, "切分失败", err)
+			emit(StageError, 0, 0, "Tách không thành công", err)
 			return
 		}
 		total := len(chapters)
 		if total == 0 {
 			emit(StageError, 0, 0,
-				"未识别到任何章节：支持「第N章/回/话/卷/节/幕」「卷N」「序章/楔子/尾声/番外/外传」"+
-					"「Chapter N / Prologue」等标题，兼容 Markdown #、全角空格、【】包裹与 GBK 编码。"+
-					"请确认文件确为分章小说文本。",
+				"Không xác định được chương nào: Hỗ trợ \"Chương N/Chương/Tập/Tập/Phần/Màn\" \"Tập N\" \"Mở đầu/Nêm/Phần kết/Bổ sung/Câu chuyện bên lề\""+
+					"Các tiêu đề như \"Chương N / Mở đầu\" tương thích với Markdown #, khoảng trắng có chiều rộng đầy đủ, gói [ ] và mã hóa GBK."+
+					"Vui lòng xác nhận rằng tập tin thực sự là một văn bản tiểu thuyết chương.",
 				fmt.Errorf("no chapters matched"))
 			return
 		}
-		emit(StageSplitting, 0, total, fmt.Sprintf("切分完成：%d 章", total), nil)
+		emit(StageSplitting, 0, total, fmt.Sprintf("Phân đoạn đã hoàn thành: Chương %d", total), nil)
 
-		// ── 2. Foundation 反推（已完整时跳过）──
+		// ── 2. Đẩy ngược nền tảng (bỏ qua nếu hoàn thành)──
 		if needsFoundation(deps.Store, opts) {
-			emit(StageFoundation, 0, total, "反推 Foundation 中（一次 LLM 调用）...", nil)
+			emit(StageFoundation, 0, total, "Ngược lại trong Foundation (một cuộc gọi LLM)...", nil)
 			fr, err := ReverseFoundation(ctx, deps.LLM, deps.Prompts.Foundation, chapters)
 			if err != nil {
-				emit(StageError, 0, total, "Foundation 反推失败", err)
+				emit(StageError, 0, total, "Đẩy ngược nền tảng không thành công", err)
 				return
 			}
 			scale := pickScale(total)
 			if err := PersistFoundation(ctx, deps.Store, scale, fr); err != nil {
-				emit(StageError, 0, total, "Foundation 落盘失败", err)
+				emit(StageError, 0, total, "Vị trí nền tảng không thành công", err)
 				return
 			}
 			emit(StageFoundation, 0, total,
-				fmt.Sprintf("Foundation 就绪：%d 角色 / %d 规则 / %d 章大纲（第一卷）",
+				fmt.Sprintf("Sẵn sàng cho nền tảng: Ký tự %d / Quy tắc %d / Nội dung chương %d (Tập 1)",
 					len(fr.Characters), len(fr.WorldRules), len(domain.FlattenOutline(fr.Volumes))),
 				nil)
 		} else {
-			emit(StageFoundation, 0, total, "Foundation 已存在，跳过反推", nil)
+			emit(StageFoundation, 0, total, "Nền tảng đã tồn tại, bỏ qua việc đẩy lùi", nil)
 		}
 
-		// ── 3. 章节循环 ──
+		// ── 3. Chu kỳ chương ──
 		premise, _ := deps.Store.Outline.LoadPremise()
 		charactersBlock := loadCharactersBlock(deps.Store)
 
@@ -101,43 +101,43 @@ func Run(ctx context.Context, deps Deps, opts Options) (<-chan Event, error) {
 		}
 		for i := startIdx; i < total; i++ {
 			if err := ctx.Err(); err != nil {
-				emit(StageError, i+1, total, "用户取消", err)
+				emit(StageError, i+1, total, "Người dùng hủy", err)
 				return
 			}
 			chNum := i + 1
 			ch := chapters[i]
 
-			// 已完成 → 跳过 LLM
+			// Đã hoàn thành → Bỏ qua LLM
 			if deps.Store.Progress.IsChapterCompleted(chNum) {
-				emit(StageChapter, chNum, total, fmt.Sprintf("第 %d 章已完成，跳过", chNum), nil)
+				emit(StageChapter, chNum, total, fmt.Sprintf("Chương %d đã hoàn thành, bị bỏ qua", chNum), nil)
 				continue
 			}
 
-			emit(StageChapter, chNum, total, fmt.Sprintf("分析第 %d/%d 章：%s", chNum, total, ch.Title), nil)
+			emit(StageChapter, chNum, total, fmt.Sprintf("Chương phân tích %d/%d: %s", chNum, total, ch.Title), nil)
 
 			activeHooks, _ := deps.Store.World.LoadActiveForeshadow()
 			analysis, err := AnalyzeChapter(ctx, deps.LLM, deps.Prompts.Analyzer,
 				chNum, ch.Title, ch.Content, premise, charactersBlock, activeHooks)
 			if err != nil {
-				emit(StageError, chNum, total, fmt.Sprintf("第 %d 章分析失败", chNum), err)
+				emit(StageError, chNum, total, fmt.Sprintf("Chương Phân tích %d không thành công", chNum), err)
 				return
 			}
 
 			if err := PersistChapter(ctx, deps.Store, deps.CommitTool, chNum, ch.Title, ch.Content, analysis); err != nil {
-				emit(StageError, chNum, total, fmt.Sprintf("第 %d 章落盘失败", chNum), err)
+				emit(StageError, chNum, total, fmt.Sprintf("Chương %d Vị trí không thành công", chNum), err)
 				return
 			}
-			emit(StageChapter, chNum, total, fmt.Sprintf("第 %d 章导入完成", chNum), nil)
+			emit(StageChapter, chNum, total, fmt.Sprintf("Chương %d đã hoàn tất nhập", chNum), nil)
 		}
 
-		emit(StageDone, total, total, fmt.Sprintf("导入完成：%d 章", total), nil)
+		emit(StageDone, total, total, fmt.Sprintf("Đã nhập xong: Chương %d", total), nil)
 	}()
 
 	return events, nil
 }
 
-// needsFoundation 判断是否需要重新反推 foundation。
-// 用户显式 ResumeFrom > 1 视为"接着导入"，跳过反推；否则按 Store 状态判断。
+// NeedFoundation xác định liệu nền tảng có cần được đẩy lùi lại hay không.
+// Nếu người dùng rõ ràng ResumeFrom > 1, nó sẽ được coi là "nhập tiếp theo" và việc đẩy ngược sẽ bị bỏ qua; nếu không, nó sẽ được đánh giá theo trạng thái Cửa hàng.
 func needsFoundation(st *store.Store, opts Options) bool {
 	if opts.ResumeFrom > 1 {
 		return false
@@ -145,8 +145,8 @@ func needsFoundation(st *store.Store, opts Options) bool {
 	return len(st.FoundationMissing()) > 0
 }
 
-// pickScale 根据章数给规划级别一个合理的初值；short ≤25, mid ≤80, 否则 long。
-// 不影响 import 本身，只影响后续续写时 Coordinator 选择 architect 提示词。
+// pickScale đưa ra giá trị ban đầu hợp lý cho cấp độ lập kế hoạch dựa trên số chương; ngắn 25, giữa 80, nếu không thì dài.
+// Nó không ảnh hưởng đến việc nhập chính nó mà chỉ ảnh hưởng đến việc lựa chọn từ nhắc kiến ​​trúc sư của Điều phối viên khi tiếp tục viết.
 func pickScale(total int) domain.PlanningTier {
 	switch {
 	case total <= 25:
@@ -158,8 +158,8 @@ func pickScale(total int) domain.PlanningTier {
 	}
 }
 
-// loadCharactersBlock 把角色档案渲染成简短文本块（name/role + 一句描述），
-// 仅供 LLM 上下文参考，不需要严格结构。
+// LoadCharactersBlock hiển thị hồ sơ nhân vật thành một khối văn bản ngắn (tên/vai trò + một mô tả câu),
+// Chỉ để tham khảo trong ngữ cảnh LLM, không yêu cầu cấu trúc nghiêm ngặt.
 func loadCharactersBlock(st *store.Store) string {
 	chars, err := st.Characters.Load()
 	if err != nil || len(chars) == 0 {

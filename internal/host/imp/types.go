@@ -1,32 +1,32 @@
-// Package imp 实现外部小说章节的导入与反推。
+// Gói imp thực hiện việc nhập và suy luận ngược của các chương mới bên ngoài.
 //
-// 核心思路：用 LLM 反推 foundation + 每章事实，复用现有 save_foundation /
-// commit_chapter 工具的原子三件套落盘。导入完成后 store 状态等同于"写完 N 章
-// 后崩溃"，调用方调 host.Resume() 即可无缝续写。
+// Ý tưởng cốt lõi: Sử dụng LLM để đảo ngược nền tảng + thông tin thực tế của từng chương và sử dụng lại save_foundation / hiện có
+// Bộ ba phần nguyên tử của công cụ commit_chapter được đặt trên đĩa. Sau khi nhập xong, trạng thái cửa hàng tương đương với "N chương đã được viết.
+// "Sau sự cố", người gọi có thể gọi Host.Resume() để tiếp tục viết liền mạch.
 //
-// 不走 Coordinator：导入是确定性回放，不属于 LLM 决策范畴；让 Coordinator
-// 介入只会引入不确定性。本包直接调 LLM 客户端 + 调工具。
+// Không sử dụng Điều phối viên: Nhập là phát lại mang tính quyết định và không thuộc phạm vi ra quyết định LLM; để điều phối viên
+// Việc can thiệp sẽ chỉ gây ra sự không chắc chắn. Gói này điều chỉnh trực tiếp máy khách LLM + công cụ điều chỉnh.
 package imp
 
 import "time"
 
-// Chapter 是切分后的单个章节。
+// Chương là một chương được chia duy nhất.
 type Chapter struct {
 	Title   string
 	Content string
 }
 
-// Options 控制导入行为。
+// Tùy chọn kiểm soát hành vi nhập.
 type Options struct {
-	// SourcePath 必填。单个 txt/md 文件路径。
+	// SourcePath là bắt buộc. Đường dẫn tệp txt/md đơn.
 	SourcePath string
 
-	// ResumeFrom 可选。从第 N 章开始导入；0 / 1 表示从头。
-	// 若 > 1，会跳过 Foundation 反推（认为已落盘）。
+	// Tiếp tục Từ Tùy chọn. Nhập khẩu bắt đầu từ chương N; 0/1 nghĩa là bắt đầu lại từ đầu.
+	// Nếu > 1, việc đẩy ngược của Foundation sẽ bị bỏ qua (sẽ coi như lệnh đã được đặt).
 	ResumeFrom int
 }
 
-// Stage 表示导入流程的当前阶段。
+// Giai đoạn thể hiện giai đoạn hiện tại của quá trình nhập khẩu.
 type Stage string
 
 const (
@@ -37,12 +37,12 @@ const (
 	StageError      Stage = "error"
 )
 
-// Event 是导入流程对外发出的进度事件。
+// Sự kiện là sự kiện tiến trình do quá trình nhập phát ra.
 type Event struct {
 	Time    time.Time
 	Stage   Stage
-	Current int    // chapter 阶段的当前章号；其它阶段为 0
-	Total   int    // 总章数
-	Message string // 人类可读描述
-	Err     error  // StageError 时携带
+	Current int    // chương Số chương hiện tại của giai đoạn; 0 cho các giai đoạn khác
+	Total   int    // Tổng số chương
+	Message string // mô tả con người có thể đọc được
+	Err     error  // StageError được mang khi
 }

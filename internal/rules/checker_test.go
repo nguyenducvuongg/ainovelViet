@@ -24,7 +24,7 @@ func TestCheck_EmptyStructured(t *testing.T) {
 }
 
 func TestCheck_ForbiddenChars(t *testing.T) {
-	text := "他笑了——又叹了口气——离去。"
+	text := "Anh mỉm cười —— lại thở dài —— và rời đi."
 	vs := Check(text, -1, Structured{
 		ForbiddenChars: []string{"——"},
 	})
@@ -50,9 +50,9 @@ func TestCheck_ForbiddenCharsNotPresent(t *testing.T) {
 }
 
 func TestCheck_ForbiddenPhrases(t *testing.T) {
-	text := "不是……而是真相被掩盖了。这里探讨核心动机。"
+	text := "Không phải... nhưng sự thật đã bị che đậy. Những động lực cốt lõi được khám phá ở đây."
 	vs := Check(text, -1, Structured{
-		ForbiddenPhrases: []string{"不是……而是", "核心动机"},
+		ForbiddenPhrases: []string{"Không phải... nhưng", "động lực cốt lõi"},
 	})
 	if len(vs) != 2 {
 		t.Errorf("expected 2 violations, got %d: %+v", len(vs), vs)
@@ -65,9 +65,9 @@ func TestCheck_ForbiddenPhrases(t *testing.T) {
 }
 
 func TestCheck_FatigueWordsUnderLimit(t *testing.T) {
-	text := "他不禁笑了。"
+	text := "Anh không thể không mỉm cười."
 	vs := Check(text, -1, Structured{
-		FatigueWords: map[string]int{"不禁": 1},
+		FatigueWords: map[string]int{"không thể không": 1},
 	})
 	if len(vs) != 0 {
 		t.Errorf("under limit should not violate, got %+v", vs)
@@ -75,10 +75,10 @@ func TestCheck_FatigueWordsUnderLimit(t *testing.T) {
 }
 
 func TestCheck_FatigueWordsAtLimit(t *testing.T) {
-	// limit=1，actual=1 → 不违规
-	text := "他不禁笑了。"
+	// limit=1, actual=1 → không vi phạm
+	text := "Anh không thể không mỉm cười."
 	vs := Check(text, -1, Structured{
-		FatigueWords: map[string]int{"不禁": 1},
+		FatigueWords: map[string]int{"không thể không": 1},
 	})
 	if len(vs) != 0 {
 		t.Errorf("at limit should not violate (limit 1 actual 1), got %+v", vs)
@@ -86,12 +86,12 @@ func TestCheck_FatigueWordsAtLimit(t *testing.T) {
 }
 
 func TestCheck_FatigueWordsOverLimit(t *testing.T) {
-	// limit=1，actual=3 → warning
-	text := "他不禁笑了，又不禁皱眉，最后不禁离去。"
+	// limit=1, actual=3 → warning
+	text := "Anh không thể không mỉm cười, lại không thể không cau mày, cuối cùng không thể không rời đi."
 	vs := Check(text, -1, Structured{
-		FatigueWords: map[string]int{"不禁": 1},
+		FatigueWords: map[string]int{"không thể không": 1},
 	})
-	v := findViolation(vs, "fatigue_words", "不禁")
+	v := findViolation(vs, "fatigue_words", "không thể không")
 	if v == nil {
 		t.Fatal("expected fatigue_words violation")
 	}
@@ -180,7 +180,7 @@ func TestCheck_ChapterWordsSlightlyAbove(t *testing.T) {
 
 func TestCheck_AutoWordCount(t *testing.T) {
 	// wordCount = -1 时由 checker 自行计算
-	text := strings.Repeat("汉", 2500) // 2500 个汉字
+	text := strings.Repeat("a", 2500) // 2500 个汉字
 	rng := &WordRange{Min: 3000, Max: 6000}
 	vs := Check(text, -1, Structured{ChapterWords: rng})
 	if len(vs) != 1 || vs[0].Rule != "chapter_words" {
@@ -195,12 +195,12 @@ func TestCheck_AutoWordCount(t *testing.T) {
 }
 
 func TestCheck_MultipleRulesAtOnce(t *testing.T) {
-	text := "他不禁——又不禁——离去。"
+	text := "Anh không thể không —— lại không thể không —— rời đi."
 	rng := &WordRange{Min: 3000, Max: 6000}
 	s := Structured{
 		ChapterWords:   rng,
 		ForbiddenChars: []string{"——"},
-		FatigueWords:   map[string]int{"不禁": 1},
+		FatigueWords:   map[string]int{"không thể không": 1},
 	}
 	vs := Check(text, 10, s)
 
@@ -216,9 +216,9 @@ func TestCheck_MultipleRulesAtOnce(t *testing.T) {
 
 func TestCheck_FatigueZeroLimitSkipped(t *testing.T) {
 	// limit=0 是非法值，应跳过整条规则（parser 也会过滤，这里防御）
-	text := "不禁不禁不禁"
+	text := "Không thể không Không thể không Không thể không"
 	vs := Check(text, -1, Structured{
-		FatigueWords: map[string]int{"不禁": 0},
+		FatigueWords: map[string]int{"không thể không": 0},
 	})
 	if len(vs) != 0 {
 		t.Errorf("limit=0 should be skipped, got %+v", vs)

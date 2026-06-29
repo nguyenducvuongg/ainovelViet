@@ -1,6 +1,6 @@
-# 仅有正文
+# Chỉ có văn bản
 
-文件没有 front matter，整篇都是偏好。
+Tài liệu không có nội dung chính, toàn bộ bài viết chỉ mang tính ưu tiên.
 
-- 避免破折号。
-- 章末钩子多样化。
+- Tránh dấu gạch ngang.
+- Móc cuối chương đa dạng.

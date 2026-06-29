@@ -7,16 +7,16 @@ import (
 	"strings"
 )
 
-// Merge 把 loader 返回的多个来源合并成最终 Bundle。
+// Hợp nhất kết hợp nhiều nguồn được trình tải trả về vào Gói cuối cùng.
 //
-// 合并规则：
-//   - 普通结构化字段：就近优先（后者覆盖前者），多来源声明同一字段且值不一致写 field_conflict
-//   - fatigue_words：按词合并；同一词多来源声明且阈值不一致时，就近优先并写 field_conflict
-//   - Markdown 正文：按来源顺序拼接，每段加来源标题，不覆盖
-//   - sources：所有成功加载的文件路径
-//   - conflicts：解析期 conflicts + 合并期 field_conflict
+// Hợp nhất các quy tắc:
+//   - Các trường có cấu trúc thông thường: mức độ ưu tiên gần nhất (cái sau ghi đè cái trước), nhiều nguồn khai báo cùng một trường và các giá trị không nhất quán, ghi field_conflict
+//   - mệt_words: ghép theo từ; khi cùng một từ được khai báo từ nhiều nguồn và các ngưỡng không nhất quán, mức độ ưu tiên gần nhất sẽ được đưa ra và field_conflict được ghi.
+//   - Markdown text: Ghép theo thứ tự nguồn, thêm tiêu đề nguồn vào từng đoạn văn, không ghi đè
+//   - nguồn: tất cả các đường dẫn tệp được tải thành công
+//   - xung đột: xung đột giai đoạn phân tích + giai đoạn hợp nhất field_conflict
 //
-// 入参 layers 应已按 SourceKind 升序排好（loader.Load 的输出形态）。
+// Các lớp tham số đầu vào phải được sắp xếp theo thứ tự tăng dần theo SourceKind (dạng đầu ra của Loader.Load).
 func Merge(layers []Parsed) Bundle {
 	bundle := Bundle{
 		Structured:  Structured{},
@@ -25,7 +25,7 @@ func Merge(layers []Parsed) Bundle {
 		Conflicts:   nil,
 	}
 
-	// 阶段 A：收集每个字段的所有声明来源，便于后续冲突判定
+	// Giai đoạn A: Thu thập tất cả các nguồn khai báo của từng trường để tạo điều kiện thuận lợi cho việc xác định xung đột tiếp theo
 	declarations := map[string][]Parsed{}
 	declare := func(field string, p Parsed) {
 		declarations[field] = append(declarations[field], p)
@@ -48,8 +48,8 @@ func Merge(layers []Parsed) Bundle {
 		}
 	}
 
-	// 阶段 B：合并结构化字段，得到最终结构化字段。
-	// 标量/list 字段保持就近覆盖；fatigue_words 是 map，按词叠加，便于用户只新增少量疲劳词。
+	// Giai đoạn B: Hợp nhất các trường có cấu trúc để thu được các trường có cấu trúc cuối cùng.
+	// Trường vô hướng/danh sách duy trì phạm vi bao phủ gần đó; mệt mỏi_words là một bản đồ được xếp chồng lên nhau bởi các từ, giúp người dùng chỉ cần thêm một số lượng nhỏ các từ mệt mỏi.
 	for _, p := range layers {
 		if p.Structured.Genre != "" {
 			bundle.Structured.Genre = p.Structured.Genre
@@ -68,7 +68,7 @@ func Merge(layers []Parsed) Bundle {
 		}
 	}
 
-	// 阶段 C：构造 field_conflict（多来源 + 值不一致才算冲突）
+	// Giai đoạn C: Xây dựng field_conflict (nhiều nguồn + giá trị không nhất quán được coi là xung đột)
 	for field, sources := range declarations {
 		if len(sources) < 2 {
 			continue
@@ -88,7 +88,7 @@ func Merge(layers []Parsed) Bundle {
 		})
 	}
 
-	// 阶段 D：合并 Markdown 偏好正文
+	// Giai đoạn D: Hợp nhất nội dung tùy chọn Markdown
 	var sb strings.Builder
 	for _, p := range layers {
 		if strings.TrimSpace(p.Preference) == "" {
@@ -102,7 +102,7 @@ func Merge(layers []Parsed) Bundle {
 	}
 	bundle.Preferences = sb.String()
 
-	// 阶段 E：汇总 sources 与解析期 conflicts
+	// Giai đoạn E: Tổng hợp các nguồn và xung đột phân tích cú pháp
 	for _, p := range layers {
 		bundle.Sources = append(bundle.Sources, p.Source)
 		bundle.Conflicts = append(bundle.Conflicts, p.Conflicts...)
@@ -171,18 +171,18 @@ func fatigueWordConflicts(sources []Parsed) []Conflict {
 			Source: winner.source,
 			Kind:   ConflictFieldConflict,
 			Field:  "fatigue_words." + word,
-			Detail: fmt.Sprintf("字段 fatigue_words[%q] 在多个来源声明且阈值不一致：%s；就近优先生效：%s",
+			Detail: fmt.Sprintf("Trường mệt_words[%q] được khai báo ở nhiều nguồn và các ngưỡng không nhất quán: %s; cái gần nhất có hiệu lực trước: %s",
 				word, strings.Join(parts, " | "), winner.source),
 		})
 	}
 	return conflicts
 }
 
-// allEqual 判定同一字段在多个来源中的值是否完全一致；一致则不报冲突。
+// allEqual xác định xem các giá trị của cùng một trường trong nhiều nguồn có hoàn toàn nhất quán hay không; nếu chúng nhất quán thì sẽ không có xung đột nào được báo cáo.
 //
-// list 字段语义上不关心顺序，但实现上 yaml 反序列化已保留声明顺序，
-// 完全相同的两份配置 reflect.DeepEqual 即返回 true，已满足"值一致"的判定。
-// 顺序不同但元素相同的特殊情况按"不一致"处理是可接受的（仍然 just info，不阻断）。
+// Ngữ nghĩa của trường danh sách không quan tâm đến thứ tự, nhưng trong quá trình triển khai, quá trình khử lưu huỳnh yaml sẽ giữ nguyên thứ tự khai báo.
+// Hai cấu hình giống hệt nhau phản ánh.DeepEqual trả về giá trị đúng, đáp ứng phán đoán "tính nhất quán về giá trị".
+// Các trường hợp đặc biệt trong đó thứ tự khác nhau nhưng các thành phần giống nhau đều được chấp nhận và được coi là "không nhất quán" (vẫn chỉ là thông tin, không chặn).
 func allEqual(field string, sources []Parsed) bool {
 	if len(sources) < 2 {
 		return true
@@ -216,8 +216,8 @@ func extractField(field string, s Structured) any {
 	}
 }
 
-// describeFieldConflict 用人类可读的方式描述冲突：列出所有来源 + 每来源的值。
-// 末尾标注最终生效的来源（就近优先）。
+// mô tảFieldConflict Mô tả xung đột theo cách con người có thể đọc được: liệt kê tất cả các nguồn + giá trị cho mỗi nguồn.
+// Đánh dấu nguồn hiệu ứng cuối cùng ở cuối (gần nhất đầu tiên).
 func describeFieldConflict(field string, sources []Parsed) string {
 	var parts []string
 	for _, p := range sources {
@@ -225,7 +225,7 @@ func describeFieldConflict(field string, sources []Parsed) string {
 	}
 	winner := sources[len(sources)-1]
 	return fmt.Sprintf(
-		"字段 %s 在多个来源声明且值不一致：%s；就近优先生效：%s",
+		"Trường %s được khai báo ở nhiều nguồn và có các giá trị không nhất quán: %s; cái gần nhất có hiệu lực trước: %s",
 		field, strings.Join(parts, " | "), winner.Source,
 	)
 }

@@ -1,25 +1,25 @@
-# assets 内容地图
+# bản đồ nội dung nội dung
 
-给系统加"一段话 / 一篇资料 / 一条规则"之前，先查下表确定归属，再看接线方式。
+Trước khi thêm "một đoạn/một thông tin/quy tắc" vào hệ thống, trước tiên hãy kiểm tra bảng bên dưới để xác định quyền sở hữu của nó, sau đó xem xét phương pháp nối dây.
 
-| 目录 | 装什么 | 谁消费 | 接线方式 |
+| Danh mục | Cài đặt gì | Ai tiêu thụ | Phương pháp nối dây |
 |---|---|---|---|
-| `prompts/` | 常驻角色 system prompt（coordinator / writer / editor / architect×2）与一次性任务 prompt（import×2 / simulation×2） | `agents/build.go` 装配；imp / sim runner | `load.go` Prompts 字段。注意：simulation_guidance 由 `load.go` 加载时注入，md 文件里看不到 |
-| `references/` | 题材无关的写作知识材料。不进 system prompt，由 novel_context 按角色 / 章节裁剪后注入 `reference_pack` | writer / editor / architect | **三处接线**：`tools.References` 加字段 + `load.go` loadReferences 读取 + `novel_context.go` writerReferences / architectReferences 注入。放进目录不会自动加载 |
-| `references/genres/<style>/` | 题材专属知识（style-references / arc-templates） | 同上，`style != default` 时加载 | `load.go` loadReferences |
-| `rules/` | 机械规则默认值（字数 / 禁词 / 疲劳词），commit 时由代码强制检查 | rules loader 三层合并：内置 → `~/.ainovel/rules/` → 项目 `./.ainovel/rules/` | `rules/default.md`；用户层格式见根目录 `rules.md.example`。只放定长固定串，带变量的模式交 editor 语义判断 |
-| `styles/<style>.md` | 题材写作风格指令 | 拼进 **writer** 的 system prompt（`agents/build.go`） | 文件名即 `config.style` 取值。与 `references/genres/<style>/` 是同一题材概念的两种载体：前者是风格指令，后者是知识材料 |
+| `prompts/` | Lời nhắc hệ thống vai trò thường trú (điều phối viên/người viết/biên tập viên/kiến trúc sư×2) và lời nhắc nhiệm vụ một lần (nhập×2/mô phỏng×2) | lắp ráp `agents/build.go`; Á hậu imp/sim | Trường Lời nhắc `load.go`. Lưu ý: mô phỏng_guidance được đưa vào khi `load.go` được tải và không thể nhìn thấy trong tệp md |
+| `references/` | Tài liệu kiến ​​thức viết theo chủ đề độc lập. Nếu không nhập dấu nhắc hệ thống, tiểu thuyết_context sẽ bị cắt theo vai trò/chương và được đưa vào `reference_pack` | nhà văn / biên tập viên / kiến ​​trúc sư | **Ba kết nối**: Trường thêm `tools.References` + đọc `load.go` LoadReferences + nội dung `novel_context.go` writerReferences / ArchitectReferences. Đưa nó vào thư mục sẽ không tự động tải |
+| `references/genres/<style>/` | Kiến thức theo chủ đề cụ thể (tài liệu tham khảo về phong cách / mẫu vòng cung) | Tương tự như trên, được tải khi `style != default` | Tài liệu tham khảo tải `load.go` |
+| `rules/` | Giá trị mặc định của quy tắc cơ học (số từ/từ bị cấm/từ mệt mỏi), buộc phải kiểm tra bằng mã khi cam kết | Sáp nhập ba lớp của trình tải quy tắc: tích hợp → `~/.ainovel/rules/` → dự án `./.ainovel/rules/` | `rules/default.md`; định dạng lớp người dùng, xem thư mục gốc `rules.md.example`. Chỉ các chuỗi có độ dài cố định mới được đặt và các mẫu có biến được gửi tới người chỉnh sửa để đánh giá ngữ nghĩa |
+| `styles/<style>.md` | Hướng dẫn phong cách viết chủ đề | Nhập lời nhắc hệ thống của **writer** (`agents/build.go`) | Tên tệp là giá trị `config.style`. `references/genres/<style>/` và `references/genres/<style>/` là hai kênh có cùng một khái niệm chủ đề: `references/genres/<style>/` là hướng dẫn về phong cách và `references/genres/<style>/` là tài liệu kiến ​​thức |
 
-## 新内容归属判断（五问）
+## Phán quyết về ghi công nội dung mới (Năm câu hỏi)
 
-1. 这个流程必须被**保证**？→ 不写 prompt，写代码约束（StopAfterTools / 工具守卫 / Flow Router）
-2. 这是裁定判据（什么时候派谁）？→ `prompts/coordinator.md`
-3. 这是某个角色的审美 / 执行标准？→ `prompts/<role>.md`
-4. 这是可机械枚举的规则（禁词 / 字数 / 阈值）？→ `rules/`（代码强制，零 LLM 成本）
-5. 这是写作知识材料？→ `references/`（记得三处接线）
+1. Quá trình này phải được **đảm bảo**? → Không viết lời nhắc, ghi ràng buộc mã (StopAfterTools/Tool Guard/Flow Router)
+2. Đây có phải là tiêu chí quyết định (ai nên cử đi khi nào)? → `prompts/coordinator.md`
+3. Đây có phải là tiêu chuẩn thẩm mỹ/điều hành cho một nhân vật nào đó không? → `prompts/<role>.md`
+4. Đây có phải là quy tắc đếm được một cách máy móc (từ bị cấm/số từ/ngưỡng) không? → `rules/` (thực thi mã, chi phí LLM bằng 0)
+5. Đây có phải là tài liệu kiến ​​thức viết văn không? → `references/` (nhớ kết nối ở 3 nơi)
 
-## 一致性保障
+## Đảm bảo tính nhất quán
 
-prompt 引用的信封路径（`working_memory.*` 等）与 writer.md 的 commit_chapter 参数文档
-由 `prompts_consistency_test.go` 机检——这两类漂移不报错、只让模型悄悄变笨，靠测试红灯暴露。
-prompt 里的流程段是"用户手册"，流程真理在代码层；两者脱节时以代码为准并回头修 prompt。
+Đường dẫn phong bì (`working_memory.*`, v.v.) được tham chiếu bởi dấu nhắc giống với tài liệu tham số commit_chapter của writer.md
+Kiểm tra bằng máy `prompts_consistency_test.go` - 2 kiểu drift này không báo lỗi mà chỉ khiến mô hình lặng lẽ trở nên ngu ngốc, bị vạch đỏ của bài thi.
+Phân đoạn quy trình được nhắc nhở là "hướng dẫn sử dụng" và sự thật của quy trình nằm ở cấp độ mã; khi có sự ngắt kết nối giữa cả hai, mã sẽ được ưu tiên áp dụng và lời nhắc sẽ được sửa đổi sau đó.

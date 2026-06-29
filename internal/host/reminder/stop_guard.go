@@ -12,21 +12,21 @@ import (
 	"github.com/voocel/ainovel-cli/internal/store"
 )
 
-// StopGuard 是"物理不可停机"的最后防线。
-// 当 LLM 试图 end_turn 时：
-//   - Progress.Phase = Complete → 放行
-//   - 否则注入 user message，让 agent 继续下一 turn
-//   - 连续阻拦超过 maxConsecutive 次 → Escalate 终止 run（说明 prompt/reminder 严重失灵）
+// StopGuard là tuyến phòng thủ cuối cùng dành cho các hệ thống "không thể ngăn cản về mặt vật lý".
+// Khi LLM cố gắng end_turn:
+//   - Tiến độ.Phase = Hoàn thành → Phát hành
+//   - Nếu không, hãy đưa tin nhắn của người dùng và để đại lý tiếp tục đến lượt tiếp theo
+//   - Chặn liên tục vượt quá mức tối đaSố lần liên tiếp → Nâng cao kết thúc quá trình chạy (biểu thị lời nhắc/nhắc nhở lỗi nghiêm trọng)
 //
-// Guard 内部维护 consecutive block 计数；一旦成功放行或成功注入后重置为 0。
-// 真正驱动 Coordinator 行为的是 Reminder + Prompt，StopGuard 只是兜底。
+// Guard duy trì nội bộ số khối liên tiếp; nó được đặt lại về 0 khi phát hành thành công hoặc tiêm thành công.
+// Điều thực sự thúc đẩy hành vi của Điều phối viên là Lời nhắc + Lời nhắc, StopGuard chỉ là sự che đậy.
 const maxConsecutiveBlocks = 5
 
-// NewStopGuard 构造 Coordinator 专用 StopGuard。
-// onBlock 可选，非 nil 时每次阻拦调一次，用于审计。
+// NewStopGuard xây dựng StopGuard dành riêng cho Điều phối viên.
+// onBlock là tùy chọn. Nếu khác không, nó sẽ được gọi một lần mỗi lần bị chặn. Nó được sử dụng để kiểm toán.
 func NewStopGuard(st *store.Store, onBlock func(reason string, consecutive int32)) agentcore.StopGuard {
 	var consecutive atomic.Int32
-	var lastBlockTurn atomic.Int64 // 上次 block 的 TurnIndex；-1 表示尚未 block 过
+	var lastBlockTurn atomic.Int64 // TurnIndex của khối cuối cùng; -1 có nghĩa là nó chưa bị chặn
 	lastBlockTurn.Store(-1)
 	return func(_ context.Context, info agentcore.StopInfo) agentcore.StopDecision {
 		progress, _ := st.Progress.Load()
@@ -35,8 +35,8 @@ func NewStopGuard(st *store.Store, onBlock func(reason string, consecutive int32
 			lastBlockTurn.Store(-1)
 			return agentcore.StopDecision{Allow: true}
 		}
-		// 只有"相邻 turn 连续被拦"才累计计数；否则视为新一轮（LLM 已做过 tool call 取得过进展，
-		// 或用户注入 / resume 导致 TurnIndex 倒流），重置计数。
+		// Chỉ khi "các ngã rẽ liền kề bị chặn liên tục" thì số lượng mới được cộng dồn; nếu không nó sẽ được coi là một vòng mới (LLM đã thực hiện các cuộc gọi công cụ và đạt được tiến bộ,
+		// Hoặc người dùng chèn /resume khiến TurnIndex chảy ngược), đặt lại số đếm.
 		last := lastBlockTurn.Load()
 		if last < 0 || int64(info.TurnIndex) != last+1 {
 			consecutive.Store(0)
@@ -44,7 +44,7 @@ func NewStopGuard(st *store.Store, onBlock func(reason string, consecutive int32
 		lastBlockTurn.Store(int64(info.TurnIndex))
 		n := consecutive.Add(1)
 		if n > maxConsecutiveBlocks {
-			slog.Error("stop_guard 连续阻拦超限，升级为终止",
+			slog.Error("stop_guard liên tục chặn giới hạn và nâng cấp lên mức chấm dứt.",
 				"module", "host.reminder", "turn", info.TurnIndex, "consecutive", n)
 			if onBlock != nil {
 				onBlock("escalated", n)
@@ -53,9 +53,9 @@ func NewStopGuard(st *store.Store, onBlock func(reason string, consecutive int32
 		}
 		inject := blockMessage(st, progress)
 		if progress != nil && len(progress.PendingRewrites) > 0 {
-			inject = fmt.Sprintf("禁止结束对话。待重写队列未清：%v，请立即调 writer 处理。", progress.PendingRewrites)
+			inject = fmt.Sprintf("Việc kết thúc cuộc trò chuyện bị cấm. Hàng đợi viết lại chưa được xóa: %v, hãy gọi ngay cho người viết để xử lý.", progress.PendingRewrites)
 		}
-		slog.Warn("stop_guard 拦截 end_turn",
+		slog.Warn("stop_guard chặn end_turn",
 			"module", "host.reminder", "turn", info.TurnIndex, "consecutive", n)
 		if onBlock != nil {
 			onBlock("blocked", n)
@@ -66,7 +66,7 @@ func NewStopGuard(st *store.Store, onBlock func(reason string, consecutive int32
 
 func blockMessage(st *store.Store, progress *domain.Progress) string {
 	if progress != nil && flow.Route(flow.LoadState(st)) != nil {
-		return "禁止结束对话。Phase 尚未 Complete；请等待并执行 Host 下达的 [Host 下达指令]，不要自行调用 novel_context 或 subagent。"
+		return "Việc kết thúc cuộc trò chuyện bị cấm. Giai đoạn chưa hoàn thành; vui lòng đợi và thực thi [Lệnh do máy chủ ban hành] do Máy chủ đưa ra và không tự gọi tiểu thuyết_context hoặc tác nhân phụ."
 	}
-	return "禁止结束对话。Phase 尚未 Complete，且当前没有 Host 路由指令；这是 Coordinator 裁定场景，请按 coordinator.md 的裁定规则继续处理，不要空等 Host 指令。"
+	return "Việc kết thúc cuộc trò chuyện bị cấm. Giai đoạn này vẫn chưa được hoàn thành và hiện chưa có hướng dẫn định tuyến Máy chủ; đây là kịch bản điều phối viên, vui lòng tiếp tục xử lý theo các quy tắc điều phối của điều phối viên.md và không chờ hướng dẫn của Máy chủ."
 }

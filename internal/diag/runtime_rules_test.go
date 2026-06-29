@@ -2,19 +2,19 @@ package diag
 
 import "testing"
 
-// TestRuntimeFindings_Classify 证明重复签名按形态分类、阈值升降级正确，
-// 且运行时 Finding 全部 AutoNone（观察者纪律：只诊断不产 Action）。
+// TestRuntimeFindings_Classify chứng minh rằng chữ ký trùng lặp được phân loại chính xác theo biểu mẫu và ngưỡng được nâng cấp hoặc hạ cấp chính xác.
+// Và khi chạy thì Tìm tất cả AutoNone (kỷ luật người quan sát: chỉ chẩn đoán chứ không đưa ra hành động).
 func TestRuntimeFindings_Classify(t *testing.T) {
 	rc := RuntimeCapture{
 		Repeats: []RepeatStat{
-			{Sig: "coordinator · err: InputValidationError", Count: 14}, // 错误循环 critical
-			{Sig: "coordinator · subagent", Count: 45},                  // 正常高频工具 → 不产 Finding
-			{Sig: "writer · save_plan (args invalid)", Count: 4},        // 参数无效 warning
+			{Sig: "coordinator · err: InputValidationError", Count: 14}, // vòng lặp lỗi nghiêm trọng
+			{Sig: "coordinator · subagent", Count: 45},                  // Dụng cụ tần số cao thông thường → Không được sản xuất Đang tìm kiếm
+			{Sig: "writer · save_plan (args invalid)", Count: 4},        // Cảnh báo tham số không hợp lệ
 		},
 		StuckStep:  "writing.commit_ch07",
-		StuckCount: 9, // 卡住 critical
+		StuckCount: 9, // bị mắc kẹt quan trọng
 		LogKinds:   map[string]int{"stream_idle": 4},
-		LogErrors:  270, // 长跑累计，不应单独产 Finding
+		LogErrors:  270, // Chạy đường dài tích lũy và không nên sản xuất một mình
 	}
 
 	fs := runtimeFindings(&rc)
@@ -22,7 +22,7 @@ func TestRuntimeFindings_Classify(t *testing.T) {
 	for _, f := range fs {
 		sev[f.Rule] = f.Severity
 		if f.AutoLevel != AutoNone {
-			t.Errorf("%s 应为 AutoNone（观察者纪律），got %s", f.Rule, f.AutoLevel)
+			t.Errorf("%s phải là AutoNone (kỷ luật người quan sát), có %s", f.Rule, f.AutoLevel)
 		}
 	}
 
@@ -37,22 +37,22 @@ func TestRuntimeFindings_Classify(t *testing.T) {
 			t.Errorf("%s: got %q want %q", rule, sev[rule], w)
 		}
 	}
-	// 正常高频工具 / 日志累计 error 不应产 Finding（避免长跑误报）。
+	// Lỗi tích lũy nhật ký/công cụ tần số cao thông thường sẽ không tạo ra Tìm kiếm (để tránh cảnh báo sai trong thời gian dài).
 	if _, ok := sev["RepeatedToolCall"]; ok {
-		t.Error("普通工具重复不应产 Finding")
+		t.Error("Việc sao chép công cụ thông thường sẽ không tạo ra Tìm kiếm")
 	}
 	if _, ok := sev["LogErrorBurst"]; ok {
-		t.Error("日志 error 累计不应单独产 Finding")
+		t.Error("Không nên tạo tích lũy lỗi nhật ký riêng lẻ")
 	}
 }
 
-// TestRuntimeFindings_Quiet 证明无异常信号时不产任何运行时 Finding（零误报）。
+// TestRuntimeFindings_Quiet chứng minh rằng không có Kết quả trong thời gian chạy nào được tạo ra (không có kết quả dương tính giả) khi không có tín hiệu ngoại lệ.
 func TestRuntimeFindings_Quiet(t *testing.T) {
 	rc := RuntimeCapture{
-		LogKinds:  map[string]int{"stream_idle": 1}, // 低于阈值
+		LogKinds:  map[string]int{"stream_idle": 1}, // dưới ngưỡng
 		LogErrors: 2,
 	}
 	if fs := runtimeFindings(&rc); len(fs) != 0 {
-		t.Errorf("安静态不应产 Finding，got %d: %+v", len(fs), fs)
+		t.Errorf("Không nên tạo tĩnh ổn định Đang tìm, có %d: %+v", len(fs), fs)
 	}
 }

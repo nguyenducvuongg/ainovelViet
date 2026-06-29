@@ -11,7 +11,7 @@ import (
 	"github.com/voocel/ainovel-cli/internal/store"
 )
 
-// PlanChapterTool 保存章节构思，Agent 自主决定规划粒度。
+// PlanChapterTool lưu ý tưởng chương và Tác nhân xác định mức độ chi tiết của kế hoạch một cách độc lập.
 type PlanChapterTool struct {
 	store *store.Store
 }
@@ -22,30 +22,30 @@ func NewPlanChapterTool(store *store.Store) *PlanChapterTool {
 
 func (t *PlanChapterTool) Name() string { return "plan_chapter" }
 func (t *PlanChapterTool) Description() string {
-	return "保存章节写作构思。Agent 自主决定规划粒度，不强制场景拆分"
+	return "Lưu ý tưởng viết chương. Tác nhân quyết định mức độ chi tiết của kế hoạch một cách độc lập và không bắt buộc phải phân chia kịch bản."
 }
-func (t *PlanChapterTool) Label() string { return "规划章节" }
+func (t *PlanChapterTool) Label() string { return "chương kế hoạch" }
 
-// 写工具，禁止并发。
+// Viết công cụ để vô hiệu hóa đồng thời.
 func (t *PlanChapterTool) ReadOnly(_ json.RawMessage) bool        { return false }
 func (t *PlanChapterTool) ConcurrencySafe(_ json.RawMessage) bool { return false }
 
 func (t *PlanChapterTool) Schema() map[string]any {
 	return schema.Object(
-		schema.Property("chapter", schema.Int("章节号")).Required(),
-		schema.Property("title", schema.String("章节标题")).Required(),
-		schema.Property("goal", schema.String("本章目标")).Required(),
-		schema.Property("conflict", schema.String("核心冲突")).Required(),
-		schema.Property("hook", schema.String("章末钩子")).Required(),
-		schema.Property("emotion_arc", schema.String("情绪曲线")),
-		schema.Property("notes", schema.String("自由备忘（任何你觉得写作时需要记住的东西）")),
-		schema.Property("required_beats", schema.Array("本章必须完成的推进项", schema.String(""))),
-		schema.Property("forbidden_moves", schema.Array("本章明确不能发生的推进", schema.String(""))),
-		schema.Property("continuity_checks", schema.Array("本章需特别核对的连续性点", schema.String(""))),
-		schema.Property("evaluation_focus", schema.Array("Editor 重点检查项", schema.String(""))),
-		schema.Property("emotion_target", schema.String("可选：本章希望读者主要感受到的情绪")),
-		schema.Property("payoff_points", schema.Array("可选：关键章希望回应的情节点或兑现点", schema.String(""))),
-		schema.Property("hook_goal", schema.String("可选：章末希望驱动的追读欲望或悬念目标")),
+		schema.Property("chapter", schema.Int("số chương")).Required(),
+		schema.Property("title", schema.String("Tiêu đề chương")).Required(),
+		schema.Property("goal", schema.String("Mục tiêu của chương này")).Required(),
+		schema.Property("conflict", schema.String("xung đột cốt lõi")).Required(),
+		schema.Property("hook", schema.String("móc cuối chương")).Required(),
+		schema.Property("emotion_arc", schema.String("đường cong tình cảm")),
+		schema.Property("notes", schema.String("Ghi chú miễn phí (bất cứ điều gì bạn cảm thấy cần nhớ khi viết)")),
+		schema.Property("required_beats", schema.Array("Các mục nâng cao phải được hoàn thành trong chương này", schema.String(""))),
+		schema.Property("forbidden_moves", schema.Array("Chương này nói rõ rằng sự thăng tiến không thể xảy ra", schema.String(""))),
+		schema.Property("continuity_checks", schema.Array("Các điểm liên tục cần kiểm tra đặc biệt trong chương này", schema.String(""))),
+		schema.Property("evaluation_focus", schema.Array("Các mục kiểm tra phím soạn thảo", schema.String(""))),
+		schema.Property("emotion_target", schema.String("Tùy chọn: Những cảm xúc chính mà bạn muốn người đọc cảm nhận được trong chương này")),
+		schema.Property("payoff_points", schema.Array("Tùy chọn: Điểm cốt truyện hoặc điểm thực hiện mà bạn muốn phản hồi trong chương chính", schema.String(""))),
+		schema.Property("hook_goal", schema.String("Tùy chọn: Mục tiêu đọc theo hướng hy vọng hoặc mục tiêu hồi hộp ở cuối chương")),
 	)
 }
 
@@ -62,7 +62,7 @@ func (t *PlanChapterTool) Execute(_ context.Context, args json.RawMessage) (json
 			"chapter":   plan.Chapter,
 			"skipped":   true,
 			"completed": true,
-			"reason":    fmt.Sprintf("第 %d 章已提交完成，不能重新规划", plan.Chapter),
+			"reason":    fmt.Sprintf("Chương %d đã được gửi và không thể lên lịch lại.", plan.Chapter),
 		})
 	}
 	if err := t.store.Progress.ValidateChapterWork(plan.Chapter); err != nil {
@@ -89,7 +89,7 @@ func (t *PlanChapterTool) Execute(_ context.Context, args json.RawMessage) (json
 	return json.Marshal(map[string]any{
 		"planned":   true,
 		"chapter":   plan.Chapter,
-		"next_step": "立即调用 draft_chapter(chapter=本章节号, content=完整正文字符串) 写入正文，不要重复规划同一章",
+		"next_step": "Gọi ngay Draft_chapter(chapter=số chương này, content=complete text string) để viết văn bản, không lập kế hoạch lặp lại cùng một chương",
 	})
 }
 

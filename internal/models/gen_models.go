@@ -1,7 +1,7 @@
 //go:build ignore
 
-// gen_models.go 从 OpenRouter API 拉全量模型，生成编译期基线 models_generated.go。
-// 用法: go generate ./internal/models/...
+// gen_models.go lấy tất cả các mô hình từ API OpenRouter và tạo mô hình cơ sở tại thời điểm biên dịch models_generated.go.
+// Cách sử dụng: tạo ./internal/models/...
 package main
 
 import (
@@ -19,13 +19,13 @@ import (
 
 const (
 	openRouterURL = "https://openrouter.ai/api/v1/models"
-	// maxModelAgeDays 决定基线中保留多老的模型。超过这个年龄视作已过时（GPT-3.5、
-	// 原版 GPT-4、Llama 2、Mistral 7b 等），直接剔除以减小二进制体积和查询噪声。
-	// 同 pricing.go 的运行期过滤保持一致。
+	// maxModelAgeDays xác định mức độ giữ lại các mô hình cũ trong đường cơ sở. Trên độ tuổi này được coi là lỗi thời (GPT-3.5,
+	// GPT-4 gốc, Llama 2, Mistral 7b, v.v.), được loại bỏ trực tiếp để giảm kích thước nhị phân và nhiễu truy vấn.
+	// Phù hợp với tính năng lọc thời gian chạy của price.go.
 	maxModelAgeDays = 730
 )
 
-// 与 pricing.go 保持一致。
+// Phù hợp với giá.go.
 var providerMap = map[string]string{
 	"anthropic":  "anthropic",
 	"openai":     "openai",
@@ -147,8 +147,8 @@ func convert(m apiModel) (entry, bool) {
 	return e, true
 }
 
-// isTooOld 判断 created 时间戳是否超过 maxModelAgeDays。
-// 0 或负值视为数据缺失，按"老模型"处理直接剔除。
+// isTooOld xác định xem dấu thời gian đã tạo có vượt quá maxModelAgeDays hay không.
+// 0 hoặc giá trị âm được coi là dữ liệu bị thiếu và bị loại bỏ trực tiếp theo quy trình "mô hình cũ".
 func isTooOld(created int64) bool {
 	if created <= 0 {
 		return true

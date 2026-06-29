@@ -1,8 +1,8 @@
 ---
 fatigue_words:
-  - 不禁
-  - 竟然
-  - 仿佛
+  - không thể giúp được
+  - hóa ra
+  - như thể
 ---
 
-list 形式的 fatigue_words 应默认每词阈值 1。
+Dạng danh sách của mệt mỏi_words phải mặc định có ngưỡng mỗi từ là 1.

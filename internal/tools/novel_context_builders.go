@@ -53,9 +53,9 @@ func newArchitectContextEnvelope() architectContextEnvelope {
 }
 
 func (e chapterContextEnvelope) apply(result map[string]any) {
-	// 合并而非替换：Execute 的章节路径会先后 apply 两个信封（seed + buildChapterContext），
-	// 整体赋值会让第二次 apply 丢弃 seed 的容器内容，working_memory.* 等 canonical
-	// 路径随之失效（prompt 指针指向空气，模型只能靠顶层镜像模糊容错）。
+	// Hợp nhất thay vì thay thế: Đường dẫn chương của Thực thi sẽ lần lượt áp dụng hai phong bì (seed + buildChapterContext).
+	// Sự phân công tổng thể sẽ khiến lần áp dụng thứ hai loại bỏ nội dung vùng chứa của hạt giống, Working_memory.*, v.v.
+	// Đường dẫn trở nên không hợp lệ (con trỏ nhắc trỏ vào không khí và mô hình chỉ có thể dựa vào khả năng chịu lỗi mờ hình ảnh cấp cao nhất).
 	mergeEnvelopeSection(result, "working_memory", e.Working)
 	mergeEnvelopeSection(result, "episodic_memory", e.Episodic)
 	mergeEnvelopeSection(result, "reference_pack", e.References)
@@ -67,7 +67,7 @@ func (e chapterContextEnvelope) apply(result map[string]any) {
 	mergeContextSection(result, e.References)
 }
 
-// mergeEnvelopeSection 把 section 合并进 result[key] 的既有容器；容器不存在时直接挂载。
+// mergeEnvelopeSection hợp nhất phần vào vùng chứa kết quả [key] hiện có; gắn trực tiếp nếu vùng chứa không tồn tại.
 func mergeEnvelopeSection(result map[string]any, key string, section map[string]any) {
 	if existing, ok := result[key].(map[string]any); ok {
 		for k, v := range section {
@@ -93,8 +93,8 @@ func mergeContextSection(result map[string]any, section map[string]any) {
 	}
 }
 
-// buildProgressStatus 仅在 Coordinator 调用（不传 chapter）时返回进度摘要,
-// Writer 不需要这些信息,避免干扰写作。
+// buildProgressStatus chỉ trả về bản tóm tắt tiến trình khi Điều phối viên được gọi (không chuyển chương),
+// Người viết không cần thông tin này để tránh cản trở việc viết.
 func (t *ContextTool) buildProgressStatus(result map[string]any) {
 	progress, err := t.store.Progress.Load()
 	if err != nil || progress == nil {
@@ -126,16 +126,16 @@ func (t *ContextTool) buildProgressStatus(result map[string]any) {
 	result["progress_status"] = status
 }
 
-// buildUserRules 把合并后的 Bundle 注入 working_memory.user_rules（canonical 路径）。
+// buildUserRules đưa Bundle đã hợp nhất vào Working_memory.user_rules (đường dẫn chuẩn).
 //
-// 单点注入：writer / editor / architect / coordinator 任一路径调用 novel_context
-// 都能在 working_memory.user_rules 拿到一致的偏好。architect 路径原本没有 working_memory，
-// 由本函数按需新建（仅装 user_rules）；chapter > 0 路径下 working_memory 已存在，直接嵌入。
+// Chèn một điểm: người viết/biên tập/kiến trúc sư/điều phối viên gọi tiểu thuyết_context từ bất kỳ đường dẫn nào
+// Bạn có thể nhận được các tùy chọn tương tự trong Working_memory.user_rules. Con đường kiến ​​trúc sư ban đầu không có Working_memory,
+// Hàm này tạo một hàm mới theo yêu cầu (chỉ cài đặt user_rules); Working_memory đã tồn tại trong đường dẫn chương > 0 và có thể được nhúng trực tiếp.
 //
-// 即便 Bundle 为空也注入，保持字段稳定，避免 LLM 看到 user_rules=null 而走异常分支。
+// Ngay cả khi Gói trống, nó vẫn được chèn để giữ cho các trường ổn định và ngăn LLM lấy các nhánh bất thường khi thấy user_rules=null.
 //
-// 注入策略：只给 LLM 看 structured + preferences——这两项才是创作时需要遵循的偏好。
-// sources / conflicts 是诊断信息（用户冲突排查），不进 LLM；由 CLI 启动诊断面板按需展示。
+// Chiến lược tiêm: Chỉ hiển thị LLM có cấu trúc + tùy chọn - đây là hai tùy chọn cần tuân theo khi tạo.
+// nguồn/xung đột là thông tin chẩn đoán (khắc phục sự cố xung đột người dùng) và không nhập LLM; CLI khởi động bảng chẩn đoán và hiển thị nó theo yêu cầu.
 func (t *ContextTool) buildUserRules(result map[string]any) {
 	bundle := rules.Merge(rules.Load(t.rulesOpts))
 	payload := map[string]any{
@@ -150,11 +150,11 @@ func (t *ContextTool) buildUserRules(result map[string]any) {
 	working["user_rules"] = payload
 }
 
-// buildUserDirectives 把用户长效创作要求注入 working_memory.user_directives（canonical 路径）。
+// buildUserDirectives Đưa các yêu cầu tác giả lâu dài của người dùng vào Working_memory.user_directives (đường dẫn chuẩn).
 //
-// 与 buildUserRules 同为单点注入：writer / editor / architect / coordinator 任一路径
-// 都拿到一致的列表。空列表也注入 []，保持字段稳定（同 user_rules 先例），
-// 也让 prompt 指针一致性测试天然可解析。条目形状见 directiveFacts。
+// Tương tự như buildUserRules, tiêm một điểm: người viết/biên tập viên/kiến trúc sư/điều phối viên bất kỳ đường dẫn nào
+// Tất cả đều nhận được cùng một danh sách. Danh sách trống cũng được thêm [] để giữ cho các trường ổn định (giống như tiền lệ user_rules),
+// Đồng thời làm cho việc kiểm tra tính nhất quán của con trỏ nhắc có thể được phân tích cú pháp một cách tự nhiên. Xem chỉ thịFact để biết hình dạng vật phẩm.
 func (t *ContextTool) buildUserDirectives(result map[string]any, warn func(string, error)) {
 	list, err := t.store.Directives.Load()
 	if err != nil {
@@ -262,11 +262,11 @@ func (t *ContextTool) prepareChapterContext(chapter int, envelope *chapterContex
 	}
 	state.chapterPlan = chapterPlan
 
-	// 是否正在重写本章：决定 novel_context 是否补"重写专用"事实。
+	// Liệu chương này có được viết lại hay không: Xác định xem có nên điền tiểu thuyết_context với các sự kiện "chỉ viết lại" hay không.
 	isRewrite := progress != nil && slices.Contains(progress.PendingRewrites, chapter)
 
-	// 暴露 draft 是否已存在的事实：让 writer 被重派时能自行判断跳过重写还是覆盖。
-	// 只暴露 exists + word_count，不注入正文（正文让 writer 按需用 read_chapter 拉）。
+	// Đưa ra sự thật liệu bản nháp đã tồn tại hay chưa: hãy để người viết quyết định bỏ qua việc viết lại hay ghi đè khi nó được gán lại.
+	// Chỉ tồn tại + word_count được hiển thị và văn bản không được đưa vào (văn bản được người viết lấy bằng cách sử dụng read_chapter nếu cần).
 	if _, draftWords, draftErr := t.store.Drafts.LoadChapterContent(chapter); draftErr == nil && draftWords > 0 {
 		envelope.Working["chapter_draft"] = map[string]any{
 			"exists":     true,
@@ -276,9 +276,9 @@ func (t *ContextTool) prepareChapterContext(chapter int, envelope *chapterContex
 		warn("chapter_draft", draftErr)
 	}
 
-	// 重写时把"为什么改 + 改哪里"交给 writer：理由来自返工队列，具体批评来自本章评审
-	// （selectReviewLessons 只召回 chapter-1..chapter-3，恰好漏掉本章本身，writer 又无读评审的工具）。
-	// 正文不在此注入——保持"正文按需 read_chapter 拉"的约定不破。
+	// Khi viết lại, hãy đưa ra "tại sao + thay đổi ở đâu" cho người viết: lý do đến từ hàng đợi làm lại, và lời chỉ trích cụ thể đến từ việc xem lại chương này
+	// (selectReviewLessons chỉ nhớ lại chương-1..chapter-3, tình cờ bỏ sót chương đó và người viết không có công cụ để đọc các bài đánh giá).
+	// Văn bản không được đưa vào đây - quy ước "read_chapter kéo văn bản theo yêu cầu" vẫn còn nguyên.
 	if isRewrite {
 		brief := map[string]any{"reason": progress.RewriteReason}
 		if review, reviewErr := t.store.World.LoadReview(chapter); reviewErr == nil && review != nil {
@@ -353,10 +353,10 @@ func (t *ContextTool) buildChapterContext(result map[string]any, state contextBu
 	envelope.apply(result)
 }
 
-// buildStyleStats 对全部已完成章节做全书级风格统计，注入 episodic_memory.style_stats。
-// 弧内评审窗口对"章均几十次的句式 tic、章末形态同构、跨章复读"天然失明，只有
-// 全书统计能暴露——统计归代码（确定性），裁定归 LLM（editor 在 aesthetic 维度
-// 按数字判分，writer 据此自避免）。章数不足时 stylestat 返回 nil，不注入。
+// buildStyleStats thực hiện thống kê kiểu cấp độ sách cho tất cả các chương đã hoàn thành và chèn episodic_memory.style_stats.
+// Cửa sổ xem lại trong phần này đương nhiên không phát hiện được "các mẫu câu xuất hiện hàng chục lần trong một chương, sự đẳng cấu hình thái ở cuối chương và việc đọc lại nhiều chương", và chỉ
+// Khả năng thống kê của toàn bộ cuốn sách đã được bộc lộ - số liệu thống kê thuộc về mã (thuyết tất định) và phán quyết thuộc về LLM (người biên tập theo khía cạnh thẩm mỹ).
+// Đánh giá bằng con số, người viết tránh điều này). Khi số lượng chương không đủ, stylestat trả về 0 và không được thêm vào.
 func (t *ContextTool) buildStyleStats(envelope *chapterContextEnvelope, state contextBuildState) {
 	if state.progress == nil || len(state.progress.CompletedChapters) == 0 {
 		return
@@ -365,7 +365,7 @@ func (t *ContextTool) buildStyleStats(envelope *chapterContextEnvelope, state co
 	slices.Sort(completed)
 	chapters := make([]string, 0, len(completed))
 	for _, ch := range completed {
-		// 个别章读取失败跳过：统计是 best-effort 事实，不因单章缺失放弃全书视野
+		// Không thể đọc từng chương riêng lẻ và bỏ qua: số liệu thống kê là những thông tin cần nỗ lực hết sức, đừng từ bỏ tầm nhìn của toàn bộ cuốn sách chỉ vì thiếu một chương
 		if text, err := t.store.Drafts.LoadChapterText(ch); err == nil && text != "" {
 			chapters = append(chapters, text)
 		}
@@ -389,7 +389,7 @@ func (t *ContextTool) buildStyleStats(envelope *chapterContextEnvelope, state co
 	envelope.Episodic["style_stats"] = stats
 }
 
-// styleStopwords 收集角色名与别名供短语挖掘过滤——出场人名天然高频，不是文风问题。
+// styleStopwords thu thập tên ký tự và bí danh để khai thác và lọc cụm từ - tên của các ký tự có tần suất cao một cách tự nhiên và đó không phải là vấn đề về phong cách viết.
 func (t *ContextTool) styleStopwords() []string {
 	var words []string
 	if chars, err := t.store.Characters.Load(); err == nil {
@@ -466,8 +466,8 @@ func (t *ContextTool) buildChapterEpisodicMemory(envelope *chapterContextEnvelop
 		envelope.Episodic["foreshadow_ledger"] = state.foreshadow
 	}
 
-	// 配角名册：召回最近活跃的次要角色，让 Writer 在引入旧角色时能保持口吻/定位一致
-	// 不召回所有条目（长篇会膨胀），只给最近活跃的前 N 个，按 LastSeenChapter 倒序
+	// Danh sách hỗ trợ: Việc nhớ lại các ký tự phụ hoạt động gần đây cho phép Người viết duy trì giọng điệu/vị trí nhất quán trong khi giới thiệu các ký tự cũ hơn
+	// Không nhớ lại tất cả các mục (bài viết dài sẽ bị cồng kềnh), chỉ nhớ N mục hoạt động gần đây nhất, theo thứ tự ngược lại của LastSeenChapter
 	if recentCast, err := t.store.Cast.RecentActive(15); err == nil && len(recentCast) > 0 {
 		simplified := make([]map[string]any, 0, len(recentCast))
 		for _, e := range recentCast {
@@ -626,9 +626,9 @@ func (t *ContextTool) buildArchitectPlanning(envelope *architectContextEnvelope,
 		warn("volume_summaries", err)
 	}
 
-	// completion_signals 把"全书是否该结尾"的关键事实集中呈现，
-	// 让架构师在裁定 complete_book / append_volume 时一眼看到对照面。
-	// 散落在 progress / compass / foreshadow / layered_outline 里靠 LLM 脑算容易漏。
+	// các tín hiệu hoàn thành trình bày các thông tin chính về "liệu cuốn sách có nên kết thúc" một cách tập trung hay không,
+	// Hãy để kiến ​​trúc sư xem nhanh sự so sánh khi quyết định Complete_book/append_volume.
+	// Rải rác trong tiến trình/la bàn/báo trước/layered_outline, rất dễ bỏ sót nếu dựa vào tính toán LLM.
 	envelope.Planning["completion_signals"] = t.completionSignals(layered, compass)
 }
 

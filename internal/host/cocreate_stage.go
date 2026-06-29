@@ -7,10 +7,10 @@ import (
 	"github.com/voocel/ainovel-cli/internal/store"
 )
 
-// buildStoryStateSummary 组装一段精简的故事现状摘要，供阶段共创助手了解"已经写了什么"。
-// 复用 store 访问点，只取规划方向所需的高层事实（进度 / 罗盘 / 最近卷 / 主要人物 / 活跃伏笔）；
-// 不拉正文、不喂 novel_context 的全量 JSON——共创是对话，要的是可读概览，不是写作上下文。
-// 任一项缺失都跳过（best-effort），返回空串表示尚无可用进度。
+// buildStoryStateSummary tập hợp một bản tóm tắt cô đọng về trạng thái hiện tại của câu chuyện để trợ lý đồng sáng tạo sân khấu hiểu "những gì đã được viết".
+// Tái sử dụng các điểm truy cập lưu trữ và chỉ tìm nạp các thông tin cấp cao cần thiết cho việc định hướng lập kế hoạch (tiến trình/la bàn/tập gần đây/nhân vật chính/điềm báo đang hoạt động);
+// Không kéo văn bản chính, không cung cấp JSON đầy đủ của tiểu thuyết_context - đồng sáng tạo là một cuộc đối thoại, điều cần thiết là một cái nhìn tổng quan có thể đọc được chứ không phải bối cảnh viết.
+// Nếu bất kỳ mục nào bị thiếu, nó sẽ bị bỏ qua (nỗ lực tốt nhất) và một chuỗi trống sẽ được trả về để cho biết rằng không có tiến trình nào.
 func buildStoryStateSummary(s *store.Store) string {
 	if s == nil {
 		return ""
@@ -19,37 +19,37 @@ func buildStoryStateSummary(s *store.Store) string {
 
 	if progress, _ := s.Progress.Load(); progress != nil {
 		if name := strings.TrimSpace(progress.NovelName); name != "" {
-			fmt.Fprintf(&b, "- 书名：《%s》\n", name)
+			fmt.Fprintf(&b, "- Tên sách: “%s” \n", name)
 		}
-		fmt.Fprintf(&b, "- 进度：已完成 %d 章", len(progress.CompletedChapters))
+		fmt.Fprintf(&b, "- Tiến độ: Đã hoàn thành chương %d", len(progress.CompletedChapters))
 		if progress.TotalChapters > 0 {
-			fmt.Fprintf(&b, " / 规划 %d 章", progress.TotalChapters)
+			fmt.Fprintf(&b, " / Quy hoạch Chương %d", progress.TotalChapters)
 		}
-		fmt.Fprintf(&b, "，约 %d 字，下一章为第 %d 章\n", progress.TotalWordCount, progress.NextChapter())
+		fmt.Fprintf(&b, ", về từ %d, chương tiếp theo là Chương %d \n", progress.TotalWordCount, progress.NextChapter())
 		if progress.Layered && progress.CurrentVolume > 0 {
-			fmt.Fprintf(&b, "- 当前位置：第 %d 卷 第 %d 弧\n", progress.CurrentVolume, progress.CurrentArc)
+			fmt.Fprintf(&b, "- Vị trí hiện tại: Tập %d Chương %d Arc \n", progress.CurrentVolume, progress.CurrentArc)
 		}
 	}
 
 	if compass, _ := s.Outline.LoadCompass(); compass != nil {
 		if dir := strings.TrimSpace(compass.EndingDirection); dir != "" {
-			fmt.Fprintf(&b, "- 终局方向：%s\n", dir)
+			fmt.Fprintf(&b, "- Hướng cuối cùng: %s\n", dir)
 		}
 		if compass.EstimatedScale != "" {
-			fmt.Fprintf(&b, "- 预估规模：%s\n", compass.EstimatedScale)
+			fmt.Fprintf(&b, "- Kích thước dự kiến: %s\n", compass.EstimatedScale)
 		}
 		if len(compass.OpenThreads) > 0 {
-			fmt.Fprintf(&b, "- 活跃长线：%s\n", strings.Join(compass.OpenThreads, "；"))
+			fmt.Fprintf(&b, "- Hoạt động lâu dài: %s\n", strings.Join(compass.OpenThreads, "；"))
 		}
 	}
 
-	// 最近一卷摘要，让助手知道故事刚走到哪
+	// Tóm tắt tập gần đây nhất, cho trợ lý biết câu chuyện vừa đi đến đâu
 	if vols, _ := s.Summaries.LoadAllVolumeSummaries(); len(vols) > 0 {
 		last := vols[len(vols)-1]
-		fmt.Fprintf(&b, "- 最近《%s》：%s\n", last.Title, truncate(last.Summary, 200))
+		fmt.Fprintf(&b, "- \"%s\" gần đây nhất: %s\n", last.Title, truncate(last.Summary, 200))
 	}
 
-	// 主要人物（core/important），最多 8 个
+	// Ký tự chính (cốt lõi/quan trọng), tối đa 8
 	if chars, _ := s.Characters.Load(); len(chars) > 0 {
 		var names []string
 		for _, c := range chars {
@@ -66,11 +66,11 @@ func buildStoryStateSummary(s *store.Store) string {
 			}
 		}
 		if len(names) > 0 {
-			fmt.Fprintf(&b, "- 主要人物：%s\n", strings.Join(names, "、"))
+			fmt.Fprintf(&b, "- Nhân vật chính: %s\n", strings.Join(names, "、"))
 		}
 	}
 
-	// 未收伏笔，最多 6 条
+	// Điềm báo không được thu thập, tối đa 6
 	if fs, _ := s.World.LoadActiveForeshadow(); len(fs) > 0 {
 		var items []string
 		for _, f := range fs {
@@ -79,18 +79,18 @@ func buildStoryStateSummary(s *store.Store) string {
 				break
 			}
 		}
-		fmt.Fprintf(&b, "- 未收伏笔：%s\n", strings.Join(items, "；"))
+		fmt.Fprintf(&b, "- Gợi ý chưa nhận được: %s\n", strings.Join(items, "；"))
 	}
 
 	return strings.TrimSpace(b.String())
 }
 
-// stageSystemPrompt 组装阶段共创的完整系统提示：阶段 prompt + 当前故事状态摘要。
-// 摘要作为数据附录挂在末尾（用分隔线与格式规范隔开），呼应 prompt 里"进度见下方"的指引。
+// stageSystemPrompt Tập hợp lời nhắc hệ thống hoàn chỉnh để đồng tạo giai đoạn: lời nhắc giai đoạn + tóm tắt trạng thái câu chuyện hiện tại.
+// Bản tóm tắt được treo ở cuối dưới dạng phụ lục dữ liệu (được phân tách bằng dòng phân cách và đặc tả định dạng), lặp lại hướng dẫn trong lời nhắc "xem tiến trình bên dưới".
 func stageSystemPrompt(s *store.Store) string {
 	prompt := stageCoCreateSystemPrompt
 	if summary := buildStoryStateSummary(s); summary != "" {
-		prompt += "\n\n---\n## 当前故事状态\n（以下是已写内容的客观摘要，供你规划后续时参照，不要在 <draft> 里照抄原文）\n" + summary
+		prompt += "\n\n---\n## Trạng thái truyện hiện tại \n (Sau đây là tóm tắt khách quan những gì đã viết, để các bạn tham khảo khi lập kế hoạch theo dõi, không sao chép nguyên văn <dự thảo>) \n" + summary
 	}
 	return prompt
 }

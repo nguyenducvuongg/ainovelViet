@@ -10,17 +10,17 @@ import (
 	"time"
 )
 
-// renderEPUB 把章节集合打包成 EPUB 3 字节流。
+// renderEPUB Gói tập hợp các chương thành luồng 3 byte EPUB.
 //
-// 包结构（OEBPS 是 OPS package 容器）：
+// Cấu trúc gói (OEBPS là thùng chứa gói OPS):
 //
-//	mimetype                    （必须 zip 第一项 + Method=Store 不压缩）
-//	META-INF/container.xml      （指向 OEBPS/content.opf）
+//	mimetype (phải nén mục đầu tiên + Phương thức=Cửa hàng không được nén)
+//	META-INF/container.xml (trỏ tới OEBPS/content.opf)
 //	OEBPS/content.opf           （metadata + manifest + spine）
 //	OEBPS/nav.xhtml             （EPUB 3 navigation）
-//	OEBPS/style.css             （极简排版）
-//	OEBPS/cover.xhtml           （书名，可选）
-//	OEBPS/chapterNNN.xhtml      （每章一文件）
+//	OEBPS/style.css (sắp chữ tối giản)
+//	OEBPS/cover.xhtml (tên sách, tùy chọn)
+//	OEBPS/chapterNNN.xhtml (một tệp cho mỗi chương)
 func renderEPUB(
 	novelName string,
 	chapters []int,
@@ -31,7 +31,7 @@ func renderEPUB(
 	var buf bytes.Buffer
 	zw := zip.NewWriter(&buf)
 
-	// 1. mimetype 必须是 zip 第一项 + Store（不压缩）+ 内容精确无 BOM
+	// 1. mimetype phải là mục đầu tiên của zip + Store (không nén) + nội dung chính xác không có BOM
 	mt, err := zw.CreateHeader(&zip.FileHeader{
 		Name:   "mimetype",
 		Method: zip.Store,
@@ -81,7 +81,7 @@ func renderEPUB(
 	return buf.Bytes(), nil
 }
 
-// zipDeflate 写入一个普通（压缩）条目。
+// zipDeflate ghi một mục nhập đơn giản (được nén).
 func zipDeflate(zw *zip.Writer, name, content string) error {
 	w, err := zw.Create(name)
 	if err != nil {
@@ -95,12 +95,12 @@ func chapterFileName(ch int) string {
 	return fmt.Sprintf("chapter%03d.xhtml", ch)
 }
 
-// chapterID 是 manifest item 的 id；与文件名一一对应。
+// ChapterID là id của mục kê khai; nó tương ứng với tên tập tin một-một.
 func chapterID(ch int) string {
 	return fmt.Sprintf("ch%03d", ch)
 }
 
-// 固定模板 ────────────────────────────────────────────────
+// Mẫu cố định ─────────────────────── ───────────────────────
 
 const containerXML = `<?xml version="1.0" encoding="utf-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -117,13 +117,13 @@ h1.chapter-title { font-size: 1.4em; text-align: center; margin: 2em 0 1.5em; }
 p { text-indent: 2em; margin: 0.5em 0; }
 `
 
-// 章节 XHTML ────────────────────────────────────────────────
+// Chương XHTML ────────────────────── ──────────────────────
 
 func renderChapterXHTML(ch int, title string, loc chapterLocation, hasLoc bool, body string) string {
 	var b strings.Builder
-	displayTitle := fmt.Sprintf("第 %d 章", ch)
+	displayTitle := fmt.Sprintf("Chương %d", ch)
 	if title != "" {
-		displayTitle = fmt.Sprintf("第 %d 章 %s", ch, title)
+		displayTitle = fmt.Sprintf("Chương %d %s", ch, title)
 	}
 
 	fmt.Fprintf(&b, `<?xml version="1.0" encoding="utf-8"?>
@@ -137,7 +137,7 @@ func renderChapterXHTML(ch int, title string, loc chapterLocation, hasLoc bool, 
 `, html.EscapeString(displayTitle))
 
 	if hasLoc && loc.IsFirstOfVolume {
-		fmt.Fprintf(&b, "  <div class=\"volume-divider\">第 %d 卷 %s</div>\n",
+		fmt.Fprintf(&b, "  <div class=\"volume-divider\">Tập %d %s</div>\n",
 			loc.VolumeIdx, html.EscapeString(strings.TrimSpace(loc.VolumeTitle)))
 	}
 
@@ -149,8 +149,8 @@ func renderChapterXHTML(ch int, title string, loc chapterLocation, hasLoc bool, 
 	return b.String()
 }
 
-// splitParagraphs 按空行切段；连续多空行视为一个分段。返回的段落都已 TrimSpace 且非空。
-// 段内换行（单个 \n）保留为段内空格——XHTML 的 <p> 不保留换行，浏览器自动 wrap。
+// SplitParagraphs chia theo dòng trống; nhiều dòng trống liên tiếp được coi là một đoạn. Các đoạn được trả về có TrimSpaces và không trống.
+// Ngắt dòng trong đoạn văn (\n đơn) được giữ nguyên dưới dạng khoảng trắng trong đoạn văn - <p> của XHTML không giữ nguyên ngắt dòng và được trình duyệt tự động gói lại.
 func splitParagraphs(body string) []string {
 	body = strings.ReplaceAll(body, "\r\n", "\n")
 	parts := strings.Split(body, "\n\n")
@@ -160,25 +160,25 @@ func splitParagraphs(body string) []string {
 		if p == "" {
 			continue
 		}
-		// 段内换行变空格，避免 XHTML 渲染时丢内容
+		// Thay đổi dòng thành dấu cách trong đoạn văn để tránh mất nội dung trong quá trình hiển thị XHTML
 		p = strings.ReplaceAll(p, "\n", " ")
 		out = append(out, p)
 	}
 	return out
 }
 
-// 封面 ────────────────────────────────────────────────
+// Bìa ────────────────────── ──────────────────────
 
 func renderCoverXHTML(novelName string) string {
 	var b strings.Builder
-	b.WriteString(`<?xml version="1.0" encoding="utf-8"?>
+	b.WriteString(`<?xml version="1.0" mã hóa="utf-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN">
-<head>
-  <title>封面</title>
+<đầu>
+  <title>Bìa</title>
   <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
-<body>
+<cơ thể>
 `)
 	if name := strings.TrimSpace(novelName); name != "" {
 		fmt.Fprintf(&b, "  <h1 class=\"book-title\">%s</h1>\n", html.EscapeString(name))
@@ -191,29 +191,29 @@ func renderCoverXHTML(novelName string) string {
 
 func renderNavXHTML(hasCover bool, chapters []int, titleIdx chapterTitleIndex) string {
 	var b strings.Builder
-	b.WriteString(`<?xml version="1.0" encoding="utf-8"?>
+	b.WriteString(`<?xml version="1.0" mã hóa="utf-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="zh-CN">
-<head>
-  <title>目录</title>
+<đầu>
+  <title>Mục lục</title>
   <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
-<body>
+<cơ thể>
   <nav epub:type="toc">
-    <h1>目录</h1>
+    <h1>Thư mục</h1>
     <ol>
 `)
 	if hasCover {
-		b.WriteString("      <li><a href=\"cover.xhtml\">封面</a></li>\n")
+		b.WriteString("      <li><a href=\"cover.xhtml\">Bìa</a></li>\n")
 	}
 
-	// 平铺章节列表。卷/弧分组在阅读器里反而不如单层目录清爽（阅读器自己会折叠），
-	// 而且 EPUB 3 nav 嵌套 ol 在某些阅读器上渲染怪。保持简单。
+	// Danh sách chương gạch. Việc nhóm khối lượng/cung trong đầu đọc không rõ ràng như thư mục một lớp (đầu đọc sẽ tự gấp nó lại).
+	// Và cách lồng nhau của điều hướng EPUB 3 khiến một số độc giả cảm thấy kỳ lạ. Giữ nó đơn giản.
 	for _, ch := range chapters {
 		title := strings.TrimSpace(titleIdx[ch])
-		display := fmt.Sprintf("第 %d 章", ch)
+		display := fmt.Sprintf("Chương %d", ch)
 		if title != "" {
-			display = fmt.Sprintf("第 %d 章 %s", ch, title)
+			display = fmt.Sprintf("Chương %d %s", ch, title)
 		}
 		fmt.Fprintf(&b, "      <li><a href=\"%s\">%s</a></li>\n",
 			chapterFileName(ch), html.EscapeString(display))
@@ -273,17 +273,17 @@ func renderOPF(novelName string, hasCover bool, chapters []int) string {
 	return b.String()
 }
 
-// bookIdentifier 由小说名派生稳定 UUID 字符串。
+// bookIdentifier Một chuỗi UUID ổn định bắt nguồn từ tên của cuốn tiểu thuyết.
 //
-// **只用 novelName，不掺章节列表**：作品身份应跟"是哪本书"绑定，不跟"导出范围"
-// 或"导出时刻已写到第几章"绑定。重导出同一本书 ID 不变，阅读器据此识别为同一作品
-// 的更新版本（更新与否由 dcterms:modified 时间戳承担）。空 novelName 共享 ID 是
-// 已知边角 case：用户给两本书都不起名时责任自负。
+// **Chỉ sử dụng Tên tiểu thuyết, không có danh sách chương**: Danh tính của tác phẩm phải được ràng buộc với "đó là cuốn sách nào", không phải "phạm vi xuất khẩu"
+// Hoặc ràng buộc "chương nào đã được viết tại thời điểm xuất". ID của cùng một cuốn sách không thay đổi khi được xuất lại và người đọc nhận ra đó là cùng một tác phẩm.
+// phiên bản cập nhật (dù có cập nhật hay không đều do dcterms:dấu thời gian đã sửa đổi chịu). Tiểu thuyết trốngTên ID chia sẻ Có
+// Trường hợp góc đã biết: Người dùng không nêu tên cuốn sách nào làm như vậy sẽ tự chịu rủi ro.
 func bookIdentifier(novelName string) string {
 	h := sha1.New()
 	h.Write([]byte(novelName))
 	sum := h.Sum(nil)
-	// 格式化为 UUID 风格（8-4-4-4-12），不要求严格 RFC 4122 — EPUB 只要求字符串唯一稳定。
+	// Được định dạng theo kiểu UUID (8-4-4-4-12), không yêu cầu RFC 4122 nghiêm ngặt — EPUB chỉ yêu cầu chuỗi phải ổn định duy nhất.
 	return fmt.Sprintf("urn:uuid:%x-%x-%x-%x-%x",
 		sum[0:4], sum[4:6], sum[6:8], sum[8:10], sum[10:16])
 }

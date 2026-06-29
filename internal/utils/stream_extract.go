@@ -2,13 +2,13 @@ package utils
 
 import "strings"
 
-// JSONFieldExtractor 从流式 JSON 碎片中提取指定字段的字符串值。
+// JSONFieldExtractor Trích xuất giá trị chuỗi của một trường được chỉ định từ một đoạn JSON phát trực tuyến.
 //
-// LLM 流式生成 tool call 时，参数是逐片段到达的（OpenAI/Anthropic）
-// 或一次性到达的（Gemini）。本提取器用状态机逐字符扫描，
-// 检测到目标 key 后提取其字符串值，处理 JSON 转义。
+// Khi luồng LLM tạo các lệnh gọi công cụ, các tham số sẽ đến từng mảnh (OpenAI/Anthropic)
+// hoặc một cái đến trong một lần (Song Tử). Trình trích xuất này sử dụng máy trạng thái để quét từng ký tự,
+// Sau khi phát hiện khóa mục tiêu, hãy trích xuất giá trị chuỗi của nó và xử lý việc thoát JSON.
 type JSONFieldExtractor struct {
-	key      string // 匹配目标，如 `"content"` 或 `"task"`
+	key      string // So khớp mục tiêu, chẳng hạn như `"nội dung"` hoặc `"nhiệm vụ"`
 	state    extractState
 	matchPos int
 	escape   bool
@@ -18,16 +18,16 @@ type JSONFieldExtractor struct {
 type extractState int
 
 const (
-	stateScan    extractState = iota // 扫描，寻找目标 key
-	stateColon                       // 已匹配 key，等冒号和开头引号
-	stateExtract                     // 提取字符串值中
+	stateScan    extractState = iota // Quét để tìm khóa mục tiêu
+	stateColon                       // Khóa phù hợp, v.v. dấu hai chấm và dấu ngoặc kép mở đầu
+	stateExtract                     // Trích xuất giá trị chuỗi
 )
 
 func NewFieldExtractor(fieldName string) *JSONFieldExtractor {
 	return &JSONFieldExtractor{key: `"` + fieldName + `"`}
 }
 
-// Feed 处理一段 delta，返回提取到的文本（可能为空）。
+// Nguồn cấp dữ liệu xử lý một delta và trả về văn bản được trích xuất (có thể trống).
 func (e *JSONFieldExtractor) Feed(delta string) string {
 	e.buf.Reset()
 	for _, r := range delta {
@@ -61,7 +61,7 @@ func (e *JSONFieldExtractor) feedScan(r rune) {
 func (e *JSONFieldExtractor) feedColon(r rune) {
 	switch r {
 	case ':', ' ', '\t':
-		// 跳过
+		// nhảy qua
 	case '"':
 		e.state = stateExtract
 		e.escape = false
@@ -103,45 +103,45 @@ func (e *JSONFieldExtractor) feedExtract(r rune) {
 	}
 }
 
-// Reset 重置状态（新 LLM 消息轮次时调用）。
+// Đặt lại trạng thái Đặt lại (được gọi trong vòng tin nhắn LLM mới).
 func (e *JSONFieldExtractor) Reset() {
 	e.state = stateScan
 	e.matchPos = 0
 	e.escape = false
 }
 
-// ThinkingSep 是思考文本与正文之间的分隔标记。
-// StreamFilter 在思考文本段前插入此标记，TUI 据此切换渲染样式。
+// Suy nghĩSep là dấu hiệu phân biệt giữa văn bản suy nghĩ và văn bản chính.
+// StreamFilter Chèn thẻ này trước khi xem xét phân đoạn văn bản và TUI sẽ chuyển kiểu hiển thị tương ứng.
 const ThinkingSep = "\x02"
 
-// StreamFilter 区分 SubAgent 的文本回复和 JSON 工具调用。
-// 文本回复标记为思考内容（前缀 ThinkingSep）；JSON 工具调用只提取指定字段。
+// StreamFilter phân biệt giữa câu trả lời văn bản của SubAgent và lệnh gọi công cụ JSON.
+// Phản hồi văn bản được đánh dấu là nội dung suy nghĩ (tiền tố ThoughtSep); lệnh gọi công cụ JSON chỉ trích xuất các trường được chỉ định.
 //
-// 判断依据：遇到 { 进入 JSON 模式（追踪大括号深度），
-// 深度归零后回到文本模式。
+// Cơ sở nhận định: Vào chế độ JSON (theo dõi độ sâu của dấu ngoặc nhọn) khi gặp {
+// Trở lại chế độ văn bản sau khi độ sâu được đặt lại về 0.
 type StreamFilter struct {
 	fieldExt   *JSONFieldExtractor
 	mode       filterMode
 	braceDepth int
-	inString   bool // 在 JSON 字符串内（大括号不计数）
-	escJSON    bool // JSON 字符串内的转义
-	thinking   bool // 当前处于思考文本段
+	inString   bool // Trong chuỗi JSON (không tính dấu ngoặc nhọn)
+	escJSON    bool // Thoát trong chuỗi JSON
+	thinking   bool // Hiện đang trong phần văn bản tư duy
 	buf        strings.Builder
 }
 
 type filterMode int
 
 const (
-	filterText filterMode = iota // 文本回复，直接透传
-	filterJSON                   // JSON 工具调用，提取目标字段
+	filterText filterMode = iota // Trả lời văn bản, truyền trực tiếp trong suốt
+	filterJSON                   // Lệnh gọi công cụ JSON để trích xuất các trường mục tiêu
 )
 
 func NewStreamFilter(fieldName string) *StreamFilter {
 	return &StreamFilter{fieldExt: NewFieldExtractor(fieldName)}
 }
 
-// Feed 处理一段 delta，返回可展示文本。
-// 文本回复直接输出；JSON 中的目标字段值被提取输出；其余 JSON 结构丢弃。
+// Nguồn cấp dữ liệu xử lý một vùng delta và trả về văn bản có thể hiển thị.
+// Trả lời văn bản được xuất trực tiếp; giá trị trường mục tiêu trong JSON được trích xuất và xuất ra; cấu trúc JSON còn lại bị loại bỏ.
 func (f *StreamFilter) Feed(delta string) string {
 	f.buf.Reset()
 	for _, r := range delta {
@@ -170,14 +170,14 @@ func (f *StreamFilter) Feed(delta string) string {
 	return f.buf.String()
 }
 
-// feedExtractor 将单个字符喂给 fieldExt，提取结果写入 buf。
+// FeedExtractor cung cấp một ký tự đơn cho fieldExt và ghi kết quả trích xuất vào buf.
 func (f *StreamFilter) feedExtractor(r rune) {
 	if text := f.fieldExt.Feed(string(r)); text != "" {
 		f.buf.WriteString(text)
 	}
 }
 
-// trackBraces 追踪 JSON 大括号深度，深度归零时切回文本模式。
+// trackBraces theo dõi độ sâu của dấu ngoặc JSON và chuyển về chế độ văn bản khi độ sâu bằng 0.
 func (f *StreamFilter) trackBraces(r rune) {
 	if f.escJSON {
 		f.escJSON = false
@@ -205,7 +205,7 @@ func (f *StreamFilter) trackBraces(r rune) {
 	}
 }
 
-// Reset 重置状态。
+// Đặt lại đặt lại trạng thái.
 func (f *StreamFilter) Reset() {
 	f.mode = filterText
 	f.braceDepth = 0

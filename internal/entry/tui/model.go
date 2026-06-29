@@ -17,10 +17,10 @@ import (
 
 const maxEvents = 500
 
-// maxStreamRounds 限制流式面板保留的轮次数。每个 LLM call 结束触发一次 streamClear
-// 开新轮，单章 writer 约 3~5 轮（agent header / 思考 / draft / commit），32 轮约等于
-// 回看最近 6~10 章的流式输出。已 commit 的章节正文落盘在 store/drafts，超出即丢以免
-// 每个 token delta 触发 O(全文) 重渲染。稳态内存上限约 512KB，远低于卡顿阈值。
+// maxStreamRounds giới hạn số vòng được bảng phát trực tuyến giữ lại. StreamClear được kích hoạt một lần vào cuối mỗi cuộc gọi LLM
+// Mở một vòng mới, một người viết chương sẽ mất khoảng 3 ~ 5 vòng (tiêu đề tác nhân/suy nghĩ/bản nháp/cam kết), 32 vòng xấp xỉ bằng
+// Nhìn lại kết quả phát trực tuyến của 6 ~ 10 chương gần đây. Văn bản của chương đã cam kết được lưu trữ trong kho/bản nháp. Nếu vượt quá giới hạn thì sẽ bị mất.
+// Mỗi đồng bằng mã thông báo kích hoạt hiển thị lại O (toàn văn). Giới hạn trên của bộ nhớ trạng thái ổn định là khoảng 512KB, thấp hơn nhiều so với ngưỡng đóng băng.
 const maxStreamRounds = 32
 
 type focusPane int
@@ -29,28 +29,28 @@ const (
 	focusEvents focusPane = iota
 	focusStream
 	focusDetail
-	focusState // 左侧状态侧栏（可滚动）
+	focusState // Thanh bên trạng thái bên trái (có thể cuộn)
 
-	focusPaneCount // 焦点总数，Tab 轮转用
+	focusPaneCount // Tổng số tiêu điểm, được sử dụng để xoay Tab
 )
 
 type appMode int
 
 const (
-	modeNew     appMode = iota // 等待用户输入小说需求
-	modeRunning                // 正在创作（包括出错停止，输入可恢复）
-	modeDone                   // 创作完成
+	modeNew     appMode = iota // Đợi người dùng nhập yêu cầu mới
+	modeRunning                // Đang tạo (bao gồm cả việc dừng lỗi, có thể tiếp tục nhập liệu)
+	modeDone                   // Quá trình tạo đã hoàn tất
 )
 
-// 顶栏 / 流式活动共用的 spinner 帧序列（bubbles.Spinner.MiniDot）。
+// Chuỗi khung hình spinner (bubbles.Spinner.MiniDot) phổ biến cho các hoạt động phát trực tuyến/thanh trên cùng.
 var spinnerFrames = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 
-// 事件流"进行中"行专用的 spinner 帧序列（bubbles.Spinner.Dot）。
-// 7 个点 + 1 个缺口沿 3×3 格子顺时针旋转，视觉上像完整的加载圆圈。
-// 用独立帧索引 + 更快 tick，不影响顶栏和星星动画的节奏。
+// Một chuỗi các khung quay (bubbles.Spinner.Dot) dành riêng cho dòng "đang xử lý" của luồng sự kiện.
+// 7 điểm + 1 khía xoay theo chiều kim đồng hồ dọc theo lưới 3×3, trông giống như một vòng tròn tải hoàn chỉnh.
+// Sử dụng chỉ số khung độc lập + đánh dấu nhanh hơn mà không ảnh hưởng đến nhịp điệu của thanh trên cùng và hình ảnh động ngôi sao.
 var toolSpinnerFrames = []string{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}
 
-// Model 是 TUI 的顶层状态。
+// Mô hình là trạng thái cấp cao nhất của TUI.
 type Model struct {
 	runtime        *host.Host
 	askBridge      *askUserBridge
@@ -69,23 +69,23 @@ type Model struct {
 	compActive     bool
 	snapshot       host.UISnapshot
 	events         []host.Event
-	eventIndex     map[string]int   // event.ID → m.events 下标；调用类事件到达时原地更新
-	viewport       viewport.Model   // 事件流 viewport
-	streamVP       viewport.Model   // 流式输出 viewport
-	detailVP       viewport.Model   // 右侧详情 viewport
-	stateVP        viewport.Model   // 左侧状态侧栏 viewport（可滚动）
-	streamBuf      *strings.Builder // 流式文本累积缓冲
+	eventIndex     map[string]int   // sự kiện.ID → chỉ số m.events; cập nhật tại chỗ khi sự kiện lớp gọi đến
+	viewport       viewport.Model   // khung nhìn luồng sự kiện
+	streamVP       viewport.Model   // Truyền phát khung nhìn đầu ra
+	detailVP       viewport.Model   // Khung nhìn chi tiết ở bên phải
+	stateVP        viewport.Model   // Cổng xem thanh bên trạng thái bên trái (có thể cuộn)
+	streamBuf      *strings.Builder // Bộ đệm tích lũy văn bản truyền phát
 	streamRounds   []string
 	textarea       textarea.Model
 	width          int
 	height         int
 	autoScroll     bool
-	streamScroll   bool      // 流式面板自动跟随
-	streamDirty    bool      // streamRounds 有未刷新的 delta；由 streamFlushTick 60fps 合并
-	lastKeyAt      time.Time // 上次非 Enter 按键时间；KeyEnter 节流防粘贴 \n 流误触发提交
-	inputHistory   []string  // 已提交的输入历史（去重：相邻不重复）
-	historyIdx     int       // 当前浏览索引；== len(inputHistory) 表示"未浏览，正在编辑草稿"
-	historyDraft   string    // 进入历史浏览前保存的草稿，回到末端时恢复
+	streamScroll   bool      // Bảng điều khiển phát trực tuyến tự động theo sau
+	streamDirty    bool      // StreamRounds có delta chưa được xóa; được hợp nhất bởi luồngFlushTick 60fps
+	lastKeyAt      time.Time // Lần nhấn phím không phải Enter cuối cùng; KeyEnter điều chỉnh và chống dán \n Lỗi luồng kích hoạt gửi
+	inputHistory   []string  // Lịch sử đầu vào đã gửi (loại bỏ trùng lặp: liền kề và không trùng lặp)
+	historyIdx     int       // Chỉ mục duyệt web hiện tại; == len(inputHistory) có nghĩa là "chưa duyệt, đang chỉnh sửa bản nháp"
+	historyDraft   string    // Các bản nháp đã lưu trước khi vào lịch sử duyệt web có thể được khôi phục khi quay lại phần cuối
 	focusPane      focusPane
 	hoverPane      focusPane
 	hoverActive    bool
@@ -95,28 +95,28 @@ type Model struct {
 	reportSeq      int
 	err            error
 	spinnerIdx     int
-	toolSpinnerIdx int  // 事件流进行中行的独立帧索引（150ms tick，不影响顶栏/星星）
-	cursorIdx      int  // 流式光标帧索引（独立 tick）
-	streamRound    int  // 流式输出轮次计数
-	quitPending    bool // 双次 Ctrl+C 退出确认
-	abortPending   bool // 等待 Done 回来的手动暂停
-	mouseOff       bool // true 时已禁用鼠标上报，让用户原生拖拽选中复制；再次切换恢复
+	toolSpinnerIdx int  // Chỉ mục khung độc lập cho hàng đang diễn ra trong luồng sự kiện (đánh dấu 150 mili giây, không ảnh hưởng đến thanh/sao trên cùng)
+	cursorIdx      int  // Chỉ số khung con trỏ truyền phát (đánh dấu độc lập)
+	streamRound    int  // Truyền trực tiếp số vòng đầu ra
+	quitPending    bool // Nhấn đúp Ctrl+C để thoát và xác nhận
+	abortPending   bool // Tạm dừng thủ công chờ Done quay lại
+	mouseOff       bool // Khi đúng, báo cáo bằng chuột bị tắt, cho phép người dùng kéo và thả để chọn và sao chép; chuyển đổi một lần nữa để khôi phục nó.
 }
 
-// NewModel 创建 TUI Model。
+// NewModel tạo Mô hình TUI.
 func NewModel(rt *host.Host, bridge *askUserBridge, version string) Model {
 	ta := textarea.New()
 	ta.Placeholder = placeholderForNewMode(startupModeQuick)
 	ta.CharLimit = 2000
 	ta.SetHeight(1)
-	// MaxHeight=6 让超长输入按宽度自动 wrap 显示成多行（视觉上限 6 行）。
+	// MaxHeight=6 cho phép đầu vào quá dài được tự động gói và hiển thị thành nhiều dòng theo chiều rộng (giới hạn trên của hình ảnh là 6 dòng).
 	ta.MaxHeight = 6
 	ta.ShowLineNumbers = false
 	ta.Focus()
 
-	// 默认 Enter 不换行（由 handleEnterKey 提交）；
-	// 主动换行重绑到 ctrl+j（unix \n）和 alt+enter（GUI 习惯）。
-	// 终端协议层无法区分 Shift+Enter 与 Enter，所以不支持 Shift+Enter。
+	// Enter không được bao bọc theo mặc định (được gửi bởi handEnterKey);
+	// Tự động liên kết lại dòng mới thành ctrl+j (unix \n) và alt+enter (quy ước GUI).
+	// Lớp giao thức đầu cuối không thể phân biệt giữa Shift+Enter và Enter, do đó Shift+Enter không được hỗ trợ.
 	ta.KeyMap.InsertNewline.SetKeys("ctrl+j", "alt+enter")
 
 	vp := viewport.New(80, 20)
@@ -207,9 +207,9 @@ func (m *Model) paneHighlighted(pane focusPane) bool {
 	return m.hoverActive && m.hoverPane == pane
 }
 
-// hasRunningEvent 是否存在未完成（spinner 仍在转）的调用类事件。
-// toolSpinnerTick 用此判断是否值得重渲：没有 running 事件时 spinner 帧不影响输出，
-// 整个 refreshEventViewport 是确定的无效工作。
+// hasRunningEvent Liệu có sự kiện gọi điện nào chưa hoàn thành (spinner vẫn đang quay) hay không.
+// toolSpinnerTick sử dụng điều này để xác định xem có đáng hiển thị lại hay không: khi không có sự kiện đang chạy, khung spinner không ảnh hưởng đến đầu ra.
+// Toàn bộ RefreshEventViewport chắc chắn không hoạt động.
 func (m *Model) hasRunningEvent() bool {
 	for i := range m.events {
 		if m.events[i].Running() {
@@ -219,8 +219,8 @@ func (m *Model) hasRunningEvent() bool {
 	return false
 }
 
-// flushStreamIfDirty 将累积的 streamRounds 渲染到 viewport；mark 为已刷。
-// 返回是否真正刷了，便于调用方决定要不要 GotoBottom。
+// FlushStreamIfDirty hiển thị luồng StreamRound tích lũy cho khung nhìn; dấu có nghĩa là đỏ bừng.
+// Trả về xem nó có thực sự được chải hay không, để người gọi có thể quyết định có nên sử dụng GotoBottom hay không.
 func (m *Model) flushStreamIfDirty() bool {
 	if !m.streamDirty {
 		return false
@@ -230,7 +230,7 @@ func (m *Model) flushStreamIfDirty() bool {
 	return true
 }
 
-// refreshEventViewport 重新渲染事件流内容并设置 viewport。
+// RefreshEventViewport hiển thị lại nội dung luồng sự kiện và đặt chế độ xem.
 func (m *Model) refreshEventViewport() {
 	centerW := m.eventFlowWidth()
 	content := renderEventContent(m.events, centerW, m.toolSpinnerIdx)
@@ -263,8 +263,8 @@ func (m *Model) refreshDetailViewport() {
 	m.detailVP.SetContent(renderDetailContent(m.snapshot, rightW-4))
 }
 
-// refreshStateViewport 把左侧状态侧栏内容刷进 viewport。
-// 侧栏内容纯由 snapshot 派生，故快照或尺寸变化时都要重刷。
+// RefreshStateViewport làm mới nội dung của thanh bên trạng thái bên trái vào khung nhìn.
+// Nội dung thanh bên hoàn toàn bắt nguồn từ ảnh chụp nhanh nên phải được sơn lại khi ảnh chụp nhanh hoặc kích thước thay đổi.
 func (m *Model) refreshStateViewport() {
 	leftW := m.sidebarWidth()
 	if leftW <= 4 {
@@ -273,30 +273,30 @@ func (m *Model) refreshStateViewport() {
 	m.stateVP.SetContent(renderStateContent(m.snapshot, leftW-4))
 }
 
-// updateViewportSize 根据当前窗口尺寸更新 viewport 大小。
+// updateViewportSize cập nhật kích thước khung nhìn dựa trên kích thước cửa sổ hiện tại.
 func (m *Model) updateViewportSize() {
 	centerW := m.eventFlowWidth()
 	rightW := m.detailWidth()
 	bodyH := m.bodyHeight()
 	eventH, streamH := m.splitHeights(bodyH)
 	m.viewport.Width = centerW - 2
-	m.viewport.Height = eventH - 1 // -1 为 event panel header 行
+	m.viewport.Height = eventH - 1 // -1 là dòng tiêu đề của bảng sự kiện
 	m.streamVP.Width = centerW - 2
-	m.streamVP.Height = streamH - 1 // -1 为 stream panel header 行
+	m.streamVP.Height = streamH - 1 // -1 là dòng tiêu đề của bảng điều khiển luồng
 	m.detailVP.Width = rightW - 2
 	m.detailVP.Height = bodyH
 	leftW := m.sidebarWidth()
 	m.stateVP.Width = max(1, leftW-2)
-	m.stateVP.Height = max(1, bodyH-2) // -2 为状态栏 Padding(1,1) 的上下留白
+	m.stateVP.Height = max(1, bodyH-2) // -2 để lại khoảng trắng ở trên và dưới thanh trạng thái Padding(1,1)
 }
 
-// splitHeights 计算事件流和流式输出的高度分配。
+// SplitHeights tính toán phân bổ chiều cao giữa các luồng sự kiện và đầu ra phát trực tuyến.
 func (m *Model) splitHeights(bodyH int) (eventH, streamH int) {
 	eventH = bodyH * 40 / 100
 	if eventH < 3 {
 		eventH = 3
 	}
-	streamH = bodyH - eventH - 1 // -1 为分隔线
+	streamH = bodyH - eventH - 1 // -1 là đường phân cách
 	if streamH < 3 {
 		streamH = 3
 	}
@@ -307,7 +307,7 @@ func (m *Model) inputWidth() int {
 	if m.width == 0 {
 		return 60
 	}
-	return m.width - 6 // border + padding + 提示符 "❯ "
+	return m.width - 6 // đường viền + phần đệm + dấu nhắc "❯"
 }
 
 func (m *Model) currentInputWidth() int {
@@ -317,17 +317,17 @@ func (m *Model) currentInputWidth() int {
 	return m.inputWidth()
 }
 
-// refitTextareaHeight 按当前内容估算视觉行数，动态 SetHeight。
-// 视觉行 = 逻辑行（\n 切分）每段按宽度 wrap 后的总和。配合 MaxHeight=6
-// 实现"超长内容/主动换行自动多行展示，最多 6 行"。
+// refitTextareaHeight ước tính số lượng dòng trực quan dựa trên nội dung hiện tại, SetHeight động.
+// Dòng trực quan = tổng các dòng logic (\n phần tách) mỗi đoạn được bao bọc bởi chiều rộng. Với MaxHeight=6
+// Nhận ra "nội dung cực dài/hiển thị nhiều dòng tự động với gói dòng hoạt động, tối đa 6 dòng".
 func (m *Model) refitTextareaHeight() {
 	w := m.textarea.Width()
 	if w <= 0 {
 		return
 	}
-	// 共创模式下 input 固定 1 行：textarea 多行内容会被 textarea 自身按光标
-	// 滚动展示。否则 inputBox 高度跟着内容变，会让左栏 conversation 收缩、
-	// input 在垂直方向漂移，破坏布局稳定性。
+	// Trong chế độ đồng sáng tạo, đầu vào được cố định thành 1 dòng: nội dung nhiều dòng của vùng văn bản sẽ được chính vùng văn bản đó nhấn con trỏ.
+	// Hiển thị cuộn. Nếu không, chiều cao của inputBox thay đổi theo nội dung, điều này sẽ khiến cuộc hội thoại ở cột bên trái bị thu hẹp lại.
+	// Đầu vào trôi theo hướng thẳng đứng, phá hủy sự ổn định của bố cục.
 	if m.cocreate != nil {
 		m.textarea.SetHeight(1)
 		return
@@ -337,7 +337,7 @@ func (m *Model) refitTextareaHeight() {
 		m.textarea.SetHeight(1)
 		return
 	}
-	// 扣 2 列冗余（textarea 内部 prompt symbol + cursor），偏多 1 行可接受。
+	// 2 cột bị trừ (ký hiệu dấu nhắc bên trong vùng văn bản + con trỏ) và có thể chấp nhận thêm 1 hàng nữa.
 	contentW := w - 2
 	if contentW < 1 {
 		contentW = 1
@@ -354,20 +354,20 @@ func (m *Model) refitTextareaHeight() {
 	if total < 1 {
 		total = 1
 	}
-	m.textarea.SetHeight(total) // SetHeight 内部按 MaxHeight clamp
+	m.textarea.SetHeight(total) // SetHeight ép bên trong kẹp MaxHeight
 }
 
-// resizeTextarea 同步设置宽度与基于内容的高度。
-// 替代散落各处的 SetWidth(currentInputWidth()) 调用，保证宽度变化时高度跟随。
+// resizeTextarea đặt đồng bộ chiều rộng và chiều cao dựa trên nội dung.
+// Thay thế các lệnh gọi SetWidth(currentInputWidth()) nằm rải rác khắp nơi để đảm bảo rằng chiều cao sẽ tuân theo khi chiều rộng thay đổi.
 func (m *Model) resizeTextarea() {
 	m.textarea.SetWidth(m.currentInputWidth())
 	m.refitTextareaHeight()
 }
 
-// maxInputHistory 限制历史长度，避免长会话内存增长。
+// maxInputHistory giới hạn độ dài lịch sử để tránh tăng bộ nhớ trong các phiên dài.
 const maxInputHistory = 200
 
-// pushInputHistory 把成功提交的内容追加到历史，相邻去重。同步重置浏览索引。
+// pushInputHistory Thêm nội dung đã gửi thành công vào lịch sử, loại bỏ trùng lặp. Đặt lại đồng bộ chỉ mục duyệt web.
 func (m *Model) pushInputHistory(text string) {
 	if text == "" {
 		return
@@ -382,9 +382,9 @@ func (m *Model) pushInputHistory(text string) {
 	m.historyDraft = ""
 }
 
-// tryHistoryUp 向更早一条历史走；返回是否处理了按键。
-// 首次进入历史浏览时把当前 textarea 内容存为 draft，回到末端时恢复。
-// 调用方需自行判断多行场景下是否应该绕开（让 textarea 处理光标行内移动）。
+// tryHistoryUp đi tới một lịch sử trước đó; trả về việc nhấn phím đã được xử lý hay chưa.
+// Lưu nội dung vùng văn bản hiện tại dưới dạng bản nháp khi bạn truy cập lịch sử duyệt lần đầu tiên và khôi phục nội dung đó khi bạn quay lại phần cuối.
+// Người gọi cần đánh giá xem có nên bỏ qua nó trong các tình huống nhiều dòng hay không (để vùng văn bản xử lý chuyển động của con trỏ trong dòng).
 func (m *Model) tryHistoryUp() bool {
 	if len(m.inputHistory) == 0 || m.historyIdx <= 0 {
 		return false
@@ -399,7 +399,7 @@ func (m *Model) tryHistoryUp() bool {
 	return true
 }
 
-// tryHistoryDown 向更新一条历史走；走到末端恢复 draft。
+// tryHistoryDown sẽ cập nhật một phần lịch sử; đi đến cuối và khôi phục bản nháp.
 func (m *Model) tryHistoryDown() bool {
 	if m.historyIdx >= len(m.inputHistory) {
 		return false
@@ -416,61 +416,61 @@ func (m *Model) tryHistoryDown() bool {
 	return true
 }
 
-// textareaIsMultiline 当前 textarea 内容是否含主动换行；用于决定 ↑↓ 是走历史还是行内移动。
+// textareaIsMultiline Liệu nội dung vùng văn bản hiện tại có chứa ngắt dòng hiện hoạt hay không; được sử dụng để xác định xem ↑↓ di chuyển trong lịch sử hay trong dòng.
 func (m *Model) textareaIsMultiline() bool {
 	return strings.Contains(m.textarea.Value(), "\n")
 }
 
-// inputHints 根据当前状态生成底部提示文本。
-// 末尾统一追加 copySuffix，让用户在任何非紧急状态都能看到选中复制方法；
-// 鼠标已关时显示醒目红字提示，提醒再次按键恢复鼠标交互。
+// inputHints tạo văn bản gợi ý dưới cùng dựa trên trạng thái hiện tại.
+// Nối copySuffix thống nhất ở cuối để người dùng có thể thấy phương thức sao chép đã chọn trong bất kỳ trạng thái không khẩn cấp nào;
+// Khi tắt chuột, hiển thị dòng chữ màu đỏ bắt mắt nhắc nhở bạn nhấn lại nút để tiếp tục tương tác chuột.
 func (m *Model) inputHints() string {
 	dimStyle := lipgloss.NewStyle().Foreground(colorDim)
 	if m.quitPending {
 		return lipgloss.NewStyle().Foreground(lipgloss.Color("243")).Bold(true).Render("Press Ctrl+C again to exit")
 	}
-	// 欢迎页(modeNew)不开鼠标上报，终端原生拖拽即可复制，无需 Ctrl+R 提示；
-	// 工作台才开上报，复制需 Ctrl+R 临时关闭。
-	suffix := " · Ctrl+R 切到选中复制模式"
+	// Trang chào mừng (modeNew) không yêu cầu chuột để báo cáo và thiết bị đầu cuối có thể được sao chép bằng cách kéo nó nguyên bản mà không cần dấu nhắc Ctrl+R;
+	// Bàn làm việc chỉ được mở để báo cáo và việc sao chép cần được đóng tạm thời bằng cách nhấn Ctrl+R.
+	suffix := " · Ctrl+R chuyển sang chế độ sao chép đã chọn"
 	if m.mode == modeNew {
 		suffix = ""
 	}
 	if m.mouseOff && m.mode != modeNew {
-		// 工作台手动切到选中复制：用强调色提示当前处于"自由拖拽选中"状态，按 Ctrl+R 恢复
+		// Chuyển thủ công sang bản sao đã chọn trên bàn làm việc: sử dụng màu nhấn để cho biết trạng thái hiện tại là "lựa chọn kéo và thả tự do", nhấn Ctrl+R để khôi phục
 		return lipgloss.NewStyle().Foreground(colorAccent).Bold(true).
-			Render("✂ 选中复制模式：可拖拽选中文本复制 · Ctrl+R 退出恢复鼠标交互")
+			Render("✂ Chế độ sao chép đã chọn: Bạn có thể kéo và thả văn bản đã chọn để sao chép · Ctrl+R để thoát và khôi phục tương tác chuột")
 	}
 	if m.cocreate != nil {
-		scrollHint := " · Tab 滚动:对话"
+		scrollHint := " · Cuộn tab: Hội thoại"
 		if m.cocreate.focusPrompt {
-			scrollHint = " · Tab 滚动:创作指令"
+			scrollHint = " · Cuộn tab: lệnh sáng tạo"
 		}
 		switch {
 		case m.cocreate.awaiting:
-			return dimStyle.Render("等待 AI 回复 · Esc 退出共创" + scrollHint + suffix)
+			return dimStyle.Render("Đang chờ AI trả lời · Esc để thoát khỏi chế độ đồng sáng tạo" + scrollHint + suffix)
 		case m.cocreate.canStart():
-			startLabel := "Ctrl+S 开始创作"
+			startLabel := "Ctrl+S bắt đầu tạo"
 			if m.cocreate.stage {
-				startLabel = "Ctrl+S 应用并继续"
+				startLabel = "Ctrl+S Áp dụng và tiếp tục"
 			}
-			return dimStyle.Render("Enter 发送 · " + startLabel + " · Esc 退出共创" + scrollHint + suffix)
+			return dimStyle.Render("Nhập Gửi · " + startLabel + " · Esc thoát khỏi chế độ đồng sáng tạo" + scrollHint + suffix)
 		default:
-			return dimStyle.Render("Enter 发送 · Esc 退出共创" + scrollHint + suffix)
+			return dimStyle.Render("Enter để gửi · Esc để thoát đồng sáng tạo" + scrollHint + suffix)
 		}
 	}
 	if m.mode == modeNew {
 		if m.startupMode == startupModeQuick {
-			return dimStyle.Render("Tab 切换启动模式 · 输入 / 搜索命令 · Enter 直接开始创作 · Esc 清空输入" + suffix)
+			return dimStyle.Render("Tab chuyển chế độ khởi động · Lệnh nhập / tìm kiếm · Enter bắt đầu tạo trực tiếp · Esc xóa đầu vào" + suffix)
 		}
-		return dimStyle.Render("Tab 切换启动模式 · 输入 / 搜索命令 · Enter 开始共创对话 · Esc 清空输入" + suffix)
+		return dimStyle.Render("Tab chuyển chế độ khởi động · Lệnh nhập/tìm kiếm · Enter bắt đầu cuộc trò chuyện đồng sáng tạo · Esc xóa đầu vào" + suffix)
 	}
 	switch m.snapshot.RuntimeState {
 	case "pausing":
-		return dimStyle.Render("正在暂停创作 · 请等待当前轮次结束" + suffix)
+		return dimStyle.Render("Tạm dừng tạo · Vui lòng đợi kết thúc vòng hiện tại" + suffix)
 	case "paused":
-		return dimStyle.Render("输入 / 搜索命令 · Enter 继续创作 · Esc 清空输入" + suffix)
+		return dimStyle.Render("Lệnh Enter/Tìm kiếm · Enter để tiếp tục tạo · Esc để xóa đầu vào" + suffix)
 	}
-	return dimStyle.Render("输入 / 搜索命令 · 点击/Tab 切换面板 · ↑↓ 滚动 · End 跳底 · Ctrl+L 清屏 · Esc 暂停 · Enter 发送" + suffix)
+	return dimStyle.Render("Lệnh nhập/tìm kiếm · Click/Tab để chuyển bảng · ↑↓ để cuộn · Kết thúc để nhảy xuống cuối · Ctrl+L để xóa màn hình · Esc để tạm dừng · Enter để gửi" + suffix)
 }
 
 func (m *Model) eventFlowWidth() int {
@@ -516,7 +516,7 @@ func (m *Model) outputDir() string {
 }
 
 func defaultSteerPlaceholder() string {
-	return "输入剧情干预，例如：把感情线提前到第4章"
+	return "Nhập can thiệp cốt truyện, ví dụ: tiến đường tình duyên đến Chương 4"
 }
 
 func (m *Model) syncRuntimePlaceholder() {
@@ -525,14 +525,14 @@ func (m *Model) syncRuntimePlaceholder() {
 	}
 	switch m.snapshot.RuntimeState {
 	case "completed":
-		m.textarea.Placeholder = "创作已完成"
+		m.textarea.Placeholder = "Quá trình tạo đã hoàn tất"
 	case "pausing":
-		m.textarea.Placeholder = "正在暂停创作..."
+		m.textarea.Placeholder = "Đang tạm dừng tạo..."
 	case "paused":
-		m.textarea.Placeholder = "创作已暂停，输入任意内容继续创作"
+		m.textarea.Placeholder = "Quá trình sáng tạo đã bị tạm dừng. Nhập nội dung bất kỳ để tiếp tục sáng tạo."
 	default:
 		if !m.snapshot.IsRunning {
-			m.textarea.Placeholder = "运行中断，输入任意内容恢复创作"
+			m.textarea.Placeholder = "Nếu thao tác bị gián đoạn, hãy nhập nội dung bất kỳ để tiếp tục tạo."
 		} else {
 			m.textarea.Placeholder = defaultSteerPlaceholder()
 		}
@@ -568,14 +568,14 @@ func (m *Model) layoutHeights() (topH, inputH, bodyH int) {
 
 func (m Model) View() string {
 	if m.width == 0 || m.height == 0 {
-		return "加载中..."
+		return "đang tải..."
 	}
 	if m.width < 100 {
 		return lipgloss.NewStyle().
 			Width(m.width).Height(m.height).
 			AlignHorizontal(lipgloss.Center).
 			AlignVertical(lipgloss.Center).
-			Render("终端宽度不足，请至少扩展到 100 列")
+			Render("Độ rộng của thiết bị đầu cuối không đủ, vui lòng mở rộng lên ít nhất 100 cột")
 	}
 	if m.askState != nil {
 		return renderAskUserModal(m.width, m.height, m.askState)
@@ -615,11 +615,11 @@ func (m Model) View() string {
 
 		if m.viewport.Width != centerW-2 || m.viewport.Height != eventH-1 {
 			m.viewport.Width = centerW - 2
-			m.viewport.Height = eventH - 1 // -1 为 event panel header 行
+			m.viewport.Height = eventH - 1 // -1 là dòng tiêu đề của bảng sự kiện
 		}
 		if m.streamVP.Width != centerW-2 || m.streamVP.Height != streamH-1 {
 			m.streamVP.Width = centerW - 2
-			m.streamVP.Height = streamH - 1 // -1 为 stream panel header 行
+			m.streamVP.Height = streamH - 1 // -1 là dòng tiêu đề của bảng điều khiển luồng
 		}
 
 		eventFlow := renderEventFlowViewport(m.viewport, centerW, eventH, m.paneHighlighted(focusEvents))
@@ -633,7 +633,7 @@ func (m Model) View() string {
 
 	view := lipgloss.JoinVertical(lipgloss.Left, topBar, body, inputBox)
 
-	// 弹窗覆盖叠加：浮在 body 底部上方，不影响布局
+	// Lớp phủ cửa sổ bật lên: nổi phía trên phần dưới cùng của nội dung mà không ảnh hưởng đến bố cục
 	if m.modelSwitch != nil {
 		commandBar := renderModelSwitchBar(m.width, m.modelSwitch)
 		view = overlayAboveInput(view, commandBar, inputH)
@@ -644,7 +644,7 @@ func (m Model) View() string {
 	return view
 }
 
-// sendCoCreate 发起一轮共创请求，统一处理 reqID、textarea、placeholder。
+// sendCoCreate bắt đầu một vòng yêu cầu đồng sáng tạo và xử lý reqID, vùng văn bản và trình giữ chỗ theo cách thống nhất.
 func (m *Model) sendCoCreate() tea.Cmd {
 	m.cocreateSeq++
 	m.cocreate.reqID = m.cocreateSeq
@@ -661,9 +661,9 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 	state := m.cocreate
 
-	// 键盘 ↑↓/PgUp/PgDn/Home/End 滚动；Tab 在左对话栏 ↔ 右创作指令栏间切换滚动焦点
-	// （默认左栏，用户回看主体）。欢迎页已关鼠标上报以保留原生复制，右栏溢出时靠 Tab
-	// 切焦点后用键盘滚。左栏：上滚关 follow，滚到底重开 follow（流式跟随）。
+	// Bàn phím ↑↓/PgUp/PgDn/Home/End cuộn; Tab chuyển tiêu điểm cuộn giữa thanh hội thoại bên trái ↔ thanh lệnh quảng cáo bên phải
+	// (Mặc định cột bên trái, người dùng nhìn lại nội dung chính). Trang chào mừng đã tắt báo cáo chuột để giữ lại bản gốc, khi cột bên phải tràn ra nhấn Tab
+	// Sử dụng bàn phím để cuộn sau khi chuyển tiêu điểm. Cột bên trái: Kéo lên để tắt theo dõi, kéo xuống phía dưới để bật lại theo dõi (streaming follow).
 	switch msg.Type {
 	case tea.KeyTab:
 		state.focusPrompt = !state.focusPrompt
@@ -710,9 +710,9 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.exitCoCreate()
 	}
 
-	// 等待 AI 回复时编辑类（字符输入/退格/光标/Ctrl+U/多行换行）放行——
-	// 用户能在 AI 思考期间预输入下一句。提交类的屏蔽下沉到各 case 内部，
-	// 让 Enter 节流先于 awaiting 屏蔽——这样粘贴的 \n 残片仍能补空格。
+	// Giải phóng lớp chỉnh sửa (nhập ký tự/xóa lùi/con trỏ/Ctrl+U/ngắt dòng nhiều dòng) trong khi chờ AI trả lời——
+	// Người dùng có thể gõ trước câu tiếp theo trong khi AI đang suy nghĩ. Sự che chắn của lớp đệ trình chìm vào từng trường hợp.
+	// Hãy Enter ga trước khi chờ - bằng cách này, đoạn \n đã dán vẫn có thể lấp đầy khoảng trống.
 
 	switch msg.Type {
 	case tea.KeyCtrlS:
@@ -722,7 +722,7 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if !state.canStart() {
 			return m, nil
 		}
-		// 阶段共创：把"后续方向 brief"注入并恢复创作，回到运行台。
+		// Đồng sáng tạo theo giai đoạn: Đưa vào "Bản tóm tắt hướng dẫn tiếp theo" và tiếp tục quá trình tạo, quay lại thời gian chạy.
 		if state.stage {
 			draft := state.draftPrompt()
 			m.cocreate = nil
@@ -731,7 +731,7 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.textarea.Placeholder = defaultSteerPlaceholder()
 			return m, tea.Batch(resumeFromCoCreate(m.runtime, draft), m.textarea.Focus())
 		}
-		// 冷启动共创：用整理好的创作指令开始创作。
+		// Đồng sáng tạo bắt đầu từ đầu: Bắt đầu sáng tạo với các hướng dẫn sáng tạo có tổ chức.
 		plan, err := state.buildPlan()
 		if err != nil {
 			m.err = err
@@ -741,20 +741,20 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.textarea.Blur()
 		return m, startRuntime(m.runtime, plan)
 	case tea.KeyEnter:
-		// Alt+Enter → 主动换行，让 textarea.Update 接管（KeyMap.InsertNewline 已绑此键）
+		// Alt+Enter → Tự động ngắt dòng và để textarea.Update tiếp quản (KeyMap.InsertNewline đã được liên kết với khóa này)
 		if msg.Alt {
 			break
 		}
-		// 与上一次字符按键间隔过短 → 视为粘贴流的 \n 残片：补空格代替提交。
-		// 必须在 awaiting 屏蔽之前判断——否则 awaiting 期间粘贴 \n 残片会被屏蔽，
-		// 导致 "abc\ndef" 被吞成 "abcdef"，与 base 路径语义不一致。
+		// Khoảng cách từ lần nhấn phím ký tự cuối cùng quá ngắn → được coi là \n đoạn của luồng dán: hãy điền vào khoảng trắng thay vì gửi.
+		// Nó phải được đánh giá trước khi chờ đợi bị chặn - nếu không các đoạn \n được dán trong quá trình chờ đợi sẽ bị chặn.
+		// Kết quả là, "abc\ndef" bị nuốt vào "abcdef", điều này không phù hợp với ngữ nghĩa đường dẫn cơ sở.
 		if !m.lastKeyAt.IsZero() && time.Since(m.lastKeyAt) < 50*time.Millisecond {
 			var cmd tea.Cmd
 			m.textarea, cmd = m.textarea.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{' '}})
 			m.refitTextareaHeight()
 			return m, cmd
 		}
-		// 真正的提交意图：awaiting 期间屏蔽（不能并发发请求）
+		// Ý định gửi thực sự: được bảo vệ trong thời gian chờ đợi (không thể gửi yêu cầu đồng thời)
 		if state.awaiting {
 			return m, nil
 		}
@@ -774,9 +774,9 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	// 数字键 1/2/3 在 textarea 为空且有建议时 → 填入对应建议（不发送，可编辑）。
-	// 仅在空输入框时拦截，避免影响用户主动打数字。awaiting 时建议不展示，
-	// 这里也无需额外判断（state.suggestions 为空即跳过）。
+	// Phím số 1/2/3 Khi vùng văn bản trống và có gợi ý → điền gợi ý tương ứng (không gửi được, có thể chỉnh sửa).
+	// Chỉ chặn khi ô nhập trống để tránh ảnh hưởng đến thao tác gõ số đang hoạt động của người dùng. Khuyến cáo không nên hiển thị khi chờ đợi.
+	// Không cần phải đánh giá bổ sung ở đây (state.suggestions sẽ bị bỏ qua nếu nó trống).
 	if msg.Type == tea.KeyRunes && len(msg.Runes) == 1 && !state.awaiting {
 		if r := msg.Runes[0]; r >= '1' && r <= '3' {
 			if strings.TrimSpace(m.textarea.Value()) == "" {
@@ -789,7 +789,7 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// 常规输入转发给 textarea
+	// Đầu vào thông thường được chuyển tiếp tới vùng văn bản
 	if msg.Type == tea.KeyRunes && (containsSGRFragment(string(msg.Runes)) || isCSILeak(msg.Runes)) {
 		return m, nil
 	}
@@ -806,7 +806,7 @@ func (m Model) handleCoCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-// exitCoCreate 退出共创模式，取消进行中的 LLM 请求，恢复输入框状态。
+// exitCoCreate thoát chế độ đồng sáng tạo, hủy yêu cầu LLM đang diễn ra và khôi phục trạng thái hộp đầu vào.
 func (m Model) exitCoCreate() (tea.Model, tea.Cmd) {
 	if m.cocreate.cancel != nil {
 		m.cocreate.cancel()
@@ -815,7 +815,7 @@ func (m Model) exitCoCreate() (tea.Model, tea.Cmd) {
 	initial := m.cocreate.initialInput()
 	m.cocreate = nil
 	m.resizeTextarea()
-	// 阶段共创取消：清占用标记、保持暂停，回到运行台输入态（不回填合成开场）。
+	// Hủy đồng sáng tạo giai đoạn: xóa dấu nghề nghiệp, giữ tạm dừng và quay lại trạng thái đầu vào của bảng đang chạy (không chèn lấp phần mở tổng hợp).
 	if stage {
 		m.textarea.SetValue("")
 		m.textarea.Placeholder = defaultSteerPlaceholder()
@@ -861,7 +861,7 @@ func (m Model) handleAskUserKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	switch msg.Type {
 	case tea.KeyEsc:
-		// 关闭弹窗，返回空答案
+		// Đóng cửa sổ bật lên và trả về câu trả lời trống
 		state.request.resultCh <- askUserResult{
 			resp: &tools.AskUserResponse{
 				Answers: make(map[string]string),
@@ -903,8 +903,8 @@ func (m Model) handleAskUserKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// overlayAboveInput 将 overlay 浮动叠加在 base 视图的底部（inputBox 上方），
-// 不改变整体布局高度。仅覆盖 overlay 卡片自身宽度，右侧透出底层内容。
+// lớp phủAboveInput sẽ làm nổi lớp phủ ở cuối chế độ xem cơ sở (phía trên hộp đầu vào),
+// Không thay đổi chiều cao bố cục tổng thể. Chỉ có chiều rộng của thẻ lớp phủ được che đi và nội dung cơ bản được hiển thị ở phía bên phải.
 func overlayAboveInput(base, overlay string, inputLineCount int) string {
 	baseLines := strings.Split(base, "\n")
 	overLines := strings.Split(strings.TrimRight(overlay, "\n"), "\n")
@@ -919,7 +919,7 @@ func overlayAboveInput(base, overlay string, inputLineCount int) string {
 		y := startY + i
 		if y >= 0 && y < endY {
 			olW := lipgloss.Width(ol)
-			// 截掉基线左侧 olW 个可见字符，拼接 overlay + 剩余右侧内容
+			// Cắt bỏ các ký tự hiển thị olW ở phía bên trái của đường cơ sở và ghép lớp phủ + nội dung bên phải còn lại
 			right := ansi.TruncateLeft(baseLines[y], olW, "")
 			baseLines[y] = ol + right
 		}
@@ -927,9 +927,9 @@ func overlayAboveInput(base, overlay string, inputLineCount int) string {
 	return strings.Join(baseLines, "\n")
 }
 
-// isCSILeak 检测 KeyRunes 是否为 CSI 转义序列泄漏的残片。
-// 终端发送方向键 \x1b[A 时，快速按键可能导致序列拆分：
-// \x1b 被解析为 Escape，"[" 或 "[A" 作为 KeyRunes 泄漏到 textarea。
+// isCSILeak phát hiện xem KeyRunes có phải là các đoạn rò rỉ chuỗi thoát CSI hay không.
+// Khi thiết bị đầu cuối gửi các phím mũi tên \x1b[A, việc nhấn phím nhanh có thể khiến chuỗi bị phân tách:
+// \x1b được phân tích cú pháp dưới dạng Escape và "[" hoặc "[A" bị rò rỉ ra vùng văn bản dưới dạng KeyRunes.
 func isCSILeak(runes []rune) bool {
 	if len(runes) == 0 || runes[0] != '[' {
 		return false
@@ -944,7 +944,7 @@ func isCSILeak(runes []rune) bool {
 	return true
 }
 
-// containsSGRFragment 检测文本是否包含 SGR 鼠标序列残片（"<数字;数字;" 模式）。
+// chứaSGRFragment Kiểm tra xem văn bản có chứa đoạn chuỗi chuột SGR hay không (mẫu ("<number;number;").
 func containsSGRFragment(s string) bool {
 	for i := 0; i < len(s); i++ {
 		if s[i] != '<' {

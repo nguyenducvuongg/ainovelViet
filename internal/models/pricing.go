@@ -18,12 +18,12 @@ const (
 	cacheTTL      = 24 * time.Hour
 	fetchTimeout  = 10 * time.Second
 	cacheFileName = "models-cache.json"
-	// maxModelAgeDays 与 gen_models.go 保持一致：超过这个年龄的模型视作过时、剔除。
+	// maxModelAgeDays nhất quán với gen_models.go: những mô hình vượt quá độ tuổi này bị coi là lỗi thời và bị loại bỏ.
 	maxModelAgeDays = 730
 )
 
-// providerMap 把 OpenRouter 的 vendor 前缀规范化成本地 provider 名。
-// 未列入的厂商会被忽略，避免拉回无法使用的条目。
+// ProviderMap bình thường hóa tiền tố nhà cung cấp của OpenRouter thành tên nhà cung cấp địa phương.
+// Các nhà cung cấp không được liệt kê sẽ bị bỏ qua để tránh lấy lại các mục không sử dụng được.
 var providerMap = map[string]string{
 	"anthropic":  "anthropic",
 	"openai":     "openai",
@@ -68,23 +68,23 @@ type modelCache struct {
 	Models    []ModelEntry `json:"models"`
 }
 
-// StartPricingRefresh 起后台 goroutine 刷新模型数据。
-// 先读磁盘缓存（24h TTL），过期或不存在则拉新数据并落盘。
-// cacheDir 为空时跳过磁盘缓存，仍会尝试网络拉取。
+// StartPricingRefresh khởi động quy trình nền để làm mới dữ liệu mô hình.
+// Đọc bộ đệm đĩa trước (24h TTL). Nếu nó hết hạn hoặc không tồn tại, dữ liệu mới sẽ được kéo và thả vào đĩa.
+// Bộ nhớ đệm trên đĩa bị bỏ qua khi cacheDir trống và vẫn cố gắng kéo mạng.
 func StartPricingRefresh(registry *ModelRegistry, cacheDir string) {
 	go func() {
 		models := loadCache(cacheDir)
 		if models == nil {
 			fetched, err := fetchModels()
 			if err != nil {
-				slog.Warn("模型元数据刷新失败", "module", "models", "err", err)
+				slog.Warn("Làm mới siêu dữ liệu mô hình không thành công", "module", "models", "err", err)
 				return
 			}
 			models = fetched
 			saveCache(models, cacheDir)
 		}
 		registry.MergeModels(models)
-		slog.Info("模型元数据已就绪", "module", "models", "count", len(models))
+		slog.Info("Siêu dữ liệu mô hình đã sẵn sàng", "module", "models", "count", len(models))
 	}()
 }
 
@@ -171,7 +171,7 @@ func convertModel(m openRouterModel) (ModelEntry, bool) {
 		return ModelEntry{}, false
 	}
 	modelID := parts[1]
-	// 忽略变体后缀（如 :thinking / :free）
+	// Bỏ qua các hậu tố biến thể (ví dụ: :thinking / :free)
 	if strings.Contains(modelID, ":") {
 		return ModelEntry{}, false
 	}
@@ -197,8 +197,8 @@ func convertModel(m openRouterModel) (ModelEntry, bool) {
 	return entry, true
 }
 
-// isStaleModel 按 maxModelAgeDays 过滤过时模型。
-// 0 或负值视为数据缺失，按"老模型"处理直接剔除。
+// isStaleModel Lọc các mô hình cũ theo maxModelAgeDays.
+// 0 hoặc giá trị âm được coi là dữ liệu bị thiếu và bị loại bỏ trực tiếp theo quy trình "mô hình cũ".
 func isStaleModel(created int64) bool {
 	if created <= 0 {
 		return true
@@ -207,7 +207,7 @@ func isStaleModel(created int64) bool {
 	return age > maxModelAgeDays
 }
 
-// tokenToMillion 把 OpenRouter 返回的"每 token 美元价格"转成"每 1M token 美元价格"。
+// tokenToMillion chuyển đổi "giá mỗi token USD" được OpenRouter trả về thành "giá mỗi 1 triệu token USD".
 func tokenToMillion(s string) float64 {
 	if s == "" {
 		return 0

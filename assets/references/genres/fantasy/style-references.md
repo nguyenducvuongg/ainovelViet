@@ -1,25 +1,25 @@
-# 奇幻风格补充参考
+# Tham khảo bổ sung phong cách Fantasy
 
-## 世界构建
+## Tòa nhà thế giới
 
-- 魔法体系必须有明确代价，不能出现"无限能量"
-- 种族特征要在行动中自然展示，禁止百科式灌输
-- 新设定首次出现时通过角色互动引出，不用旁白解释
+- Hệ thống phép thuật phải có giá rõ ràng và không thể có “năng lượng vô hạn”
+- Đặc điểm chủng tộc phải được thể hiện một cách tự nhiên trong hành động, nghiêm cấm việc truyền bá bách khoa.
+- Bối cảnh mới được giới thiệu thông qua tương tác nhân vật khi xuất hiện lần đầu, không cần tường thuật để giải thích
 
-## 常见陷阱
+## Những cạm bẫy thường gặp
 
-- 龙傲天：主角能力攀升要有合理代价和挫折
-- 设定膨胀：每章最多引入一个新设定概念
-- 语言穿越：避免现代网络用语出现在古典背景中
+- Long Ngạo Thiên: Để nhân vật chính có thể tăng lên năng lực phải có chi phí và trở ngại hợp lý.
+- Mở rộng bối cảnh: Mỗi chương giới thiệu tối đa một khái niệm bối cảnh mới
+- Du lịch ngôn ngữ: tránh các thuật ngữ Internet hiện đại xuất hiện trên nền cổ điển
 
-## 战斗与能力描写
+## Mô tả chiến đấu và khả năng
 
-- 战斗重点是策略和代价，不是招式名称堆砌
-- 能力上限在 world_rules 中已约定，严禁突破
-- 受伤要有持续影响，不能"下一场景就好了"
+- Trọng tâm của trận chiến là chiến lược và chi phí chứ không phải việc xếp tên nước đi.
+- Giới hạn khả năng trên đã được thống nhất trong world_rules và việc đột phá bị nghiêm cấm
+- Chấn thương phải để lại hậu quả lâu dài và không thể “chỉ là cảnh tiếp theo”
 
-## 氛围营造
+## Tạo bầu không khí
 
-- 通过五感描写建立异世界沉浸感
-- 日常生活细节（货币、食物、交通）体现世界观
-- 避免所有角色都说现代普通话，适当使用世界观内的表达方式
+- Tạo cảm giác đắm chìm trong một thế giới khác thông qua việc mô tả năm giác quan
+- Chi tiết về cuộc sống hàng ngày (tiền bạc, thực phẩm, phương tiện đi lại) phản ánh thế giới quan
+- Tránh tất cả các nhân vật nói tiếng phổ thông hiện đại và sử dụng các cách diễn đạt trong thế giới quan một cách thích hợp

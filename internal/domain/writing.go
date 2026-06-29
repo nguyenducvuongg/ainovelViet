@@ -1,7 +1,7 @@
 package domain
 
-// ChapterPlan 章节写作构思，Writer 自主生成。
-// 不再强制场景拆分，Agent 自己决定如何组织内容。
+// Ý tưởng viết chương ChapterPlan, được tạo ra một cách độc lập bởi Writer.
+// Không còn tình trạng bắt buộc phải chia cảnh, Agent quyết định cách sắp xếp nội dung.
 type ChapterPlan struct {
 	Chapter    int             `json:"chapter"`
 	Title      string          `json:"title"`
@@ -9,23 +9,23 @@ type ChapterPlan struct {
 	Conflict   string          `json:"conflict"`
 	Hook       string          `json:"hook"`
 	EmotionArc string          `json:"emotion_arc,omitempty"`
-	Notes      string          `json:"notes,omitempty"` // Agent 的自由备忘
+	Notes      string          `json:"notes,omitempty"` // Bản ghi nhớ miễn phí của đại lý
 	Contract   ChapterContract `json:"contract,omitempty"`
 }
 
-// ChapterContract 是 Writer 和 Editor 共享的章节验收契约。
-// 它定义本章必须完成的推进项、禁止越界项以及审阅关注点。
+// Hợp đồng Chương là hợp đồng chấp nhận chương được chia sẻ bởi Người viết và Người biên tập.
+// Nó xác định những gì chương phải hoàn thành, những gì không nên vượt qua và những gì cần tập trung vào để ôn tập.
 type ChapterContract struct {
-	RequiredBeats    []string `json:"required_beats,omitempty"`    // 本章必须落地的推进项
-	ForbiddenMoves   []string `json:"forbidden_moves,omitempty"`   // 本章明确不能发生的推进
-	ContinuityChecks []string `json:"continuity_checks,omitempty"` // 本章需特别核对的连续性点
-	EvaluationFocus  []string `json:"evaluation_focus,omitempty"`  // Editor 需要重点检查的点
-	EmotionTarget    string   `json:"emotion_target,omitempty"`    // 可选：本章希望读者主要感受到的情绪
-	PayoffPoints     []string `json:"payoff_points,omitempty"`     // 可选：关键章希望回应的情节点/兑现点
-	HookGoal         string   `json:"hook_goal,omitempty"`         // 可选：章末钩子希望驱动的追读欲望
+	RequiredBeats    []string `json:"required_beats,omitempty"`    // Các mục thăng tiến phải được thực hiện trong chương này
+	ForbiddenMoves   []string `json:"forbidden_moves,omitempty"`   // Chương này nói rõ rằng sự thăng tiến không thể xảy ra
+	ContinuityChecks []string `json:"continuity_checks,omitempty"` // Các điểm liên tục cần kiểm tra đặc biệt trong chương này
+	EvaluationFocus  []string `json:"evaluation_focus,omitempty"`  // Những điểm soạn thảo cần được kiểm tra
+	EmotionTarget    string   `json:"emotion_target,omitempty"`    // Tùy chọn: Những cảm xúc chính mà bạn muốn người đọc cảm nhận được trong chương này
+	PayoffPoints     []string `json:"payoff_points,omitempty"`     // Tùy chọn: Vẽ điểm/điểm thực hiện mà bạn muốn phản hồi trong chương chính
+	HookGoal         string   `json:"hook_goal,omitempty"`         // Tùy chọn: câu kết cuối chương thúc đẩy ham muốn đọc
 }
 
-// ChapterSummary 章节摘要，供后续章节的上下文窗口使用。
+// ChươngTóm tắtTóm tắt chương để sử dụng trong cửa sổ ngữ cảnh của các chương tiếp theo.
 type ChapterSummary struct {
 	Chapter    int      `json:"chapter"`
 	Summary    string   `json:"summary"`
@@ -33,7 +33,7 @@ type ChapterSummary struct {
 	KeyEvents  []string `json:"key_events"`
 }
 
-// ArcSummary 弧级摘要，弧结束时由 Editor 生成。
+// ArcSummary Tóm tắt cấp độ Arc, được Editor tạo ra ở cuối cung.
 type ArcSummary struct {
 	Volume    int      `json:"volume"`
 	Arc       int      `json:"arc"`
@@ -42,7 +42,7 @@ type ArcSummary struct {
 	KeyEvents []string `json:"key_events"`
 }
 
-// VolumeSummary 卷级摘要，卷结束时生成。
+// VolumeSummary Tóm tắt cấp độ tập, được tạo ở cuối tập.
 type VolumeSummary struct {
 	Volume    int      `json:"volume"`
 	Title     string   `json:"title"`
@@ -50,7 +50,7 @@ type VolumeSummary struct {
 	KeyEvents []string `json:"key_events"`
 }
 
-// CharacterSnapshot 角色状态快照，弧边界时记录。
+// Ảnh chụp nhanh trạng thái ký tự, được ghi ở ranh giới cung.
 type CharacterSnapshot struct {
 	Volume     int    `json:"volume"`
 	Arc        int    `json:"arc"`
@@ -61,37 +61,37 @@ type CharacterSnapshot struct {
 	Relations  string `json:"relations,omitempty"`
 }
 
-// OutlineFeedback Writer 对大纲的反馈，提交章节时可选。
+// Đề cươngPhản hồiPhản hồi của người viết về dàn ý, tùy chọn khi gửi một chương.
 type OutlineFeedback struct {
-	Deviation  string `json:"deviation"`  // 偏离描述
-	Suggestion string `json:"suggestion"` // 调整建议
+	Deviation  string `json:"deviation"`  // sai lệch so với mô tả
+	Suggestion string `json:"suggestion"` // Đề xuất điều chỉnh
 }
 
-// WritingStyleRules 从已写章节中提炼的写作规则，弧边界时由 Editor 生成。
-// 取代原文片段（style_anchors / voice_samples），用规则替代搬运原文。
+// WritingStyleRules Quy tắc viết được trích xuất từ ​​các chương đã viết, được Trình soạn thảo tạo ra tại các ranh giới cung.
+// Thay thế các đoạn văn bản gốc (style_anchors/voice_samples) và sử dụng các quy tắc để thay thế văn bản gốc.
 type WritingStyleRules struct {
 	Volume    int              `json:"volume"`
 	Arc       int              `json:"arc"`
-	Prose     []string         `json:"prose"`      // 3-5 条叙述风格规则，每条 ≤50 字
-	Dialogue  []CharacterVoice `json:"dialogue"`   // 角色对话风格规则
-	Taboos    []string         `json:"taboos"`     // 禁忌清单
-	UpdatedAt string           `json:"updated_at"` // ISO8601 时间戳
+	Prose     []string         `json:"prose"`      // 3-5 quy tắc về phong cách tường thuật, mỗi quy tắc 50 từ
+	Dialogue  []CharacterVoice `json:"dialogue"`   // Quy tắc phong cách đối thoại nhân vật
+	Taboos    []string         `json:"taboos"`     // danh sách cấm kỵ
+	UpdatedAt string           `json:"updated_at"` // Dấu thời gian ISO8601
 }
 
-// CharacterVoice 单个角色的对话风格规则。
+// Quy tắc kiểu hội thoại CharacterVoice cho một ký tự.
 type CharacterVoice struct {
 	Name  string   `json:"name"`
-	Rules []string `json:"rules"` // 2-3 条语言特征规则，每条 ≤30 字
+	Rules []string `json:"rules"` // 2-3 quy tắc đặc trưng ngôn ngữ, mỗi quy tắc 30 từ
 }
 
-// RelatedChapter 推荐回读的相关章节。
+// Chương liên quan Đề xuất các chương liên quan để đọc lại.
 type RelatedChapter struct {
 	Chapter int    `json:"chapter"`
 	Reason  string `json:"reason"`
 }
 
-// RecallItem 是按当前任务选择性召回的长期信息。
-// 它不替代正式工件，只负责把当前轮真正相关的少量历史信息回注给模型。
+// RecallItem là thông tin dài hạn được thu hồi có chọn lọc theo nhiệm vụ hiện tại.
+// Nó không thay thế các tạo phẩm chính thức mà chỉ chịu trách nhiệm đưa một lượng nhỏ thông tin lịch sử thực sự có liên quan đến vòng hiện tại vào mô hình.
 type RecallItem struct {
 	Kind    string `json:"kind"`
 	Key     string `json:"key,omitempty"`
@@ -100,8 +100,8 @@ type RecallItem struct {
 	Summary string `json:"summary,omitempty"`
 }
 
-// CommitResult 是 commit_chapter 工具的结构化返回值。
-// 只包含事实字段；"下一步做什么"由 Reminder 通道基于当前 Progress 自行生成。
+// CommitResult là giá trị trả về có cấu trúc của công cụ commit_chapter.
+// Chỉ chứa các trường dữ kiện; "Việc cần làm tiếp theo" do chính kênh Nhắc nhở tạo ra dựa trên Tiến trình hiện tại.
 type CommitResult struct {
 	Chapter        int              `json:"chapter"`
 	Committed      bool             `json:"committed"`
@@ -112,17 +112,17 @@ type CommitResult struct {
 	HookType       string           `json:"hook_type,omitempty"`
 	DominantStrand string           `json:"dominant_strand,omitempty"`
 	Feedback       *OutlineFeedback `json:"feedback,omitempty"`
-	// 长篇分层信号
+	// tín hiệu lớp dài
 	ArcEnd         bool `json:"arc_end,omitempty"`
 	VolumeEnd      bool `json:"volume_end,omitempty"`
 	Volume         int  `json:"volume,omitempty"`
 	Arc            int  `json:"arc,omitempty"`
-	NeedsExpansion bool `json:"needs_expansion,omitempty"`  // 下一弧是骨架，需要展开章节
-	NeedsNewVolume bool `json:"needs_new_volume,omitempty"` // 需要 Architect 创建下一卷
-	NextVolume     int  `json:"next_volume,omitempty"`      // 下一弧/卷序号
-	NextArc        int  `json:"next_arc,omitempty"`         // 下一弧序号
-	// 完成态事实：本次 commit 后是否整本书已完成
+	NeedsExpansion bool `json:"needs_expansion,omitempty"`  // Phần tiếp theo là bộ xương và các chương cần được mở rộng.
+	NeedsNewVolume bool `json:"needs_new_volume,omitempty"` // Kiến trúc sư được yêu cầu để tạo tập tiếp theo
+	NextVolume     int  `json:"next_volume,omitempty"`      // Số cung/tập tiếp theo
+	NextArc        int  `json:"next_arc,omitempty"`         // Số cung tiếp theo
+	// Thông tin về trạng thái hoàn thành: Liệu toàn bộ cuốn sách có được hoàn thành sau lần cam kết này hay không
 	BookComplete bool `json:"book_complete,omitempty"`
-	// 当前 Progress.Flow 快照（writing / reviewing / rewriting / polishing）
+	// Ảnh chụp nhanh tiến độ hiện tại.Flow (viết / xem lại / viết lại / đánh bóng)
 	Flow string `json:"flow,omitempty"`
 }

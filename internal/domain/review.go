@@ -1,6 +1,6 @@
 package domain
 
-// TimelineEvent 时间线事件。
+// Sự kiện dòng thời gian Sự kiện dòng thời gian.
 type TimelineEvent struct {
 	Chapter    int      `json:"chapter"`
 	Time       string   `json:"time"`
@@ -8,7 +8,7 @@ type TimelineEvent struct {
 	Characters []string `json:"characters,omitempty"`
 }
 
-// ForeshadowEntry 伏笔条目。
+// Mục nhập báo trước Mục nhập báo trước.
 type ForeshadowEntry struct {
 	ID          string `json:"id"`
 	Description string `json:"description"`
@@ -17,14 +17,14 @@ type ForeshadowEntry struct {
 	ResolvedAt  int    `json:"resolved_at,omitempty"`
 }
 
-// ForeshadowUpdate 伏笔增量操作。
+// ForeshadowUpdate báo trước hoạt động gia tăng.
 type ForeshadowUpdate struct {
 	ID          string `json:"id"`
 	Action      string `json:"action"` // plant / advance / resolve
 	Description string `json:"description,omitempty"`
 }
 
-// RelationshipEntry 人物关系条目。
+// Mục nhập mối quan hệ Mục nhập mối quan hệ cá nhân.
 type RelationshipEntry struct {
 	CharacterA string `json:"character_a"`
 	CharacterB string `json:"character_b"`
@@ -32,38 +32,38 @@ type RelationshipEntry struct {
 	Chapter    int    `json:"chapter"`
 }
 
-// ConsistencyIssue 一致性问题。
+// Vấn đề về tính nhất quán Vấn đề về tính nhất quán.
 type ConsistencyIssue struct {
 	Type        string `json:"type"`     // consistency / character / pacing / continuity / foreshadow / hook / aesthetic
 	Severity    string `json:"severity"` // critical / error / warning
 	Description string `json:"description"`
-	Evidence    string `json:"evidence,omitempty"` // 证据：原文片段、具体情节或状态数据
+	Evidence    string `json:"evidence,omitempty"` // Bằng chứng: các đoạn văn bản gốc, các sơ đồ cụ thể hoặc dữ liệu trạng thái
 	Suggestion  string `json:"suggestion,omitempty"`
 }
 
-// DimensionScore 单维度评审评分。
+// DimensionScore Điểm đánh giá một chiều.
 type DimensionScore struct {
 	Dimension string `json:"dimension"`         // consistency / character / pacing / continuity / foreshadow / hook / aesthetic
 	Score     int    `json:"score"`             // 0-100
 	Verdict   string `json:"verdict"`           // pass / warning / fail
-	Comment   string `json:"comment,omitempty"` // 该维度的简要结论
+	Comment   string `json:"comment,omitempty"` // Kết luận ngắn gọn về khía cạnh này
 }
 
-// ReviewEntry Editor 的审阅条目。
+// ReviewEntry Bài đánh giá của biên tập viên.
 type ReviewEntry struct {
 	Chapter          int                `json:"chapter"`
 	Scope            string             `json:"scope"` // chapter / global / arc
 	Issues           []ConsistencyIssue `json:"issues"`
-	Dimensions       []DimensionScore   `json:"dimensions,omitempty"`      // 分维度评分
+	Dimensions       []DimensionScore   `json:"dimensions,omitempty"`      // Chấm điểm theo chiều
 	ContractStatus   string             `json:"contract_status,omitempty"` // met / partial / missed
-	ContractMisses   []string           `json:"contract_misses,omitempty"` // 未达成的 contract 条目
-	ContractNotes    string             `json:"contract_notes,omitempty"`  // 对 contract 履行情况的简述
+	ContractMisses   []string           `json:"contract_misses,omitempty"` // Các hạng mục hợp đồng chưa thực hiện
+	ContractNotes    string             `json:"contract_notes,omitempty"`  // Mô tả ngắn gọn về việc thực hiện hợp đồng
 	Verdict          string             `json:"verdict"`                   // accept / polish / rewrite
 	Summary          string             `json:"summary"`
-	AffectedChapters []int              `json:"affected_chapters,omitempty"` // 需要重写/打磨的章节号
+	AffectedChapters []int              `json:"affected_chapters,omitempty"` // Số chương cần được viết lại/đánh bóng
 }
 
-// CriticalCount 返回 critical 级别问题数量。
+// CriticalCount trả về số lượng vấn đề ở mức độ nghiêm trọng.
 func (r *ReviewEntry) CriticalCount() int {
 	n := 0
 	for _, issue := range r.Issues {
@@ -74,7 +74,7 @@ func (r *ReviewEntry) CriticalCount() int {
 	return n
 }
 
-// ErrorCount 返回 error 级别问题数量。
+// ErrorCount trả về số lượng vấn đề về mức độ lỗi.
 func (r *ReviewEntry) ErrorCount() int {
 	n := 0
 	for _, issue := range r.Issues {
@@ -85,7 +85,7 @@ func (r *ReviewEntry) ErrorCount() int {
 	return n
 }
 
-// Dimension 返回指定维度的评分；不存在则返回 nil。
+// Thứ nguyên Trả về xếp hạng cho thứ nguyên đã chỉ định; trả về con số 0 nếu nó không tồn tại.
 func (r *ReviewEntry) Dimension(name string) *DimensionScore {
 	if r == nil {
 		return nil

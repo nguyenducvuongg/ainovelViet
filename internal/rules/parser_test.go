@@ -33,15 +33,15 @@ func TestParse_Basic(t *testing.T) {
 	if !reflect.DeepEqual(p.Structured.ForbiddenChars, wantChars) {
 		t.Errorf("forbidden_chars=%v, want %v", p.Structured.ForbiddenChars, wantChars)
 	}
-	wantPhrases := []string{"不是……而是", "核心动机"}
+	wantPhrases := []string{"Không phải...nhưng", "Động lực cốt lõi"}
 	if !reflect.DeepEqual(p.Structured.ForbiddenPhrases, wantPhrases) {
 		t.Errorf("forbidden_phrases=%v, want %v", p.Structured.ForbiddenPhrases, wantPhrases)
 	}
-	wantFatigue := map[string]int{"不禁": 1, "竟然": 1, "仿佛": 2}
+	wantFatigue := map[string]int{"Không thể không": 1, "Trên thực tế": 1, "Như thể": 2}
 	if !reflect.DeepEqual(p.Structured.FatigueWords, wantFatigue) {
 		t.Errorf("fatigue_words=%v, want %v", p.Structured.FatigueWords, wantFatigue)
 	}
-	if !strings.Contains(p.Preference, "# 风格") {
+	if !strings.Contains(p.Preference, "# phong cách") {
 		t.Errorf("preference missing markdown body, got %q", p.Preference)
 	}
 	if len(p.Conflicts) != 0 {
@@ -57,7 +57,7 @@ func TestParse_InvalidFrontMatter(t *testing.T) {
 	if !p.Structured.IsEmpty() {
 		t.Errorf("structured should be empty on parse_error, got %+v", p.Structured)
 	}
-	if !strings.Contains(p.Preference, "正文应当仍作为偏好注入") {
+	if !strings.Contains(p.Preference, "Mặc dù phân tích cú pháp nội dung phía trước không thành công nhưng văn bản nội dung vẫn phải được đưa vào làm tùy chọn.") {
 		t.Errorf("preference should still be parsed despite front matter failure; got %q", p.Preference)
 	}
 	if len(p.Conflicts) == 0 {
@@ -152,7 +152,7 @@ func TestParse_TypeErrors(t *testing.T) {
 	}
 
 	// 正文仍应注入
-	if !strings.Contains(p.Preference, "类型错误") {
+	if !strings.Contains(p.Preference, "Lỗi gõ") {
 		t.Errorf("preference should be parsed despite type errors; got %q", p.Preference)
 	}
 }
@@ -210,7 +210,7 @@ func TestParse_FatigueAsList(t *testing.T) {
 	data := readFixture(t, "fatigue-as-list.rules.md")
 	p := Parse("testdata/fatigue-as-list.rules.md", SourceProject, data)
 
-	want := map[string]int{"不禁": 1, "竟然": 1, "仿佛": 1}
+	want := map[string]int{"không thể giúp được": 1, "hóa ra": 1, "như thể": 1}
 	if !reflect.DeepEqual(p.Structured.FatigueWords, want) {
 		t.Errorf("fatigue_words=%v, want %v", p.Structured.FatigueWords, want)
 	}
@@ -226,7 +226,7 @@ func TestParse_NoFrontMatter(t *testing.T) {
 	if !p.Structured.IsEmpty() {
 		t.Errorf("no front matter, structured should be empty, got %+v", p.Structured)
 	}
-	if !strings.Contains(p.Preference, "仅有正文") {
+	if !strings.Contains(p.Preference, "Chỉ có văn bản") {
 		t.Errorf("preference should contain body, got %q", p.Preference)
 	}
 	if len(p.Conflicts) != 0 {

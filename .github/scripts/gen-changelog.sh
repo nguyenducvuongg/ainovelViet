@@ -28,20 +28,20 @@ TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
 cat > "$TMPDIR/prompt.txt" <<PROMPT_EOF
-你是 Go 命令行工具 ainovel-cli（一款 AI 小说写作引擎）的发布说明撰写者。
-请根据下面的 Git 提交记录，生成简洁、清晰、面向用户的中文 Markdown 发布说明。
+Bạn là tác giả của ghi chú phát hành cho công cụ dòng lệnh Go ainovel-cli, một công cụ viết tiểu thuyết AI.
+Vui lòng tạo hướng dẫn phát hành Markdown tiếng Trung ngắn gọn, rõ ràng, hướng đến người dùng dựa trên bản ghi cam kết Git bên dưới.
 
-规则：
-- 使用中文输出
-- 按以下分组组织内容：新功能、问题修复、性能优化、重构、其他；没有内容的分组不要输出
-- 每条内容一行，保持简洁，不要包含 commit hash 或作者名
-- 移除 conventional commit 前缀，例如 feat:、fix:、perf:、refactor: 等
-- 合并相近或重复的提交，避免逐条机械复述 commit
-- 使用面向用户的表达，突出实际变化和影响
-- 重点关注用户可感知的变化，例如发布流程、二进制打包、CLI/TUI 行为、写作流程、模型支持和文档
-- 只输出 Markdown 内容，不要输出开场白、解释或总结
+luật lệ:
+- Sử dụng đầu ra tiếng Trung
+- Sắp xếp nội dung thành các nhóm sau: tính năng mới, sửa lỗi, tối ưu hóa hiệu suất, tái cấu trúc, các nhóm khác; không xuất các nhóm không có nội dung
+- Mỗi dòng một dòng, giữ đơn giản, không bao gồm hàm băm xác nhận hoặc tên tác giả
+- Loại bỏ các tiền tố commit thông thường như feat:, fix:, perf:, refactor:, v.v.
+- Hợp nhất các bài gửi tương tự hoặc trùng lặp để tránh lặp lại một cách máy móc các cam kết từng cái một
+- Sử dụng các biểu thức hướng đến người dùng để làm nổi bật những thay đổi và tác động thực tế
+- Tập trung vào những thay đổi mà người dùng có thể nhận biết được như quy trình phát hành, đóng gói nhị phân, hành vi CLI/TUI, quy trình soạn thảo, hỗ trợ mô hình và tài liệu
+- Chỉ xuất nội dung Markdown, không xuất lời mở đầu, giải thích hay tóm tắt
 
-提交记录（${RANGE}）：
+Cam kết hồ sơ (${RANGE}):
 ${COMMITS}
 PROMPT_EOF
 

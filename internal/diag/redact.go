@@ -12,28 +12,28 @@ import (
 	"github.com/voocel/ainovel-cli/internal/store"
 )
 
-// SkelEvent 是一条会话消息脱敏后的行为骨架：保留结构信号（角色 / 工具 / 错误 /
-// 重复指纹），所有自由文本（正文、prompt、思考）一律打码。这是比
-// store.compactMessage 更严的一层投影——后者按体积压（>4KB），这里不看体积，
-// 任何文本都不出包。
+// SkelEvent là bộ khung hành vi được giải mẫn cảm của thông báo phiên: giữ lại các tín hiệu cấu trúc (vai trò/công cụ/lỗi/
+// Dấu vân tay trùng lặp), tất cả văn bản miễn phí (văn bản, lời nhắc, suy nghĩ) sẽ được mã hóa. Điều này tốt hơn
+// store.compactMessage là lớp chiếu chặt chẽ hơn - lớp sau được nén theo âm lượng (>4KB) và âm lượng không được xem xét ở đây.
+// Không có văn bản đi ra khỏi gói.
 type SkelEvent struct {
-	Agent    string     // 来源会话：coordinator / writer-ch07 …
+	Agent    string     // Phiên nguồn: điều phối viên/người viết-ch07…
 	Role     string     // assistant / tool / user
-	Tools    []SkelTool // 该消息内的工具调用
-	ErrClass string     // role=tool 且 is_error：错误首行（框架错误串，不含正文）
-	TextSha  string     // 打码正文的短哈希；同 sha = 反复生成同一段（循环信号）
-	Redacted int        // 本条打码的文本/思考块数（用于脱敏自检）
+	Tools    []SkelTool // Cuộc gọi công cụ trong tin nhắn này
+	ErrClass string     // role=tool và is_error: dòng đầu tiên của lỗi (chuỗi lỗi khung, không bao gồm văn bản)
+	TextSha  string     // Hàm băm ngắn của văn bản được mã hóa; giống như sha = tạo ra cùng một phân đoạn nhiều lần (tín hiệu tuần hoàn)
+	Redacted int        // Số lượng văn bản/khối suy nghĩ được mã hóa trong bài viết này (được sử dụng để tự kiểm tra giải mẫn cảm)
 }
 
-// SkelTool 是一次工具调用的脱敏投影。
+// SkelTool là một phép chiếu được giải mẫn cảm của lệnh gọi công cụ.
 type SkelTool struct {
-	Name     string            // 工具名（结构信号，不含正文）
-	Args     map[string]string // key → 标量原值 / 短字符串带引号 / "<redacted len sha>"
-	Invalid  bool              // ArgsInvalid：模型发来的参数无法解析（#34 信号）
-	ParseErr string            // ArgsParseError：解析失败原因
+	Name     string            // Tên công cụ (tín hiệu có cấu trúc, không có văn bản)
+	Args     map[string]string // khóa → giá trị gốc vô hướng / chuỗi ngắn có dấu ngoặc kép / "<len sha được điều chỉnh lại>"
+	Invalid  bool              // ArgsInvalid: Không thể phân tích cú pháp các tham số do mô hình gửi (tín hiệu #34)
+	ParseErr string            // ArgsParseError: Lý do phân tích cú pháp thất bại
 }
 
-// redactMessage 把一条 agentcore.Message 投影成行为骨架。
+// redactMessage chiếu một Agentcore.Message vào một khung hành vi.
 func redactMessage(agent string, m agentcore.Message) SkelEvent {
 	ev := SkelEvent{Agent: agent, Role: string(m.Role)}
 	isErr, _ := m.Metadata["is_error"].(bool)
@@ -42,8 +42,8 @@ func redactMessage(agent string, m agentcore.Message) SkelEvent {
 	for _, b := range m.Content {
 		switch b.Type {
 		case agentcore.ContentText:
-			// tool 错误结果保留首行：这是我们自己的错误串（如 InputValidationError），
-			// 不含正文，且是定位循环的关键。其余文本一律进打码池。
+			// Kết quả lỗi tool giữ nguyên dòng đầu tiên: đây là chuỗi lỗi của chính chúng ta (chẳng hạn như inputValidationError),
+			// Nó không chứa văn bản và là chìa khóa để định vị vòng lặp. Tất cả các văn bản khác sẽ được nhập vào nhóm mã hóa.
 			if m.Role == agentcore.RoleTool && isErr && ev.ErrClass == "" {
 				ev.ErrClass = firstLine(b.Text, 160)
 				continue
@@ -69,7 +69,7 @@ func redactMessage(agent string, m agentcore.Message) SkelEvent {
 	return ev
 }
 
-// redactToolCall 投影一次工具调用：工具名 + 参数（值脱敏）+ 解析异常标记。
+// redactToolCall chiếu lệnh gọi công cụ: tên công cụ + tham số (giải mẫn cảm giá trị) + cờ ngoại lệ phân tích cú pháp.
 func redactToolCall(tc *agentcore.ToolCall) SkelTool {
 	return SkelTool{
 		Name:     tc.Name,
@@ -79,8 +79,8 @@ func redactToolCall(tc *agentcore.ToolCall) SkelTool {
 	}
 }
 
-// redactArgs 把工具参数对象投影成 key → 脱敏值。非对象参数返回 nil
-// （ArgsInvalid/ParseErr 已在 SkelTool 另行记录）。
+// redactArgs chiếu các đối tượng tham số công cụ vào khóa → giá trị được xử lý lại. Tham số phi đối tượng trả về con số không
+// (ArgsInvalid/ParseErr đã được ghi lại riêng trong SkelTool).
 func redactArgs(raw json.RawMessage) map[string]string {
 	if len(raw) == 0 {
 		return nil
@@ -96,11 +96,11 @@ func redactArgs(raw json.RawMessage) map[string]string {
 	return out
 }
 
-// projectValue 按 JSON 类型投影单个参数值：
-//   - 标量（数字 / bool / null）：原值即结构信号，保留（chapter: 7）
-//   - 短的标识符型字符串：带引号保留，暴露类型（chapter: "7" ← #34 的字符串化数字信号）
-//   - 含中文 / 空格 / 长文本的字符串、对象、数组：打码为 <redacted …>（正文零出包）
-//   - 已是 [session_compact: …] 占位：安全且有信息，原样保留
+// projectValue chiếu một giá trị tham số duy nhất dưới dạng loại JSON:
+//   - Scalar (number/bool/null): giá trị ban đầu là tín hiệu cấu trúc, được giữ lại (chương: 7)
+//   - Chuỗi định danh ngắn: dành riêng bằng dấu ngoặc kép, loại hiển thị (chương: tín hiệu số được xâu chuỗi của "7" ← # 34)
+//   - Các chuỗi, đối tượng và mảng chứa văn bản tiếng Trung/dấu cách/dài: được mã hóa là <redacted…> (không có văn bản nào ngoài gói)
+//   - Đã là trình giữ chỗ [session_compact: …]: an toàn và nhiều thông tin, hãy giữ nguyên như vậy
 func projectValue(raw json.RawMessage) string {
 	s := strings.TrimSpace(string(raw))
 	if s == "" {
@@ -115,8 +115,8 @@ func projectValue(raw json.RawMessage) string {
 		if strings.HasPrefix(str, store.CompactTag) {
 			return str
 		}
-		// 只保留"像标识符/数字/枚举"的短值（chapter:"7"、type:"premise"、agent:"writer"）；
-		// 任何含中文、空格或其他符号的字符串都视为正文，一律打码。
+		// Chỉ giữ các giá trị ngắn "như định danh/số/liệt kê" (chương: "7", type: "tiền đề", tác nhân: "người viết");
+		// Bất kỳ chuỗi nào chứa ký tự tiếng Trung, dấu cách hoặc các ký hiệu khác sẽ được coi là văn bản và sẽ được mã hóa.
 		if utf8.RuneCountInString(str) <= 32 && isStructuralToken(str) {
 			return strconv.Quote(str)
 		}
@@ -130,8 +130,8 @@ func projectValue(raw json.RawMessage) string {
 	}
 }
 
-// isStructuralToken 判断字符串是否"像标识符"——纯 ASCII 的字母 / 数字 / `_-.:/`，
-// 无空格、无中文。用来区分结构信号（保留）与正文片段（打码）。
+// isStructuralToken xác định xem một chuỗi có "giống như mã định danh" hay không - các chữ cái/số thuần ASCII/`_-.:/`,
+// Không có khoảng trống, không có tiếng Trung Quốc. Dùng để phân biệt tín hiệu cấu trúc (được giữ lại) với các đoạn văn bản (được mã hóa).
 func isStructuralToken(s string) bool {
 	if s == "" {
 		return false
@@ -151,14 +151,14 @@ func redactPlaceholder(s string) string {
 	return fmt.Sprintf("<redacted len=%d sha=%s>", utf8.RuneCountInString(s), shortHash(s))
 }
 
-// shortHash 取文本的短哈希；只用于"是否同一段文本反复出现"的判断，非加密用途。
+// shortHash lấy hàm băm ngắn của văn bản; nó chỉ được sử dụng để xác định "liệu văn bản giống nhau có xuất hiện lặp lại hay không" và không được sử dụng để mã hóa.
 func shortHash(s string) string {
 	h := fnv.New32a()
 	_, _ = h.Write([]byte(s))
 	return fmt.Sprintf("%08x", h.Sum32())
 }
 
-// firstLine 取首行并按 rune 截断，供错误串摘要。
+// firstLine lấy dòng đầu tiên và cắt bớt nó bằng rune để cung cấp bản tóm tắt về chuỗi lỗi.
 func firstLine(s string, max int) string {
 	s = strings.TrimSpace(s)
 	if i := strings.IndexAny(s, "\n\r"); i >= 0 {

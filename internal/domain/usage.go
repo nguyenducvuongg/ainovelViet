@@ -2,16 +2,16 @@ package domain
 
 import "time"
 
-// UsageSchemaVersion 是 meta/usage.json 的兼容版本号。
-// 未来若 AgentUsageTotals 字段语义变化，递增此值；UsageStore.Load 见到不同版本应忽略并触发 replay 重建。
+// UsageSchemaVersion là số phiên bản tương thích của meta/usage.json.
+// Nếu ngữ nghĩa của trường AgentUsageTotals thay đổi trong tương lai, hãy tăng giá trị này; UsageStore.Load nên bỏ qua nó và kích hoạt việc xây dựng lại phát lại khi nhìn thấy các phiên bản khác nhau.
 const UsageSchemaVersion = 2
 
-// UsageState 是累计 token / cost 用量的可持久化快照。
-// 内存中由 UsageTracker 维护，定期 debounce 落盘到 meta/usage.json。
+// UsageState là một bản tóm tắt nhanh về việc sử dụng mã thông báo/chi phí tích lũy.
+// Bộ nhớ được duy trì bởi UsageTracker và được chuyển đổi định kỳ thành meta/usage.json.
 //
-// 注意：UsageTracker 内部的滑动窗 samples（"近 N 次命中率"）**不持久化**——
-// 它只服务 UI 短期诊断，进程重启从空开始重新积累几轮即可恢复语义。
-// MissingAssistantUsage 保留持久化，跨重启累积更有诊断价值。
+// Lưu ý: Các mẫu cửa sổ trượt ("tỷ lệ truy cập gần N") bên trong UsageTracker **không được tồn tại**——
+// Nó chỉ phục vụ chẩn đoán ngắn hạn về giao diện người dùng và ngữ nghĩa có thể được khôi phục bằng cách khởi động lại quy trình và tích lũy nó trong một vài vòng từ lúc trống.
+// MissingAssistantUsage vẫn tồn tại dai dẳng và sự tích lũy trong các lần khởi động lại có nhiều giá trị chẩn đoán hơn.
 type UsageState struct {
 	Schema       int                         `json:"schema"`
 	UpdatedAt    time.Time                   `json:"updated_at"`
@@ -21,7 +21,7 @@ type UsageState struct {
 	MissingUsage int                         `json:"missing_assistant_usage"`
 }
 
-// AgentUsageTotals 是单个角色（或 overall）累计计数的可持久化形态。
+// AgentUsageTotals là sự thể hiện liên tục về số lượng tích lũy của một vai trò (hoặc tổng thể).
 type AgentUsageTotals struct {
 	Input        int     `json:"input"`
 	Output       int     `json:"output"`

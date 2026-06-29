@@ -1,25 +1,25 @@
-# 悬疑风格补充参考
+# Tham khảo bổ sung phong cách Suspense
 
-## 线索布局
+## Bố cục manh mối
 
-- 每章至少埋设一条线索（实线索或红鲱鱼）
-- 关键线索必须在揭晓前至少出现两次
-- 线索首次出现要自然融入场景，不能刻意强调
+- Chôn ít nhất một manh mối trong mỗi chương (manh mối thật hoặc cá trích đỏ)
+- Manh mối chính phải xuất hiện ít nhất hai lần trước khi bị lộ
+- Khi manh mối xuất hiện lần đầu tiên, chúng phải được lồng ghép một cách tự nhiên vào hiện trường và không thể cố tình nhấn mạnh.
 
-## 误导技法
+## Kỹ thuật gây hiểu lầm
 
-- 红鲱鱼要有独立的合理性，不能事后看完全无意义
-- 叙述性诡计需要严格遵守"不说谎但可以省略"原则
-- 嫌疑人转移要有动机支撑，不能为了误导而误导
+- Cá trích đỏ phải có lý trí độc lập và không thể hoàn toàn vô nghĩa khi nhận thức muộn màng.
+- Việc ngụy biện câu chuyện đòi hỏi phải tuân thủ nghiêm ngặt nguyên tắc “không nói dối nhưng có thể bỏ qua”
+- Việc chuyển giao nghi phạm phải có động cơ, không được gây nhầm lẫn nhằm gây nhầm lẫn.
 
-## 节奏控制
+## Kiểm soát nhịp điệu
 
-- 紧张→舒缓→更紧张的波浪式节奏
-- 信息释放要节制，每次只给读者"刚好不够"的信息量
-- 章末必须有悬念钩子，禁止"平静收尾"
+- Căng thẳng → Thư giãn → Nhịp sóng căng thẳng hơn
+- Việc công bố thông tin phải vừa phải, mỗi lần chỉ cung cấp cho người đọc thông tin “vừa đủ”
+- Cuối chương phải có tình tiết hồi hộp, cấm “kết thúc bình yên”
 
-## 逻辑严密性
+## Tính logic chặt chẽ
 
-- 时间线必须可回溯验证
-- 不在场证明、动机、手法三要素缺一不可
-- 揭晓时读者应该能用已知线索自行推导出结论
+- Dòng thời gian phải được kiểm chứng trước đó
+- Ba yếu tố ngoại phạm, động cơ và kỹ thuật là không thể thiếu.
+- Khi được tiết lộ, người đọc có thể sử dụng những manh mối đã biết để tự mình suy ra kết luận

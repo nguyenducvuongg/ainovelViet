@@ -1,7 +1,7 @@
-## 通用写作风格
+## Phong cách viết chung
 
-- 叙事节奏：张弛有度，关键转折放慢，过渡紧凑
-- 描写方式：五感具象描写优先于抽象概述
-- 对话要求：体现人物性格差异，自然流畅，避免说教
-- 情感表达：通过动作和细节传递，不直接点明情绪
-- 文字风格：简洁有力，避免过度修饰
+- Nhịp điệu trần thuật: thư thái, chậm lại, chuyển tiếp chặt chẽ
+- Phương pháp miêu tả: mô tả cụ thể về năm giác quan được ưu tiên hơn so với cái nhìn tổng quan trừu tượng
+- Yêu cầu đối thoại: Phản ánh sự khác biệt về tính cách, tự nhiên, trôi chảy, tránh thuyết giáo.
+- Biểu hiện cảm xúc: được truyền tải bằng hành động, chi tiết, không trực tiếp bộc lộ cảm xúc.
+- Lối viết: ngắn gọn, mạnh mẽ, tránh sửa đổi quá mức

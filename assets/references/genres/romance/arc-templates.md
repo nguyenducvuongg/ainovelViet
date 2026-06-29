@@ -1,39 +1,39 @@
-## 言情/情感 弧型参考
+## Tham khảo Arc Lãng mạn/Cảm xúc
 
-以下弧型适用于言情、情感、青春、都市爱情类长篇。根据具体设定自由组合，不必全部使用。
+Các kiểu cung sau đây phù hợp với tiểu thuyết lãng mạn, cảm xúc, tuổi trẻ và tình yêu thành thị. Kết hợp miễn phí theo cài đặt cụ thể, không cần sử dụng tất cả.
 
-### 初遇/重逢弧（8-12 章）
-2-3 章各自日常（建立人物独立性） → 3-5 章关键相遇+被迫接触（制造摩擦和第一印象） → 2-3 章初步了解+微妙转变
-- 第一印象最好不是一见钟情，而是误解或冲突
-- 被迫接触的设定要自然（合作、邻居、同事），不是刻意巧合
-- 弧末建立"这个人跟我想的不一样"的认知转变
+### Arc Cuộc gặp gỡ/Hội ngộ đầu tiên (Chương 8-12)
+Chương 2-3 cuộc sống hàng ngày (thiết lập tính độc lập của nhân vật) → Chương 3-5 cuộc gặp gỡ quan trọng + tiếp xúc bắt buộc (tạo xích mích và ấn tượng đầu tiên) → Chương 2-3 hiểu biết ban đầu + chuyển đổi tinh tế
+- Ấn tượng đầu tiên đẹp nhất không phải là yêu từ cái nhìn đầu tiên mà là sự hiểu lầm hay xung đột
+- Bối cảnh bắt buộc phải tiếp xúc một cách tự nhiên (cộng tác, hàng xóm, đồng nghiệp), không được cố tình trùng hợp
+- Ở cuối phần, sự thay đổi nhận thức “người này khác với những gì tôi nghĩ” được hình thành
 
-### 暧昧升温弧（10-15 章）
-3-4 章日常互动加深（共同经历、互相帮助） → 3-5 章关键事件催化（危机、误会、第三方刺激） → 2-3 章暧昧高峰（差点表白/亲密时刻/被打断）→ 1-2 章关系确认或退缩
-- 这是最需要细节的弧，微表情、小动作、不经意的关注比大段心理独白有效
-- 升温不是线性的，中间要有退缩和试探
-- 第三方角色（前任、追求者、误解制造者）的介入要有独立动机
+### Vòng cung sưởi ấm mơ hồ (Chương 10-15)
+Chương 3-4: Tương tác hàng ngày trở nên sâu sắc hơn (chia sẻ kinh nghiệm, giúp đỡ lẫn nhau) → Chương 3-5: Xúc tác cho các sự kiện quan trọng (khủng hoảng, hiểu lầm, kích thích từ bên thứ ba) → Chương 2-3: Đỉnh điểm của sự mơ hồ (gần như tỏ tình/khoảnh khắc thân mật/bị gián đoạn) → Chương 1-2: Xác nhận hoặc rút lui mối quan hệ
+- Đây là cung đòi hỏi nhiều chi tiết nhất. Những biểu hiện vi mô, những chuyển động nhỏ và sự chú ý bình thường sẽ hiệu quả hơn những cuộc độc thoại tâm lý lớn.
+- Hệ thống sưởi không tuyến tính, phải có sự rút lui và thử nghiệm ở giữa
+- Sự can thiệp của các nhân vật bên thứ ba (ví dụ, người cầu hôn, người gây hiểu lầm) phải có động cơ độc lập
 
-### 误会冲突弧（8-12 章）
-2-3 章矛盾种子（价值观差异/秘密/外部压力） → 2-3 章冲突爆发（不是"说开就好"的误解） → 2-3 章各自消化+外部事件推动 → 1-2 章和解契机（但不完全恢复原状）
-- 冲突必须触及核心价值观差异，不是"你为什么不接我电话"这种
-- 和解不是一方完全认错，而是双方都有成长和让步
-- 冲突后关系进入新阶段，不是简单回到冲突前
+### Arc hiểu lầm và xung đột (Chương 8-12)
+Chương 2-3 Mầm mống xung đột (khác biệt giá trị/bí mật/áp lực bên ngoài) → Chương 2-3 Xung đột bùng phát (không phải hiểu lầm về “chỉ nói suông”) → Chương 2-3 Tiêu hóa + thúc đẩy sự kiện bên ngoài → Chương 1-2 Cơ hội hòa giải (nhưng chưa hoàn toàn khôi phục lại hiện trạng ban đầu)
+- Xung đột phải chạm đến sự khác biệt về giá trị cốt lõi chứ không phải "Tại sao bạn không trả lời cuộc gọi của tôi?"
+- Hòa giải không phải là việc một bên thừa nhận hoàn toàn lỗi lầm mà là sự trưởng thành và nhượng bộ của cả hai bên.
+- Quan hệ sau xung đột bước vào giai đoạn mới, không đơn giản là quay trở lại thời kỳ trước xung đột
 
-### 分离/考验弧（10-15 章）
-2-3 章被迫分离的原因（异地、家庭反对、事业选择） → 5-8 章各自面对挑战（独立成长线+思念线交替） → 2-3 章重新相遇+关系重新定义
-- 分离期间双方都要有独立的成长线，不能只是"想念对方"
-- 思念的表达要克制，通过具体行为（保留习惯、对比新旧关系）而非心理独白
-- 重逢不是回到过去，而是两个成长了的人重新选择
+### Arc Tách biệt/Thử thách (Chương 10-15)
+Chương 2-3 Lý do buộc phải chia ly (khoảng cách, gia đình phản đối, lựa chọn nghề nghiệp) → Chương 5-8 Mỗi người phải đối mặt với thử thách (đường tăng trưởng độc lập + đường thiếu xen kẽ) → Chương 2-3 Gặp lại + xác định lại mối quan hệ
+- Trong thời gian xa cách, hai bên phải có lộ trình phát triển độc lập và không thể chỉ “nhớ nhau”
+- Việc thể hiện sự khao khát cần được kiềm chế và thể hiện bằng những hành động cụ thể (giữ thói quen, so sánh mối quan hệ cũ và mới) hơn là qua những màn độc thoại tâm lý.
+- Đoàn tụ không phải là quay về quá khứ mà là sự lựa chọn mới giữa hai người trưởng thành.
 
-### 危机共渡弧（8-12 章）
-2-3 章外部危机降临（家庭变故、事业危机、健康问题） → 3-5 章共同面对（展示关系的深度和韧性） → 2-3 章危机解决+关系升华
-- 危机要真实且有重量，不是为了制造狗血
-- 共同面对的过程中暴露彼此更真实的一面
-- 适合放在关系中期，用外部压力检验内部连接
+### Arc vượt qua khủng hoảng (Chương 8-12)
+Chương 2-3 Khủng hoảng bên ngoài ập đến (gia đình thay đổi, khủng hoảng nghề nghiệp, vấn đề sức khỏe) → Chương 3-5 Cùng nhau đối mặt (thể hiện chiều sâu và khả năng phục hồi của mối quan hệ) → Chương 2-3 Giải quyết khủng hoảng + thăng hoa mối quan hệ
+- Cuộc khủng hoảng phải thực tế và có ý nghĩa, không chỉ để tạo ra những điều vô nghĩa
+- Hãy bộc lộ những mặt thật của nhau trong quá trình đối mặt với nhau
+- Thích hợp cho các mối quan hệ trung hạn, sử dụng áp lực bên ngoài để kiểm tra các kết nối bên trong
 
-### 日常/甜蜜弧（5-8 章）
-日常相处/朋友圈互动/小事件小惊喜/伏笔布局
-- 甜蜜不是无冲突，而是冲突的体量小、解决快
-- 用日常细节巩固读者对这段关系的投入
-- 为下一个大冲突弧蓄势——越甜蜜，后面的撕裂越痛
+### Daily/Sweet Arc (Chương 5-8)
+Tương tác hàng ngày/tương tác trong vòng kết nối bạn bè/sự kiện nhỏ và những bất ngờ/bố cục báo trước
+- Ngọt ngào không phải là không có xung đột mà là xung đột nhỏ và giải quyết nhanh chóng
+- Sử dụng các chi tiết hàng ngày để củng cố sự đầu tư của người đọc vào mối quan hệ
+- Chuẩn bị cho vòng xung đột lớn tiếp theo - càng ngọt ngào thì giọt nước mắt đằng sau càng đau đớn

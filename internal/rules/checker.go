@@ -6,17 +6,17 @@ import (
 	"unicode/utf8"
 )
 
-// Check 对章节正文按结构化规则进行机械检查，返回违规事实列表。
+// Kiểm tra thực hiện kiểm tra cơ học trên văn bản chương theo các quy tắc có cấu trúc và trả về danh sách các sự kiện vi phạm.
 //
-// 设计契约：
-//   - 仅返事实，不下指令（铁律一）
-//   - 不阻断任何调用方流程
-//   - severity 按规则类型固定映射（参见 types.go 注释表）
+// Hợp đồng thiết kế:
+//   - Chỉ trả lại sự thật, không đưa ra hướng dẫn (Iron Rule 1)
+//   - Không chặn bất kỳ quá trình người gọi nào
+//   - ánh xạ cố định mức độ nghiêm trọng theo loại quy tắc (xem bảng chú thích type.go)
 //
-// 参数：
-//   - text：章节正文（终稿或草稿都可）
-//   - wordCount：章节字数（rune 计数）。<0 时由 checker 自行计算，避免调用方重复 O(n) 扫描。
-//   - s：合并后的结构化规则；IsEmpty 时直接返回 nil。
+// tham số:
+//   - text: nội dung chương (bản thảo cuối cùng hoặc bản nháp đều được chấp nhận)
+//   - wordCount: Số lượng từ của chương (rune count). <0, người kiểm tra sẽ tự tính toán để tránh việc người gọi lặp lại việc quét O(n).
+//   - s: các quy tắc có cấu trúc được hợp nhất; nil được trả về trực tiếp khi IsEmpty.
 func Check(text string, wordCount int, s Structured) []Violation {
 	if s.IsEmpty() {
 		return nil
@@ -33,8 +33,8 @@ func Check(text string, wordCount int, s Structured) []Violation {
 	return violations
 }
 
-// forbidden_chars：出现 ≥1 次即 error。
-// 同一条规则只产生一条 violation，actual 是出现次数。
+// cấm_chars: xảy ra lỗi nếu nó xuất hiện ≥1 lần.
+// Quy tắc tương tự chỉ tạo ra một vi phạm và số lần vi phạm thực tế là.
 func appendForbiddenChars(vs []Violation, text string, list []string) []Violation {
 	for _, ch := range list {
 		if ch == "" {
@@ -54,7 +54,7 @@ func appendForbiddenChars(vs []Violation, text string, list []string) []Violatio
 	return vs
 }
 
-// forbidden_phrases：出现 ≥1 次即 error；行为与 forbidden_chars 一致，仅 rule 名区分。
+// bị cấm: Nếu nó xuất hiện ≥1 lần thì đó là lỗi; hành vi nhất quán với các ký tự bị cấm, chỉ có tên quy tắc mới phân biệt được nó.
 func appendForbiddenPhrases(vs []Violation, text string, list []string) []Violation {
 	for _, ph := range list {
 		if ph == "" {
@@ -74,8 +74,8 @@ func appendForbiddenPhrases(vs []Violation, text string, list []string) []Violat
 	return vs
 }
 
-// fatigue_words：本章出现次数超过阈值才违规，warning 级。
-// 不跨章累计——跨章问题后续交诊断。
+// Fatigue_words: Là vi phạm khi số lần xuất hiện trong chương này vượt quá ngưỡng, mức cảnh báo.
+// Không tích lũy giữa các chương—các vấn đề xuyên chương sẽ được đưa ra để chẩn đoán sau.
 func appendFatigueWords(vs []Violation, text string, m map[string]int) []Violation {
 	for word, limit := range m {
 		if word == "" || limit <= 0 {
@@ -96,9 +96,9 @@ func appendFatigueWords(vs []Violation, text string, m map[string]int) []Violati
 	return vs
 }
 
-// chapter_words：字数偏差。
-// 偏差 < 20%：warning；偏差 ≥ 20%：error。
-// 偏差公式：低于 min 用 (min-actual)/min；高于 max 用 (actual-max)/max。
+// chap_words: độ lệch số từ.
+// Độ lệch < 20%: cảnh báo; độ lệch ≥ 20%: sai số.
+// Công thức độ lệch: dưới min, sử dụng (min-actual)/min; trên mức tối đa, sử dụng (actual-max)/max.
 func appendChapterWords(vs []Violation, wordCount int, rng *WordRange) []Violation {
 	if rng == nil {
 		return vs
@@ -116,7 +116,7 @@ func appendChapterWords(vs []Violation, wordCount int, rng *WordRange) []Violati
 		}
 		deviation = float64(wordCount-rng.Max) / float64(rng.Max)
 	default:
-		return vs // 在范围内
+		return vs // trong phạm vi
 	}
 
 	severity := SeverityWarning

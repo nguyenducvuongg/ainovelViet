@@ -1,261 +1,261 @@
-# 章节写作指南
+# Hướng dẫn viết chương
 
-每一章都应该是一个完整的叙事单元，同时推动整体故事向前发展。
+Mỗi chương phải là một đơn vị tường thuật hoàn chỉnh và đưa toàn bộ câu chuyện về phía trước.
 
-## ⚠️ 关键原则：前 20% 决定生死
+## ⚠️ Nguyên tắc chính: 20% đầu tiên tạo nên sự khác biệt giữa sự sống và cái chết
 
-**读者在前 20% 的内容决定是否继续阅读。**
+**Người đọc quyết định có nên tiếp tục đọc trong 20% ​​nội dung đầu tiên hay không. **
 
-如果开头不够吸引人，读者会放弃，无论后面写得多么精彩。
+Nếu phần mở đầu không đủ hấp dẫn, người đọc sẽ bỏ cuộc, cho dù phần còn lại của bài viết có thú vị đến đâu.
 
-### 前 20% 必须达到的效果
+### Những gì 20% top đầu phải đạt được
 
-1. **即时紧张感** - 读者立即感受到危机/冲突
-2. **重大事件** - 发生推动剧情的重要事情
-3. **情感冲击** - 读者产生强烈情绪（好奇、震惊、担忧）
-4. **继续阅读的欲望** - 迫切想知道接下来发生什么
+1. **Căng thẳng tức thời** - Người đọc ngay lập tức cảm nhận được sự khủng hoảng/xung đột
+2. **Các sự kiện lớn** - những điều quan trọng xảy ra thúc đẩy cốt truyện
+3. **Tác động về mặt cảm xúc** - người đọc tạo ra những cảm xúc mạnh mẽ (tò mò, sốc, lo lắng)
+4. **Desire to Continue Reading** - Mong muốn biết chuyện gì xảy ra tiếp theo
 
-### 开头致命错误（绝对避免）
+### Lỗi nghiêm trọng ngay từ đầu (chắc chắn tránh được)
 
-| 错误类型 | 示例 | 为什么致命 |
+| Loại lỗi | Ví dụ | Tại sao gây tử vong |
 |---------|------|-----------|
-| 天气描写 | "那天天气晴朗，万里无云..." | 与故事无关，读者无耐心 |
-| 日常流程 | "李明醒来，刷牙洗脸，吃早餐..." | 无聊，没有冲突 |
-| 回顾上章 | "上一章我们说到..." | 读者已经知道，浪费时间 |
-| 缓慢铺垫 | "先介绍一下这个城市的背景..." | 信息倾倒，没有行动 |
-| 平淡对话 | "你好，你好吗？我很好。" | 无意义对话，没有张力 |
-| 过度解释 | "这是因为，所以，然后..." | 讲述而非展示 |
+| Mô tả thời tiết | "Hôm đó trời nắng và không mây..." | Chẳng liên quan gì đến câu chuyện và người đọc mất kiên nhẫn |
+| Quy trình hàng ngày | "Lý Minh thức dậy, đánh răng, rửa mặt, ăn sáng..." | Nhàm chán, không có xung đột |
+| Ôn lại chương trước | "Ở chương trước chúng ta đã nói về..." | Bạn đọc đã biết rồi, thật lãng phí thời gian |
+| Từ từ đặt nền móng | "Hãy để tôi giới thiệu bối cảnh của thành phố này trước..." | Đổ thông tin, không có hành động |
+| Cuộc trò chuyện đơn giản | "Xin chào, bạn thế nào? Tôi ổn." | Cuộc trò chuyện vô nghĩa, không căng thẳng |
+| Giải thích quá mức | "Đó là bởi vì, vậy nên..." | Kể thay vì hiển thị |
 
 ---
 
-## 十种强力开头技巧
+## Mười kỹ thuật mở đầu mạnh mẽ
 
-### 1. 行动中开场（In Media Res）
+### 1. Đang mở (Trong Media Res)
 
-直接从冲突/动作的高潮点开始。
+Bắt đầu ngay tại điểm cao trào của xung đột/hành động.
 
-**示例：**
-> 子弹擦过他的耳边，击碎了身后的花瓶。李明没有回头，翻滚躲到沙发后面。
+**Ví dụ:**
+>Viên đạn sượt qua tai anh và làm vỡ chiếc bình phía sau anh. Lí Minh không quay đầu lại, lăn người trốn sau ghế sô pha.
 
-**为什么有效：** 立即建立紧张感，读者想知道为什么被打。
+**Tại sao nó hoạt động:** Căng thẳng ngay lập tức được thiết lập và người đọc thắc mắc tại sao nó lại bị đánh.
 
-### 2. 反常情境
+### 2. Tình huống bất thường
 
-呈现一个不符合常理的场景，激发好奇。
+Trình bày một cảnh độc đáo để khơi dậy sự tò mò.
 
-**示例：**
-> 死人坐在办公桌前，正在写一份报告。
+**Ví dụ:**
+> Người chết đang ngồi ở bàn làm việc, viết báo cáo.
 
-**为什么有效：** 不可能的事物，读者想了解怎么回事。
+**Tại sao nó hoạt động:** Những điều không thể, người đọc muốn biết làm thế nào.
 
-### 3. 震撼对话
+### 3. Lời thoại gây sốc
 
-用一句惊人的对话开场。
+Bắt đầu bằng một câu thoại đáng ngạc nhiên.
 
-**示例：**
-> "我把孩子卖了。" 妻子平静地说，继续翻阅杂志。
+**Ví dụ:**
+> "Tôi đã bán đứa trẻ." Người vợ bình tĩnh nói và tiếp tục lật tạp chí.
 
-**为什么有效：** 立即制造情感冲击和悬念。
+**Tại sao nó hoạt động:** Tạo ra tác động cảm xúc và hồi hộp ngay lập tức.
 
-### 4. 倒计时开场
+### 4. Khai mạc đếm ngược
 
-从时间压力开始。
+Bắt đầu với áp lực thời gian.
 
-**示例：**
-> 还有三分钟，炸弹就会爆炸。而拆弹包里少了一根红线。
+**Ví dụ:**
+> Ba phút cho đến khi quả bom nổ. Có một sợi dây màu đỏ bị thiếu trong bộ xử lý bom.
 
-**为什么有效：** 紧迫感，读者想知道能否及时。
+**Tại sao nó hoạt động:** Cảm giác cấp bách, người đọc muốn biết liệu nó có kịp thời hay không.
 
-### 5. 重大发现
+### 5. Những khám phá quan trọng
 
-从发现关键线索/真相开始。
+Bắt đầu bằng cách khám phá những manh mối/sự thật quan trọng.
 
-**示例：**
-> 法医报告摊在桌上。死因不是意外，是精心策划的谋杀。而嫌疑人只有一个——他自己。
+**Ví dụ:**
+>Báo cáo pháp y được trải ra trên bàn. Nguyên nhân cái chết không phải là một tai nạn mà là một vụ giết người được lên kế hoạch kỹ lưỡng. Chỉ có một nghi phạm - chính anh ta.
 
-**为什么有效：** 重大转折，重新理解之前的事件。
+**Tại sao nó hoạt động:** Một bước ngoặt lớn, một cách hiểu mới về các sự kiện trước đó.
 
-### 6. 危机时刻
+### 6. Khoảnh khắc khủng hoảng
 
-从角色面临最大危机开始。
+Bắt đầu với việc các nhân vật phải đối mặt với cuộc khủng hoảng lớn nhất của họ.
 
-**示例：**
-> 门被踹开的瞬间，她知道藏不住了。保险箱里的秘密即将曝光。
+**Ví dụ:**
+>Khoảnh khắc cánh cửa bị đá tung ra, cô biết mình không thể trốn được nữa. Những bí mật trong két sắt sắp được bật mí.
 
-**为什么有效：** 高风险，读者关心角色命运。
+**Tại sao nó hoạt động:** Đặt cược cao, người đọc quan tâm đến số phận của các nhân vật.
 
-### 7. 谜团浮现
+### 7. Bí ẩn lộ diện
 
-从无法解释的现象开始。
+Bắt đầu với hiện tượng không giải thích được.
 
-**示例：**
-> 醒来时，他发现右手背上出现了一个从未见过的纹身。而他不记得昨晚发生了什么。
+**Ví dụ:**
+> Khi tỉnh dậy, anh phát hiện một hình xăm mà anh chưa từng thấy ở mu bàn tay phải. Và anh không thể nhớ được chuyện gì đã xảy ra tối qua.
 
-**为什么有效：** 神秘感，读者想解开谜题。
+**Tại sao nó hoạt động:** Cảm giác bí ẩn, người đọc muốn giải quyết bí ẩn.
 
-### 8. 背叛开场
+### 8. Mở đầu sự phản bội
 
-从背叛/信任崩塌开始。
+Bắt đầu bằng sự phản bội/phá vỡ lòng tin.
 
-**示例：**
-> 枪口对准他的后背。"对不起，" 他信任了十年的搭档说，"他们给的太多了。"
+**Ví dụ:**
+> Khẩu súng chĩa vào lưng anh ta. “Tôi xin lỗi,” người cộng sự đáng tin cậy suốt mười năm của anh nói, “họ đã cho tôi quá nhiều.”
 
-**为什么有效：** 情感冲击，角色陷入绝境。
+**Tại sao nó hoạt động:** Tác động đến cảm xúc, nhân vật đang trong hoàn cảnh tuyệt vọng.
 
-### 9. 重大选择
+### 9. Những lựa chọn lớn
 
-从角色的艰难决定开始。
+Bắt đầu với quyết định khó khăn của nhân vật.
 
-**示例：**
-> 救生艇只能载一个人。她的丈夫和女儿都在冰冷的海水里挣扎。她伸出手——
+**Ví dụ:**
+> Xuồng cứu sinh chỉ chở được một người. Chồng và con gái cô đang vùng vẫy trong làn nước lạnh cóng. Cô đưa tay ra——
 
-**为什么有效：** 道德困境，读者想知道她如何选择。
+**Tại sao nó hiệu quả:** Một tình huống khó xử về mặt đạo đức khi người đọc thắc mắc cô ấy đã chọn như thế nào.
 
-### 10. 结局预告
+### 10. Kết thúc bản xem trước
 
-从未来的某个关键时刻开始，然后倒叙。
+Bắt đầu tại một thời điểm quan trọng trong tương lai và sau đó hồi tưởng lại.
 
-**示例：**
-> 三天后，所有人都会后悔今天的决定。但此刻，会议室里的每个人都在微笑。
+**Ví dụ:**
+> Trong ba ngày, mọi người sẽ hối hận về quyết định ngày hôm nay. Nhưng bây giờ, mọi người trong phòng họp đều đang mỉm cười.
 
-**为什么有效：** 预示灾难，读者想知道如何发生。
-
----
-
-## 标准章节结构
-
-### 1. 开头钩子（前 20%）⚠️ 最关键
-
-**必须包含：**
-- ✅ 即时冲突/危机
-- ✅ 重大事件/信息
-- ✅ 强烈情感冲击
-- ✅ 行动场景
-
-**使用上述十种技巧之一，或组合使用。**
-
-### 2. 发展推进（中间 50-60%）
-
-本章的核心内容，必须推进剧情或深化人物。
-
-**推进方式：**
-- **新信息揭示**：让读者/主角获得重要信息
-- **关系变化**：人物关系发生转变
-- **问题升级**：现状恶化，新危机出现
-- **角色成长**：主角获得新技能、新认知
-
-**避免：**
-- 纯粹的场景描写（风景、房间布局等）
-- 与剧情无关的人物互动
-- 重复已知的对话
-
-### 3. 高潮时刻（后 15-20%）
-
-本章的情感或动作最高点。
-
-**高潮类型：**
-- **动作高潮**：战斗、追逐、对抗
-- **情感高潮**：重大发现、背叛、告白、牺牲
-- **心理高潮**：主角的内心转折点
-
-### 4. 结尾钩子（最后 5-10%）
-
-留下悬念，让读者想看下一章。详见 [hook-techniques.md](hook-techniques.md)
+**Tại sao nó hoạt động:** Báo trước thảm họa và người đọc tự hỏi nó sẽ xảy ra như thế nào.
 
 ---
 
-## 章节类型分类
+## Cấu trúc chương chuẩn
 
-### 情节推进章
+### 1. Móc mở đầu (20%) ⚠️ Quan trọng nhất
 
-**目的**：推动主线剧情发展
-**特征**：有明确的事件进展、重要信息揭示
-**示例**：主角发现线索、敌人发动攻击、盟友背叛
+**Phải chứa:**
+- ✅ Xung đột/khủng hoảng tức thời
+- ✅ Sự kiện/thông tin quan trọng
+- ✅ Tác động mạnh mẽ về mặt cảm xúc
+- ✅ Cảnh hành động
 
-### 人物深化章
+**Sử dụng một trong mười kỹ thuật trên hoặc kết hợp. **
 
-**目的**：深化读者对人物的理解
-**特征**：揭示人物背景、动机、内心冲突
-**示例**：回忆片段、私密对话、独处时刻
-**注意**：必须与主线相关，不能是纯粹的人物小传
+### 2. Phát triển và thăng tiến (50-60% giữa)
 
-### 氛围营造章
+Nội dung cốt lõi của chương này phải nâng cao cốt truyện hoặc đào sâu các nhân vật.
 
-**目的**：建立特定情绪或紧张感
-**特征**：注重感官描写、节奏控制
-**示例**：暴风雨前的宁静、潜伏行动、等待审判
+**Phương pháp đẩy:**
+- **Thông tin mới được tiết lộ**: Để người đọc/nhân vật chính có được những thông tin quan trọng
+- **Thay đổi mối quan hệ**: Mối quan hệ của nhân vật thay đổi
+- **Sự leo thang của vấn đề**: Hiện trạng xấu đi và một cuộc khủng hoảng mới xuất hiện
+- **Phát triển nhân vật**: Nhân vật chính có được những kỹ năng mới và nhận thức mới
 
-### 过渡衔接章
+**tránh xa:**
+- Mô tả cảnh thuần túy (phong cảnh, bố cục phòng, v.v.)
+- Tương tác giữa các nhân vật không liên quan tới cốt truyện
+- Lặp lại các cuộc hội thoại đã biết
 
-**目的**：连接两个重大事件
-**特征**：信息整理、位置转换、时间跳跃
-**注意**：保持简洁，避免拖沓
+### 3. Thời điểm cao trào (15-20%)
+
+Điểm cao về cảm xúc hoặc hành động của chương.
+
+**Loại cực khoái:**
+- **Hành động đỉnh cao**: trận chiến, rượt đuổi, đối đầu
+- **Đỉnh cao cảm xúc**: khám phá lớn, phản bội, thú nhận, hy sinh
+- **Đỉnh cao tâm lý**: bước ngoặt nội tâm của nhân vật chính
+
+### 4. Móc kết thúc (5-10% cuối)
+
+Gây hồi hộp và khiến người đọc muốn đọc chương tiếp theo. Xem [hook-techniques.md](hook-techniques.md) để biết chi tiết
 
 ---
 
-## 章节节奏控制
+## Phân loại loại chương
 
-### 节奏变化
+### Chương tiến triển cốt truyện
 
-同一章内应包含节奏变化：
+**Mục đích**: Thúc đẩy sự phát triển của cốt truyện chính
+**Tính năng**: Tiến trình sự kiện rõ ràng và thông tin quan trọng được tiết lộ
+**Ví dụ**: Nhân vật chính phát hiện ra manh mối, địch tấn công, đồng minh phản bội
+
+### Chương đào sâu nhân vật
+
+**Mục đích**: Giúp người đọc hiểu sâu hơn về nhân vật
+**Tính năng**: Hé lộ bối cảnh, động cơ, mâu thuẫn nội tâm của nhân vật
+**Ví dụ**: Kỷ niệm, cuộc trò chuyện riêng tư, khoảnh khắc một mình
+**Lưu ý**: Nó phải liên quan đến cốt truyện chính và không được là tiểu sử nhân vật thuần túy.
+
+### Chương tạo bầu không khí
+
+**Mục đích**: Để tạo ra cảm xúc hoặc sự căng thẳng cụ thể
+**Tính năng**: Tập trung vào mô tả cảm giác và kiểm soát nhịp điệu
+**Ví dụ**: Sự bình yên trước cơn bão, Hành động lén lút, Chờ phán xét
+
+### Chương chuyển tiếp
+
+**Mục đích**: Kết nối hai sự kiện lớn
+**Tính năng**: Sắp xếp thông tin, chuyển đổi vị trí, nhảy thời gian
+**Lưu ý**: Hãy đơn giản và tránh trì hoãn
+
+---
+
+## Kiểm soát nhịp điệu chương
+
+### Thay đổi nhịp độ
+
+Những thay đổi về tốc độ nên được đưa vào trong cùng một chương:
 
 ```
-紧张 → 缓解 → 新紧张 → 更紧张
+lo lắng → xoa dịu → căng thẳng mới → lo lắng hơn
 ```
 
-示例：
+Ví dụ:
 ```
-紧张：主角被追捕
-缓解：躲进安全屋，短暂喘息
-新紧张：发现安全屋已被入侵
-更紧张：必须立即逃离
+Căng thẳng: nhân vật chính bị săn đuổi
+Cứu trợ: Hãy trú ẩn trong một ngôi nhà an toàn để nghỉ ngơi trong thời gian ngắn
+Căng thẳng mới: Phát hiện ngôi nhà an toàn bị đột nhập
+Căng thẳng hơn: phải trốn ngay
 ```
 
-### 信息密度
+### Mật độ thông tin
 
-- **高密度**：动作场面、大量对话、快速事件
-- **低密度**：内心独白、环境描写、情感沉淀
+- **Mật độ cao**: cảnh hành động, nhiều lời thoại, diễn biến nhanh
+- **Mật độ thấp**: độc thoại nội tâm, mô tả môi trường, lắng đọng cảm xúc
 
-**原则**：高低密度交替，避免持续高密度（读者疲劳）或持续低密度（读者无聊）
+**Nguyên tắc**: Luân phiên mật độ cao và thấp để tránh mật độ cao liên tục (người đọc mệt mỏi) hoặc mật độ thấp liên tục (người đọc nhàm chán)
 
 ---
 
-## 章节长度与内容密度对照
+## Độ dài chương so với mật độ nội dung
 
-| 章节字数 | 核心事件数量 | 场景数量 |
+| Số từ của chương | Số sự kiện cốt lõi | Số cảnh |
 |---------|-------------|---------|
-| 800-1500 | 1 个主要事件 | 1-2 个场景 |
-| 1500-3000 | 1-2 个主要事件 | 2-3 个场景 |
-| 3000-6000 | 2-3 个主要事件 | 3-5 个场景 |
+| 800-1500 | 1 sự kiện chính | 1-2 cảnh |
+| 1500-3000 | 1-2 sự kiện chính | 2-3 cảnh |
+| 3000-6000 | 2-3 sự kiện chính | 3-5 cảnh |
 
-**原则**：每章至少包含一个不可删除的核心事件。如果一个事件可以移除而不影响理解，则应删除。
+**Nguyên tắc**: Mỗi chương chứa ít nhất một sự kiện cốt lõi không thể xóa được. Nếu một sự kiện có thể được loại bỏ mà không ảnh hưởng đến sự hiểu biết thì nên loại bỏ nó.
 
 ---
 
-## 章节写作检查清单
+## Danh sách kiểm tra viết chương
 
-撰写每章后自查：
+Tự kiểm tra sau khi viết từng chương:
 
-### ⚠️ 开头检查（最关键）
-- [ ] **前 20% 是否极其吸引人？**（如果不是，重写）
-- [ ] 是否在第一段就建立冲突/紧张？
-- [ ] 是否有重大事件或信息揭示？
-- [ ] 是否有强烈的情感冲击？
-- [ ] 读者是否会迫切想知道接下来发生什么？
-- [ ] 是否避免了所有"致命错误"？（天气、日常、回顾等）
+### ⚠️ Kiểm tra ngay từ đầu (quan trọng nhất)
+- [ ] **Top 20% cực kỳ hấp dẫn phải không? ** (nếu không, viết lại)
+- [ ] Nó có gây ra xung đột/căng thẳng trong đoạn đầu tiên không?
+- [ ] Có sự kiện hoặc thông tin quan trọng nào được tiết lộ không?
+- [ ] Có tác động mạnh về mặt cảm xúc không?
+- [ ] Liệu người đọc có háo hức muốn biết chuyện gì sẽ xảy ra tiếp theo không?
+- [ ] Có tránh được tất cả các "lỗi nghiêm trọng" không? (Thời tiết, hàng ngày, đánh giá, v.v.)
 
-### 内容检查
-- [ ] 本章是否推进了主线剧情或深化了人物？
-- [ ] 是否有冲突或转折？
-- [ ] 对话是否推动情节或揭示人物？
-- [ ] 是否展示了而非讲述了关键信息？
-- [ ] 结尾是否留下悬念钩子？
-- [ ] 是否为下一章埋下伏笔？
+### Kiểm tra nội dung
+- [ ] Chương này nâng cao cốt truyện chính hay đào sâu nhân vật?
+- [ ] Có mâu thuẫn hay xoắn xuýt không?
+- [ ] Lời thoại có thúc đẩy cốt truyện hay tiết lộ nhân vật không?
+- [ ] Thông tin quan trọng có được hiển thị thay vì được nói ra không?
+- [ ] Đoạn cuối có hồi hộp không?
+- [ ] Nó có mở đường cho chương tiếp theo không?
 
-### 开头自测问题
-如果对开头有任何问题回答"否"，必须重写：
-1. 读者读了前三段后，会想继续读吗？
-2. 开头是否有冲突或危机？
-3. 开头是否有意外或转折？
-4. 开头是否让读者产生强烈情绪？
-5. 开头是否避免了平淡的日常/天气/背景说明？
+### Bắt đầu câu hỏi tự kiểm tra
+Nếu bạn trả lời "Không" cho bất kỳ câu hỏi nào lúc đầu, bạn phải viết lại:
+1. Sau khi đọc ba đoạn đầu tiên, người đọc có muốn đọc tiếp không?
+2. Lúc đầu có xung đột hay khủng hoảng không?
+3. Có bất ngờ hay khúc mắc nào lúc đầu không?
+4. Phần mở đầu có gợi lên được cảm xúc mạnh mẽ ở người đọc không?
+5. Phần mở đầu có tránh được những lời giải thích nhạt nhẽo hàng ngày/thời tiết/bối cảnh không?

@@ -34,14 +34,14 @@ func TestDraftChapterRejectsUnfinishedPendingRewrite(t *testing.T) {
 	tool := NewDraftChapterTool(s)
 	args, err := json.Marshal(map[string]any{
 		"chapter": 65,
-		"content": "错误写入未来章节。",
+		"content": "Lỗi được viết trong các chương sau.",
 		"mode":    "write",
 	})
 	if err != nil {
 		t.Fatalf("Marshal: %v", err)
 	}
 
-	if _, err := tool.Execute(context.Background(), args); err == nil || !strings.Contains(err.Error(), "pending_rewrites 只能包含已完成章节") {
+	if _, err := tool.Execute(context.Background(), args); err == nil || !strings.Contains(err.Error(), "đang chờ xử lý_rewrites chỉ có thể chứa các chương đã hoàn thành") {
 		t.Fatalf("expected invalid pending_rewrites rejection, got %v", err)
 	}
 	progress, _ := s.Progress.Load()
@@ -60,17 +60,17 @@ func TestDraftChapterRejectsUnexpandedLayeredChapter(t *testing.T) {
 	}
 	if err := s.Outline.SaveLayeredOutline([]domain.VolumeOutline{{
 		Index: 1,
-		Title: "第一卷",
+		Title: "Tập 1",
 		Arcs: []domain.ArcOutline{{
 			Index: 1,
-			Title: "第一弧",
+			Title: "cung đầu tiên",
 			Chapters: []domain.OutlineEntry{
-				{Chapter: 1, Title: "一"},
-				{Chapter: 2, Title: "二"},
+				{Chapter: 1, Title: "một"},
+				{Chapter: 2, Title: "hai"},
 			},
 		}, {
 			Index:             2,
-			Title:             "第二弧",
+			Title:             "cung thứ hai",
 			EstimatedChapters: 3,
 		}},
 	}}); err != nil {
@@ -86,14 +86,14 @@ func TestDraftChapterRejectsUnexpandedLayeredChapter(t *testing.T) {
 	tool := NewDraftChapterTool(s)
 	args, err := json.Marshal(map[string]any{
 		"chapter": 3,
-		"content": "越界正文。",
+		"content": "Văn bản vượt quá giới hạn.",
 		"mode":    "write",
 	})
 	if err != nil {
 		t.Fatalf("Marshal: %v", err)
 	}
 
-	if _, err := tool.Execute(context.Background(), args); err == nil || !strings.Contains(err.Error(), "expand_arc") {
+	if _, err := tool.Execute(context.Background(), args); err == nil || !strings.Contains(err.Error(), "mở rộng_arc") {
 		t.Fatalf("expected unexpanded chapter rejection, got %v", err)
 	}
 	progress, _ := s.Progress.Load()

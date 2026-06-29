@@ -1,33 +1,33 @@
-// Package rules 实现用户偏好的持久化输入层（Policy）。
+// Quy tắc gói triển khai lớp đầu vào liên tục (Chính sách) của tùy chọn người dùng.
 //
-// Rule 是第四类事实，跟 Progress / Checkpoint / Artifact 并列，但性质相反：
-// 前三类是系统输出，Rule 是用户意图的持久化输入。
+// Quy tắc là loại sự kiện thứ tư, cùng với Progress/Checkpoint/Artifact nhưng có tính chất trái ngược:
+// Ba loại đầu tiên là đầu ra của hệ thống và Quy tắc là đầu vào liên tục theo ý định của người dùng.
 //
-// 设计约束（不可妥协）：
-//   - 工具只返事实，不返指令（Violation 是事实，由 editor 决定是否触发重写）
-//   - 不引入新的 verdict 路径（复用 PendingRewrites）
-//   - 不引入严格度字段（severity 由规则类型固定映射，editor 自主语义裁定）
-//   - 不静默吞冲突（所有异常进 Bundle.Conflicts，让 LLM 与 /diag 可见）
-//   - 不动 Flow Router（rule 不参与路由）
+// Hạn chế về thiết kế (không thể thương lượng):
+//   - Công cụ chỉ trả về sự kiện chứ không trả về hướng dẫn (Vi phạm là sự thật và người chỉnh sửa quyết định có kích hoạt viết lại hay không)
+//   - Không đưa ra đường dẫn phán quyết mới (sử dụng lại PendingRewrites)
+//   - Trường mức độ nghiêm trọng không được đưa vào (mức độ nghiêm trọng được ánh xạ cố định theo loại quy tắc và người chỉnh sửa quyết định độc lập về ngữ nghĩa)
+//   - Không âm thầm nuốt xung đột (tất cả các trường hợp ngoại lệ được nhập vào Bundle.Conflicts, hiển thị LLM và /diag)
+//   - Flow Router không di chuyển (luật không tham gia định tuyến)
 package rules
 
-// SourceKind 标记规则来源，用于合并时的就近优先排序。
-// 值越大越就近：Project > Global > Default。
+// SourceKind đánh dấu nguồn của các quy tắc và được sử dụng để sắp xếp mức độ ưu tiên gần nhất khi hợp nhất.
+// Giá trị càng lớn thì càng gần: Project > Global > Default.
 //
-// Phase 1.1 起只支持三层。Genre / Learned 层在实际题材库 / save_rule 落地前不开洞——
-// 真要扩展时再加常量并补 loader 即可，不留空架子。
+// Bắt đầu từ Giai đoạn 1.1, chỉ có ba lớp được hỗ trợ. Lớp Thể loại/Đã học không mở lỗ hổng trước khi thư viện chủ đề/save_rule thực tế được triển khai——
+// Nếu bạn thực sự muốn mở rộng, chỉ cần thêm hằng số và bộ tải, không để trống giá trị nào.
 type SourceKind int
 
 const (
-	// SourceDefault — 项目内置默认规则（assets/rules/default.md），优先级最低。
+	// SourceDefault — Các quy tắc mặc định tích hợp sẵn của dự án (asset/rules/default.md), với mức độ ưu tiên thấp nhất.
 	SourceDefault SourceKind = iota
-	// SourceGlobal — 用户全局偏好（~/.ainovel/rules/ 目录下所有 .md，按文件名字典序合并），跨书复用。
+	// SourceGlobal — Tùy chọn chung của người dùng (tất cả .mds trong thư mục ~/.ainovel/rules/, được hợp nhất theo thứ tự từ điển của tên tệp), được sử dụng lại trên nhiều cuốn sách.
 	SourceGlobal
-	// SourceProject — 本书规则（./.ainovel/rules/ 目录下所有 .md，按文件名字典序合并），优先级最高。
+	// SourceProject — các quy tắc của cuốn sách này (tất cả .mds trong thư mục ..ainovel/rules/, được hợp nhất theo thứ tự từ điển của tên tệp), với mức độ ưu tiên cao nhất.
 	SourceProject
 )
 
-// String 返回来源的可读名称，用于 markdown 拼接时的来源标题与 conflicts.detail。
+// Chuỗi Trả về tên nguồn mà con người có thể đọc được, được sử dụng để ghép nối đánh dấu tiêu đề nguồn và các xung đột.chi tiết.
 func (k SourceKind) String() string {
 	switch k {
 	case SourceDefault:
@@ -41,16 +41,16 @@ func (k SourceKind) String() string {
 	}
 }
 
-// WordRange 表示章节字数的允许范围；nil 表示未声明。
+// WordRange đại diện cho phạm vi số từ của chương được phép; nil đại diện cho việc không được khai báo.
 type WordRange struct {
 	Min int `json:"min"`
 	Max int `json:"max"`
 }
 
-// Structured 装载 front matter 的结构化字段。
+// Cấu trúc tải trường có cấu trúc của vật chất phía trước.
 //
-// 单文件解析时，Parsed.Structured 只填该文件声明的字段，其余保持零值。
-// 合并后 Bundle.Structured 是各来源就近优先后的整体结果。
+// Khi phân tích cú pháp một tệp duy nhất, Parsed.Structured chỉ điền vào các trường được khai báo trong tệp và phần còn lại giữ nguyên giá trị 0.
+// Sau khi hợp nhất, Bundle.Structured là kết quả tổng thể của từng nguồn với mức độ ưu tiên dành cho nguồn gần nhất.
 type Structured struct {
 	Genre            string         `json:"genre,omitempty"`
 	ChapterWords     *WordRange     `json:"chapter_words,omitempty"`
@@ -59,7 +59,7 @@ type Structured struct {
 	FatigueWords     map[string]int `json:"fatigue_words,omitempty"`
 }
 
-// IsEmpty 用于判定是否完全没有结构化规则；checker 可据此跳过。
+// IsEmpty được sử dụng để xác định xem liệu không có quy tắc có cấu trúc nào cả; việc kiểm tra có thể được bỏ qua tương ứng.
 func (s Structured) IsEmpty() bool {
 	return s.Genre == "" &&
 		s.ChapterWords == nil &&
@@ -68,48 +68,48 @@ func (s Structured) IsEmpty() bool {
 		len(s.FatigueWords) == 0
 }
 
-// ConflictKind 标记冲突或异常类型，便于 LLM 与诊断面板分类处理。
+// Xung đột đánh dấu các loại xung đột hoặc ngoại lệ để tạo điều kiện thuận lợi cho việc xử lý phân loại bằng LLM và bảng chẩn đoán.
 type ConflictKind string
 
 const (
-	// ConflictParseError — front matter 整体解析失败；正文仍作为偏好注入。
+	// Xung độtParseError - Việc phân tích cú pháp tổng thể của nội dung phía trước không thành công; cơ thể vẫn được tiêm theo sở thích.
 	ConflictParseError ConflictKind = "parse_error"
-	// ConflictUnknownField — 用户写了 Phase 1 未支持的字段（forward-compatible）。
+	// Xung độtUnknownField - Người dùng đã viết một trường không được Giai đoạn 1 hỗ trợ (tương thích về phía trước).
 	ConflictUnknownField ConflictKind = "unknown_field"
-	// ConflictTypeError — 字段类型错误（如 forbidden_chars 写成字符串）；该字段丢弃。
+	// Xung độtTypeError - Loại trường sai (ví dụ: Cấm_chars được viết dưới dạng chuỗi); trường này bị loại bỏ.
 	ConflictTypeError ConflictKind = "type_error"
-	// ConflictFieldConflict — 多来源同一结构化字段值不一致；就近优先生效。
+	// Xung độtFieldXung đột - Các giá trị trường có cấu trúc giống nhau từ nhiều nguồn không nhất quán; cái gần nhất có hiệu lực trước.
 	ConflictFieldConflict ConflictKind = "field_conflict"
-	// ConflictInvalidValue — 字段值格式非法（如 chapter_words: "abc"）；该字段丢弃。
+	// Xung độtInvalidValue — Định dạng giá trị trường là không hợp lệ (chẳng hạn như chap_words: "abc"); trường này bị loại bỏ.
 	ConflictInvalidValue ConflictKind = "invalid_value"
 )
 
-// Conflict 一条冲突或异常记录。
+// Xung đột Một bản ghi xung đột hoặc ngoại lệ.
 //
-// 永远不会阻断加载——所有异常都在这里暴露给 LLM 与 /diag，不静默处理。
+// Không bao giờ chặn tải - tất cả các trường hợp ngoại lệ đều được hiển thị ở đây với LLM và /diag và không được xử lý một cách im lặng.
 type Conflict struct {
-	Source string       `json:"source"`          // 文件路径（绝对或相对，按来源记录）
-	Kind   ConflictKind `json:"kind"`            // 冲突类型
-	Field  string       `json:"field,omitempty"` // 受影响字段名（如 forbidden_chars）；parse_error 时为空
-	Detail string       `json:"detail"`          // 人类可读的详情（含来源列表 / 错误信息）
+	Source string       `json:"source"`          // Đường dẫn tệp (tuyệt đối hoặc tương đối, được ghi theo nguồn)
+	Kind   ConflictKind `json:"kind"`            // Loại xung đột
+	Field  string       `json:"field,omitempty"` // Tên trường bị ảnh hưởng (chẳng hạn như các ký tự bị cấm); trống cho phân tích cú pháp_error
+	Detail string       `json:"detail"`          // Chi tiết mà con người có thể đọc được (có danh sách nguồn/thông báo lỗi)
 }
 
-// Parsed 是单份 rules.md 解析后的结果。
+// Đã phân tích cú pháp là kết quả của việc phân tích một bản sao của Rules.md.
 type Parsed struct {
-	Source     string     // 文件路径
-	Kind       SourceKind // 来源类型，用于合并优先级
-	Structured Structured // 该文件声明的 front matter 字段
-	Preference string     // 该文件的 Markdown 正文（front matter 之外的部分）
-	Conflicts  []Conflict // 该文件解析期间产生的 conflicts（未知字段 / 类型错误）
+	Source     string     // đường dẫn tập tin
+	Kind       SourceKind // Loại nguồn để ưu tiên hợp nhất
+	Structured Structured // Trường vấn đề phía trước được khai báo trong tệp này
+	Preference string     // Phần thân Markdown của tệp (phần bên ngoài phần trước)
+	Conflicts  []Conflict // xung đột (lỗi trường/loại không xác định) trong quá trình phân tích cú pháp tệp này
 }
 
-// Bundle 是合并后注入 working_memory.user_rules 的最终形态。
+// Gói là dạng cuối cùng được đưa vào Working_memory.user_rules sau khi hợp nhất.
 //
-// 字段映射到 JSON 输出：
+// Các trường được ánh xạ tới đầu ra JSON:
 //
 //	{
 //	  "structured": {...},
-//	  "preferences": "...合并 markdown...",
+//	  "preferences": "...hợp nhất đánh dấu...",
 //	  "sources": ["..."],
 //	  "conflicts": [...]
 //	}
@@ -120,20 +120,20 @@ type Bundle struct {
 	Conflicts   []Conflict `json:"conflicts"`
 }
 
-// IsEmpty 表示 Bundle 完全无内容（结构化字段为空 + 偏好正文为空）。
-// 注入 user_rules 时仍应保留空 Bundle，避免 LLM 处理 nil。
+// IsEmpty có nghĩa là Gói không có nội dung nào cả (các trường có cấu trúc trống + nội dung tùy chọn trống).
+// Vẫn phải để lại một Gói trống khi chèn user_rules để tránh LLM xử lý con số không.
 func (b Bundle) IsEmpty() bool {
 	return b.Structured.IsEmpty() && b.Preferences == ""
 }
 
-// Severity 标记 Violation 的严重等级。
-// 固定映射（用户不可配置）：
+// Mức độ nghiêm trọng Đánh dấu mức độ vi phạm nghiêm trọng.
+// Đã sửa lỗi ánh xạ (người dùng không thể định cấu hình):
 //
-//	forbidden_chars 出现             -> Error
-//	forbidden_phrases 出现           -> Error
-//	fatigue_words 超阈值             -> Warning
-//	chapter_words 偏差 < 20%         -> Warning
-//	chapter_words 偏差 >= 20%        -> Error
+//	cấm_chars xuất hiện -> Lỗi
+//	cấm_cụm từ xuất hiện -> Lỗi
+//	mệt_words vượt quá ngưỡng -> Cảnh báo
+//	độ lệch chap_words < 20% -> Cảnh báo
+//	độ lệch chap_words >= 20% -> Lỗi
 type Severity string
 
 const (
@@ -141,19 +141,19 @@ const (
 	SeverityError   Severity = "error"
 )
 
-// ChapterWordsDeviationThreshold 定义 chapter_words 偏差升级为 error 的临界值（20%）。
+// ChapterWordsDeviationThreshold xác định giá trị tới hạn (20%) mà tại đó độ lệch của chap_words được nâng cấp thành lỗi.
 const ChapterWordsDeviationThreshold = 0.20
 
-// Violation 是 checker 的输出：本章违反了某条机械规则的事实陈述。
+// Vi phạm là đầu ra của trình kiểm tra: một tuyên bố thực tế rằng chương này vi phạm quy tắc cơ học.
 //
-// 注意：commit_chapter 把 violations 透传到返回 JSON，不阻断 commit；
-// editor 在审阅时把这些事实映射到现有七维（aesthetic/pacing/character/consistency），
-// 由 LLM 自主决定是否升级 verdict 触发 polish/rewrite。
+// Lưu ý: commit_chapter truyền các vi phạm tới JSON được trả về một cách minh bạch và không chặn cam kết;
+// Người biên tập ánh xạ những dữ kiện này vào bảy khía cạnh hiện có (thẩm mỹ/nhịp độ/đặc điểm/tính nhất quán) trong quá trình xem xét,
+// LLM có quyền quyết định có nên nâng cấp phán quyết để kích hoạt đánh bóng/viết lại hay không.
 type Violation struct {
 	Rule      string   `json:"rule"`                // forbidden_chars / forbidden_phrases / fatigue_words / chapter_words
-	Target    string   `json:"target,omitempty"`    // 具体违规对象（哪个词/字符）；chapter_words 留空
-	Limit     any      `json:"limit,omitempty"`     // 阈值；fatigue_words=int / chapter_words="3000-6000" / forbidden_*=空
-	Actual    any      `json:"actual"`              // 实际值；fatigue_words/forbidden_*=出现次数 / chapter_words=本章字数
-	Deviation float64  `json:"deviation,omitempty"` // chapter_words 偏差率（0~1），其他规则留空
+	Target    string   `json:"target,omitempty"`    // Đối tượng vi phạm cụ thể (từ/ký tự nào); chap_words được để trống
+	Limit     any      `json:"limit,omitempty"`     // Ngưỡng; mệt mỏi_words=int / chap_words="3000-6000" / cấm_*=null
+	Actual    any      `json:"actual"`              // Giá trị thực tế; mệt mỏi_words/forbidden_*=số lần xuất hiện/chương_words=số từ trong chương này
+	Deviation float64  `json:"deviation,omitempty"` // tỷ lệ sai lệch chap_words (0~1), để trống các quy tắc khác
 	Severity  Severity `json:"severity"`            // error / warning
 }

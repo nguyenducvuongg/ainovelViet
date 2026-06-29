@@ -2,26 +2,26 @@ package startup
 
 import "fmt"
 
-// startup 层承载“进入 Engine 之前”的启动编排。
-// 分层约定：
-// 1. entry/tui、entry/headless 是宿主入口；
-// 2. startup 负责快速/共创/续写等启动策略；
-// 3. orchestrator.Engine 只负责正式会话执行，不负责模式前置准备。
+// Lớp khởi động lưu trữ quá trình điều phối khởi động "trước khi vào Engine".
+// Quy ước phân cấp:
+// 1. lối vào/tui và lối vào/không đầu là lối vào chủ nhà;
+// 2. Công ty khởi nghiệp chịu trách nhiệm về các chiến lược khởi nghiệp như nhanh chóng/đồng sáng tạo/tiếp tục;
+// 3. Orchestrator.Engine chỉ chịu trách nhiệm thực hiện phiên chính thức và không chịu trách nhiệm chuẩn bị trước chế độ.
 
-// Mode 表示进入 Engine 之前的启动策略类型。
+// Chế độ đại diện cho loại chính sách khởi động trước khi vào Engine.
 type Mode string
 
 const (
-	// ModeQuick 直接以用户输入作为创作起点。
+	// ModeQuick sử dụng trực tiếp thông tin đầu vào của người dùng làm điểm bắt đầu để tạo.
 	ModeQuick Mode = "quick"
-	// ModeCoCreate 先做多轮澄清，再产出创作草稿进入 Engine。
+	// Trước tiên, ModeCoCreate thực hiện nhiều vòng làm rõ, sau đó tạo bản nháp quảng cáo vào Engine.
 	ModeCoCreate Mode = "cocreate"
-	// ModeContinueFromNovel 基于已有小说内容装配上下文后续写。
+	// ModeContinueFromNovel tập hợp bối cảnh để tiếp tục viết dựa trên nội dung tiểu thuyết hiện có.
 	ModeContinueFromNovel Mode = "continue_from_novel"
 )
 
-// Request 描述入口层提交给启动策略层的原始输入。
-// 宿主入口先收集用户输入，再由 startup 把它整理为可进入 Engine 的计划。
+// Yêu cầu mô tả đầu vào ban đầu được gửi bởi lớp đầu vào tới lớp chiến lược khởi động.
+// Cổng máy chủ trước tiên thu thập thông tin đầu vào của người dùng, sau đó quá trình khởi động sẽ sắp xếp nó thành một kế hoạch có thể vào Engine.
 type Request struct {
 	Mode        Mode
 	UserPrompt  string
@@ -30,8 +30,8 @@ type Request struct {
 	Interactive bool
 }
 
-// Plan 描述启动策略层产出的结果。
-// 宿主入口不应自己拼接正式启动 prompt，而应消费 Plan 再驱动 Engine。
+// Kế hoạch mô tả kết quả được tạo ra bởi lớp chiến lược khởi động.
+// Lối vào máy chủ không được tự ghép nối lời nhắc khởi động chính thức mà phải sử dụng Kế hoạch rồi điều khiển Động cơ.
 type Plan struct {
 	Mode        Mode
 	DisplayName string
@@ -39,11 +39,11 @@ type Plan struct {
 	ResumeOnly  bool
 }
 
-// ErrNotImplemented 标记占位策略尚未落地。
+// Chính sách giữ chỗ đánh dấu ErrNotImplemented chưa được triển khai.
 var ErrNotImplemented = fmt.Errorf("startup mode not implemented")
 
-// PrepareContinueFromNovel 是“根据已有小说续写”的统一预留落点。
-// TUI/headless 未来都应先把输入整理到 Request，再从这里产出可进入 Engine 的 Plan。
+// Chuẩn bịTiếp tụcFromNovel là một điểm đặt trước thống nhất để "tiếp tục dựa trên các tiểu thuyết hiện có".
+// Trong tương lai, TUI/headless trước tiên phải sắp xếp dữ liệu đầu vào thành Yêu cầu, sau đó tạo Kế hoạch từ đây để có thể nhập vào Công cụ.
 func PrepareContinueFromNovel(req Request) (Plan, error) {
 	return Plan{}, fmt.Errorf("%w: %s", ErrNotImplemented, ModeContinueFromNovel)
 }

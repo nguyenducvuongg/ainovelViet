@@ -11,7 +11,7 @@ import (
 	"github.com/voocel/ainovel-cli/internal/store"
 )
 
-// SaveReviewTool 保存 Editor 的审阅结果。
+// SaveReviewTool lưu kết quả đánh giá của Biên tập viên.
 type SaveReviewTool struct {
 	store *store.Store
 }
@@ -22,41 +22,41 @@ func NewSaveReviewTool(store *store.Store) *SaveReviewTool {
 
 func (t *SaveReviewTool) Name() string { return "save_review" }
 func (t *SaveReviewTool) Description() string {
-	return "保存审阅结果并更新流程状态。verdict 为 accept/polish/rewrite 之一。" +
-		"工具内部执行评分卡门禁（可能升级 verdict），直接更新 Progress 的 flow 和 pending_rewrites。" +
-		"返回结构化事实：final_verdict / affected_chapters / escalation_reason / next_flow / next_chapter"
+	return "Lưu kết quả đánh giá và cập nhật trạng thái quá trình. phán quyết là một trong những chấp nhận/đánh bóng/viết lại." +
+		"Công cụ này thực hiện nội bộ việc đo lường thẻ điểm (có thể nâng cấp phán quyết), cập nhật trực tiếp luồng của Tiến trình và đang chờ xử lý." +
+		"Trả về các sự kiện có cấu trúc: Final_verdict/affected_chapters/escalation_reason/next_flow/next_chapter"
 }
-func (t *SaveReviewTool) Label() string { return "保存审阅" }
+func (t *SaveReviewTool) Label() string { return "Lưu đánh giá" }
 
-// 写工具（同时更新 reviews/ 与 Progress 的 PendingRewrites/Flow），禁止并发。
+// Các công cụ viết (cập nhật đánh giá/và PendingRewrites/Flow of Progress cùng lúc), cấm hoạt động đồng thời.
 func (t *SaveReviewTool) ReadOnly(_ json.RawMessage) bool        { return false }
 func (t *SaveReviewTool) ConcurrencySafe(_ json.RawMessage) bool { return false }
 
 func (t *SaveReviewTool) Schema() map[string]any {
 	issueSchema := schema.Object(
-		schema.Property("type", schema.Enum("问题维度", "consistency", "character", "pacing", "continuity", "foreshadow", "hook", "aesthetic")).Required(),
-		schema.Property("severity", schema.Enum("严重程度", "critical", "error", "warning")).Required(),
-		schema.Property("description", schema.String("问题描述")).Required(),
-		schema.Property("evidence", schema.String("证据：原文片段、具体情节或状态数据")).Required(),
-		schema.Property("suggestion", schema.String("修改建议")),
+		schema.Property("type", schema.Enum("khía cạnh vấn đề", "consistency", "character", "pacing", "continuity", "foreshadow", "hook", "aesthetic")).Required(),
+		schema.Property("severity", schema.Enum("Mức độ nghiêm trọng", "critical", "error", "warning")).Required(),
+		schema.Property("description", schema.String("Mô tả vấn đề")).Required(),
+		schema.Property("evidence", schema.String("Bằng chứng: các đoạn văn bản gốc, các sơ đồ cụ thể hoặc dữ liệu trạng thái")).Required(),
+		schema.Property("suggestion", schema.String("Đề xuất sửa đổi")),
 	)
 	dimensionSchema := schema.Object(
-		schema.Property("dimension", schema.Enum("维度", "consistency", "character", "pacing", "continuity", "foreshadow", "hook", "aesthetic")).Required(),
-		schema.Property("score", schema.Int("评分（0-100）")).Required(),
-		schema.Property("verdict", schema.Enum("维度结论（可省略：系统按 score 自动推导，≥80 pass / ≥60 warning / <60 fail）", "pass", "warning", "fail")),
-		schema.Property("comment", schema.String("该维度的简要结论；每个维度必填，aesthetic 必须引用原文或具体统计事实")).Required(),
+		schema.Property("dimension", schema.Enum("Kích thước", "consistency", "character", "pacing", "continuity", "foreshadow", "hook", "aesthetic")).Required(),
+		schema.Property("score", schema.Int("Đánh giá (0-100)")).Required(),
+		schema.Property("verdict", schema.Enum("Kết luận thứ nguyên (có thể bỏ qua: hệ thống tự động rút ra theo điểm, ≥80 đạt / ≥60 cảnh báo / <60 trượt)", "pass", "warning", "fail")),
+		schema.Property("comment", schema.String("Kết luận ngắn gọn về khía cạnh này; mỗi chiều là bắt buộc, thẩm mỹ phải trích dẫn văn bản gốc hoặc số liệu thống kê cụ thể")).Required(),
 	)
 	return schema.Object(
-		schema.Property("chapter", schema.Int("审阅的章节号（全局审阅填最新章节号）")).Required(),
-		schema.Property("scope", schema.Enum("审阅范围", "chapter", "global", "arc")).Required(),
-		schema.Property("dimensions", schema.Array("分维度评分（七个维度各一条）", dimensionSchema)).Required(),
-		schema.Property("issues", schema.Array("发现的问题", issueSchema)).Required(),
-		schema.Property("contract_status", schema.Enum("章节契约完成度", "met", "partial", "missed")),
-		schema.Property("contract_misses", schema.Array("未完成或违背的 contract 条目", schema.String(""))),
-		schema.Property("contract_notes", schema.String("对 contract 履行情况的简要说明")),
-		schema.Property("verdict", schema.Enum("审阅结论", "accept", "polish", "rewrite")).Required(),
-		schema.Property("summary", schema.String("审阅总结")).Required(),
-		schema.Property("affected_chapters", schema.Array("需要重写或打磨的章节号列表（verdict 为 polish/rewrite 时必填）", schema.Int(""))),
+		schema.Property("chapter", schema.Int("Số chương đã đánh giá (điền số chương mới nhất để đánh giá toàn cầu)")).Required(),
+		schema.Property("scope", schema.Enum("Đánh giá phạm vi", "chapter", "global", "arc")).Required(),
+		schema.Property("dimensions", schema.Array("Điểm số chiều (một cho mỗi chiều trong số bảy chiều)", dimensionSchema)).Required(),
+		schema.Property("issues", schema.Array("Đã tìm thấy vấn đề", issueSchema)).Required(),
+		schema.Property("contract_status", schema.Enum("Mức độ hoàn thành hợp đồng chương", "met", "partial", "missed")),
+		schema.Property("contract_misses", schema.Array("Các hạng mục hợp đồng chưa hoàn thành hoặc bị vi phạm", schema.String(""))),
+		schema.Property("contract_notes", schema.String("Mô tả ngắn gọn về việc thực hiện hợp đồng")),
+		schema.Property("verdict", schema.Enum("Xem xét kết luận", "accept", "polish", "rewrite")).Required(),
+		schema.Property("summary", schema.String("Tóm tắt đánh giá")).Required(),
+		schema.Property("affected_chapters", schema.Array("Danh sách số chương cần viết lại hoặc trau chuốt (bắt buộc khi phán quyết được đánh bóng/viết lại)", schema.Int(""))),
 	)
 }
 
@@ -68,8 +68,8 @@ func (t *SaveReviewTool) Execute(_ context.Context, args json.RawMessage) (json.
 	if r.Chapter <= 0 {
 		return nil, fmt.Errorf("chapter must be > 0")
 	}
-	// verdict 是 score 的纯函数（≥80 pass / ≥60 warning / <60 fail），由代码确定性推导——
-	// 不让 LLM 重复提供再校验一致性。既消除冗余，也根除"score=85 却给 warning"这类自相矛盾的参数。
+	// phán quyết là một hàm thuần túy về điểm số ( ≥80 đạt / ≥60 cảnh báo / <60 trượt), được rút ra một cách xác định từ mã -
+	// Ngăn chặn LLM được sử dụng nhiều lần để mang lại tính nhất quán cho việc xác nhận lại. Nó không chỉ loại bỏ sự dư thừa mà còn loại bỏ các tham số mâu thuẫn như "điểm = 85 nhưng đưa ra cảnh báo".
 	for i := range r.Dimensions {
 		r.Dimensions[i].Verdict = expectedDimensionVerdict(r.Dimensions[i].Score)
 	}
@@ -77,20 +77,20 @@ func (t *SaveReviewTool) Execute(_ context.Context, args json.RawMessage) (json.
 		return nil, err
 	}
 
-	// 评分卡门禁 — 内联原 policy/review.go 的升级逻辑
+	// Kiểm soát quyền truy cập thẻ điểm - nội tuyến logic nâng cấp của chính sách ban đầu/review.go
 	finalVerdict := r.Verdict
 	var escalationReason string
 
 	if r.Verdict == "accept" {
-		// 合同状态检查
+		// Kiểm tra tình trạng hợp đồng
 		if r.ContractStatus == "missed" {
 			finalVerdict = "rewrite"
-			escalationReason = "合同履约状态为 missed，升级为重写"
+			escalationReason = "Trạng thái thực hiện hợp đồng bị bỏ sót và được nâng cấp thành viết lại."
 		} else if r.ContractStatus == "partial" {
 			finalVerdict = "polish"
-			escalationReason = "合同履约状态为 partial，升级为打磨"
+			escalationReason = "Trạng thái thực hiện hợp đồng là một phần và được nâng cấp lên đánh bóng"
 		}
-		// 评分卡门禁
+		// kiểm soát truy cập thẻ điểm
 		if finalVerdict == "accept" {
 			if gate := evaluateScorecardGate(r.Dimensions); gate != "" {
 				if strings.Contains(gate, "rewrite") {
@@ -117,9 +117,9 @@ func (t *SaveReviewTool) Execute(_ context.Context, args json.RawMessage) (json.
 		return nil, fmt.Errorf("save review: %w", err)
 	}
 
-	// 根据最终 verdict 更新 Progress。
-	// 写失败必须早返回——后续会 append review checkpoint，若此处吞 err 会让 Coordinator
-	// 看到 saved:true 但 Store 仍处于旧 Flow / 缺失 PendingRewrites 的中间态。
+	// Cập nhật tiến độ dựa trên phán quyết cuối cùng.
+	// Lỗi ghi phải được trả về sớm - điểm kiểm tra đánh giá bổ sung sẽ được bổ sung sau. Nếu nuốt phải lỗi ở đây, Điều phối viên sẽ
+	// Xem đã lưu:true nhưng Cửa hàng vẫn ở trạng thái trung gian của Luồng cũ/thiếu PendingRewrites.
 	progress, _ := t.store.Progress.Load()
 	if finalVerdict == "rewrite" || finalVerdict == "polish" {
 		flow := domain.FlowRewriting
@@ -138,7 +138,7 @@ func (t *SaveReviewTool) Execute(_ context.Context, args json.RawMessage) (json.
 		}
 	}
 
-	// 读取更新后的 Progress 快照作为事实
+	// Đọc ảnh chụp nhanh tiến độ được cập nhật như thực tế
 	latest, _ := t.store.Progress.Load()
 	nextFlow := string(domain.FlowWriting)
 	nextChapter := 0
@@ -147,7 +147,7 @@ func (t *SaveReviewTool) Execute(_ context.Context, args json.RawMessage) (json.
 		nextChapter = latest.NextChapter()
 	}
 
-	// 追加 checkpoint
+	// Thêm điểm kiểm tra
 	scope := domain.ChapterScope(r.Chapter)
 	if r.Scope == "arc" {
 		vol, arc := 0, 0
@@ -247,15 +247,15 @@ func expectedDimensionVerdict(score int) string {
 	}
 }
 
-// criticalDimensions 定义会触发 verdict 升级的关键维度。
+// quan trọngDimensions xác định các thứ nguyên quan trọng kích hoạt báo cáo phán quyết.
 var criticalDimensions = map[string]struct{}{
 	"consistency": {},
 	"character":   {},
 	"continuity":  {},
 }
 
-// evaluateScorecardGate 检查评分卡是否需要升级 verdict。
-// 返回空字符串表示不升级。
+// đánh giáScorecardGate Kiểm tra xem thẻ điểm có cần được nâng cấp phán quyết hay không.
+// Trả về một chuỗi trống để biểu thị không có nâng cấp.
 func evaluateScorecardGate(dimensions []domain.DimensionScore) string {
 	var criticalFails []string
 	var polishIssues []string
@@ -270,10 +270,10 @@ func evaluateScorecardGate(dimensions []domain.DimensionScore) string {
 	}
 
 	if len(criticalFails) > 0 {
-		return fmt.Sprintf("rewrite: 关键维度不合格 %v", criticalFails)
+		return fmt.Sprintf("viết lại: Kích thước chính không đủ tiêu chuẩn %v", criticalFails)
 	}
 	if len(polishIssues) > 0 {
-		return fmt.Sprintf("polish: 部分维度需打磨 %v", polishIssues)
+		return fmt.Sprintf("đánh bóng: Một số kích thước cần được đánh bóng %v", polishIssues)
 	}
 	return ""
 }

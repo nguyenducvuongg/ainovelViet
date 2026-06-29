@@ -6,14 +6,14 @@ import (
 	"github.com/voocel/ainovel-cli/internal/domain"
 )
 
-// UsageStore 持久化 token / cost 累计用量到 meta/usage.json。
-// 写入走 IO 的 atomic write（tmp + rename），Save 路径每次完整覆盖整个 state。
+// UsageStore duy trì mức sử dụng tích lũy mã thông báo/chi phí cho meta/usage.json.
+// Viết thông qua ghi nguyên tử của IO (tmp + đổi tên) và đường dẫn Lưu bao phủ hoàn toàn toàn bộ trạng thái mỗi lần.
 type UsageStore struct{ io *IO }
 
 func NewUsageStore(io *IO) *UsageStore { return &UsageStore{io: io} }
 
-// Load 读取 usage.json。文件不存在或 schema 版本不匹配时返回 (nil, nil)，
-// 由调用方决定是否走 session replay 一次性回填。
+// Tải lượt đọc use.json. Trả về (nil, nil) khi tệp không tồn tại hoặc phiên bản lược đồ không khớp,
+// Người gọi có thể quyết định xem có sử dụng tính năng phát lại phiên cho chèn lấp một lần hay không.
 func (s *UsageStore) Load() (*domain.UsageState, error) {
 	var state domain.UsageState
 	if err := s.io.ReadJSON("meta/usage.json", &state); err != nil {
@@ -28,7 +28,7 @@ func (s *UsageStore) Load() (*domain.UsageState, error) {
 	return &state, nil
 }
 
-// Save 把 state 完整覆盖落盘。调用方负责 debounce / 节流。
+// Lưu ghi đè hoàn toàn trạng thái và ghi nó vào đĩa. Người gọi có trách nhiệm gỡ lỗi/điều tiết.
 func (s *UsageStore) Save(state domain.UsageState) error {
 	state.Schema = domain.UsageSchemaVersion
 	return s.io.WriteJSON("meta/usage.json", state)

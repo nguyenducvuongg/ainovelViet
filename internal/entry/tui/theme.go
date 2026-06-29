@@ -2,23 +2,23 @@ package tui
 
 import "github.com/charmbracelet/lipgloss"
 
-// 主题色板 — 暖调书卷气
-// AdaptiveColor: Light = 亮底色值, Dark = 暗底色值
+// Bảng màu chủ đề—Phong cách sách ấm áp
+// AdaptiveColor: Light = giá trị màu nền sáng, Dark = giá trị màu nền tối
 //
-// 设计原则：Light 一档稳定不动（亮底已调出满意效果）；Dark 一档统一比 Light
-// 提亮 ~25% lightness、略升饱和，保证暗底有足够对比度（colorDim 之前 #6b6355
-// 在 #1c1c1c 黑底上几乎不可见，分隔线/辅助文字全消失）。
+// Nguyên tắc thiết kế: Ánh sáng ổn định ở số 1 (đáy sáng đã được điều chỉnh đạt hiệu quả vừa ý); Độ tối cao hơn ánh sáng đồng đều ở cấp số một
+// Tăng độ sáng ~25% và tăng độ bão hòa một chút để đảm bảo đủ độ tương phản trong nền tối (trước colorDim #6b6355
+// Hầu như không hiển thị trên nền đen #1c1c1c, các dấu chia/văn bản phụ đều biến mất).
 //
-// colorAccent2 暗底从 #7a9e7e 改为青绿 #5fb8a3，跟 colorSuccess 的"健康绿"拉
-// 开 — 之前两者完全同色，让 architect agent 的色标和"高命中"喜悦感混淆。
-// bodyTextColor 是"中性正文"的前景策略：
-//   - 暗色终端 → NoColor，继承终端默认前景，避免我们硬塞 #e8e0d0 米白在用户自配
-//     的暖底/冷底主题上撞色（用户实测暗底默认色更耐读）。
-//   - 亮色终端 → 用 colorText 的 Light 档（深棕 #3d3529），保留品牌暖调；
-//     亮底默认黑色对比度太硬，原本调过的深棕在亮底视觉更柔和。
+// Nền tối của colorAccent2 được đổi từ #7a9e7e thành xanh #5fb8a3, tương tự như "xanh khỏe mạnh" của colorSuccess
+// On - trước đây cả hai đều có màu sắc giống hệt nhau, gây nhầm lẫn giữa thang màu của đặc vụ kiến ​​​​trúc sư và niềm vui "hit cao".
+// bodyTextColor là chiến lược tiền cảnh cho "nội dung trung tính":
+//   - Thiết bị đầu cuối tối → NoColor, kế thừa nền trước mặc định của thiết bị đầu cuối, để ngăn chúng tôi buộc người dùng phải định cấu hình #e8e0d0 Mibai
+//     Màu sắc tương phản trên chủ đề ấm/lạnh (người dùng đã kiểm tra rằng màu mặc định trên nền tối dễ đọc hơn).
+//   - Thiết bị đầu cuối sáng → Sử dụng tệp Light của colorText (màu nâu đậm #3d3529) để giữ tông màu ấm của thương hiệu;
+//     Độ tương phản màu đen mặc định trên nền sáng quá cứng và màu nâu sẫm được điều chỉnh ban đầu trông mềm mại hơn trên nền sáng.
 //
-// AdaptiveColor 两端都必须给颜色值，没有"无色"档，所以这里启动时判一次背景，
-// 之后所有概览值/章节正文/命令描述等"中性正文"统一引用 bodyTextColor。
+// AdaptiveColor phải đưa ra giá trị màu ở cả hai đầu. Không có tệp "không màu" nên nền được đánh giá một lần khi khởi động.
+// Sau đó, tất cả "văn bản trung lập" chẳng hạn như giá trị tổng quan/văn bản chương/mô tả lệnh sẽ tham chiếu thống nhất bodyTextColor.
 var bodyTextColor lipgloss.TerminalColor = func() lipgloss.TerminalColor {
 	if lipgloss.HasDarkBackground() {
 		return lipgloss.NoColor{}
@@ -40,7 +40,7 @@ var (
 	colorTool    = lipgloss.AdaptiveColor{Light: "#3a7a8a", Dark: "#7ec5d8"}
 )
 
-// 状态标签颜色映射
+// Ánh xạ màu nhãn trạng thái
 var statusColors = map[string]lipgloss.AdaptiveColor{
 	"READY":    colorDim,
 	"PAUSING":  colorAccent,
@@ -52,23 +52,23 @@ var statusColors = map[string]lipgloss.AdaptiveColor{
 	"ERROR":    colorError,
 }
 
-// 状态展示：图标 + 中文标签。与整体暖调主题一致，避免实心色块突兀。
-// RUNNING 的 icon 留空，由 spinner frame 动态填充，让动态感融入状态指示本身。
+// Hiển thị trạng thái: biểu tượng + nhãn tiếng Trung. Phù hợp với chủ đề tổng thể ấm áp, tránh các khối màu đồng nhất mang tính đột ngột.
+// Biểu tượng CHẠY được để trống và được khung quay lấp đầy động, cho phép cảm giác động được tích hợp vào chính chỉ báo trạng thái.
 var statusDisplay = map[string]struct {
 	icon  string
 	label string
 }{
-	"READY":    {"○", "就绪"},
-	"RUNNING":  {"", "运行中"},
-	"REVIEW":   {"◆", "审阅"},
-	"REWRITE":  {"◆", "返工"},
-	"COMPLETE": {"●", "完成"},
-	"PAUSED":   {"⏸", "暂停"},
-	"PAUSING":  {"⏸", "暂停中"},
-	"ERROR":    {"✕", "错误"},
+	"READY":    {"○", "sẵn sàng"},
+	"RUNNING":  {"", "Đang chạy"},
+	"REVIEW":   {"◆", "Ôn tập"},
+	"REWRITE":  {"◆", "Làm lại"},
+	"COMPLETE": {"●", "Hoàn thành"},
+	"PAUSED":   {"⏸", "tạm dừng"},
+	"PAUSING":  {"⏸", "Đã tạm dừng"},
+	"ERROR":    {"✕", "sai lầm"},
 }
 
-// 事件分类颜色映射
+// Ánh xạ màu phân loại sự kiện
 var categoryColors = map[string]lipgloss.AdaptiveColor{
 	"DISPATCH": colorAccent,
 	"DONE":     colorSuccess,
@@ -83,7 +83,7 @@ var categoryColors = map[string]lipgloss.AdaptiveColor{
 	"COMPACT":  colorContext,
 }
 
-// 基础样式
+// Phong cách cơ bản
 var (
 	baseBorder = lipgloss.RoundedBorder()
 
@@ -105,11 +105,11 @@ var (
 			Foreground(colorMuted).
 			Width(10)
 
-	// fieldValueStyle / cardContentStyle 用 bodyTextColor —— 概览区的值（运行态、
-	// 已完成章节数、字数等）、大纲条目、角色列表、章节摘要等"中性正文内容"
-	// 在暗底跟随终端默认前景色（避免硬塞米白撞主题），亮底走深棕保留暖调。
-	// 语义性强的元素（标题、高亮值、状态、错误、命中率染色等）仍走 colorAccent /
-	// colorError 等主题色。
+	// fieldValueStyle / cardContentStyle sử dụng bodyTextColor - giá trị của vùng tổng quan (trạng thái chạy,
+	// Số chương đã hoàn thành, số từ, v.v.), mục dàn ý, danh sách ký tự, tóm tắt chương, v.v. "nội dung văn bản trung tính"
+	// Trên nền tối, hãy làm theo màu nền trước mặc định của thiết bị đầu cuối (để tránh buộc màu trắng xung đột với chủ đề), còn trên nền sáng, hãy sử dụng màu nâu sẫm để giữ tông màu ấm.
+	// Các phần tử có ngữ nghĩa mạnh (tiêu đề, giá trị đánh dấu, trạng thái, lỗi, tô màu tỷ lệ truy cập, v.v.) vẫn sử dụng colorAccent /
+	// colorError và các màu chủ đề khác.
 	fieldValueStyle = lipgloss.NewStyle().Foreground(bodyTextColor)
 
 	highlightValueStyle = lipgloss.NewStyle().

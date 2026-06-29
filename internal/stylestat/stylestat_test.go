@@ -17,7 +17,7 @@ func TestComputeBelowMinChapters(t *testing.T) {
 }
 
 func TestComputePatterns(t *testing.T) {
-	body := "他不是愤怒，而是恐惧。沉默了几息。像一盏灯。\n正文。\n"
+	body := "Hắn không phải tức giận mà là sợ hãi. Hắn im lặng trong vài hơi thở. Hắn giống như một cái cây.\n"
 	chapters := make([]string, 6)
 	for i := range chapters {
 		chapters[i] = chapterWith(body)
@@ -27,10 +27,10 @@ func TestComputePatterns(t *testing.T) {
 		t.Fatal("expected stats")
 	}
 	want := map[string]int{
-		"矫正句『不是…(而)是…』":          6,
-		"计时量词『X息/X瞬』":            6,
-		"明喻『像一/仿佛/如同/宛如』":        6,
-		"沉默节拍『沉默了/没有说话/没有回头』": 6,
+		"Cấu trúc câu \"không phải... mà là...\"":          6,
+		"Bộ định lượng thời gian \"X hơi thở/X tích tắc\"":            6,
+		"So sánh \"giống như/tựa như/như thể\"":        6,
+		"Nhịp im lặng \"im lặng/không nói/không quay lại\"": 6,
 	}
 	for _, p := range s.Patterns {
 		if w, ok := want[p.Name]; ok && p.Total != w {
@@ -100,8 +100,8 @@ func TestComputeRepeatedSentences(t *testing.T) {
 }
 
 func TestComputeEndingAndOpening(t *testing.T) {
-	short := chapterWith("一整夜没有睡。\n正文很长很长很长。\n他走了。")
-	long := chapterWith("白天的事。\n正文。\n这是一个非常非常非常长的结尾句子，远远超过三十个字符的阈值长度，用来测试中位数。")
+	short := chapterWith("Cả đêm không ngủ.\nBản văn rất dài rất dài rất dài.\nHắn rời đi.")
+	long := chapterWith("Chuyện ban ngày.\nBản văn.\nĐây là một câu kết thúc rất rất rất dài, vượt xa ngưỡng ba mươi ký tự, dùng để kiểm tra trung vị.")
 	chapters := []string{short, short, short, long, long}
 	s := Compute(Input{Chapters: chapters})
 	if s == nil {
@@ -118,15 +118,15 @@ func TestComputeEndingAndOpening(t *testing.T) {
 func TestComputeTitleFormats(t *testing.T) {
 	chapters := make([]string, 5)
 	for i := range chapters {
-		chapters[i] = chapterWith("正文。")
+		chapters[i] = chapterWith("Bản văn.")
 	}
-	// 混用 → 上报
-	s := Compute(Input{Chapters: chapters, Titles: []string{"第一章 风起", "云涌", "第3章 雷动"}})
+	// Hỗn hợp -> báo cáo
+	s := Compute(Input{Chapters: chapters, Titles: []string{"Chương 1 Gió nổi", "Mây phun", "Chương 3 Sấm động"}})
 	if s.TitleFormats == nil || s.TitleFormats.WithPrefix != 2 || s.TitleFormats.WithoutPrefix != 1 {
 		t.Errorf("title formats: %+v", s.TitleFormats)
 	}
-	// 统一 → 不上报
-	s = Compute(Input{Chapters: chapters, Titles: []string{"风起", "云涌"}})
+	// Thống nhất -> không báo cáo
+	s = Compute(Input{Chapters: chapters, Titles: []string{"Gió nổi", "Mây phun"}})
 	if s.TitleFormats != nil {
 		t.Errorf("uniform titles should not report: %+v", s.TitleFormats)
 	}

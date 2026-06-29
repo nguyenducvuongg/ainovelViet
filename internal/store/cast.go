@@ -8,20 +8,20 @@ import (
 	"github.com/voocel/ainovel-cli/internal/domain"
 )
 
-// CastStore 管理配角名册（meta/cast_ledger.json）。
+// CastStore quản lý danh sách diễn viên phụ (meta/cast_ledger.json).
 //
-// 配角名册记录"出现过的有名字的次要角色"，与 characters.json（核心角色档案）正交：
-//   - characters.json：Architect 显式设计的主角 + 关键配角，写作期不修改
-//   - cast_ledger.json：commit_chapter 工具自动累加，所有有名字的非核心配角
+// Danh sách diễn viên phụ ghi lại "các nhân vật phụ được đặt tên đã xuất hiện", trực giao với character.json (tệp nhân vật cốt lõi):
+//   - character.json: Nhân vật chính + các vai phụ chính được Architect thiết kế rõ ràng, sẽ không được sửa đổi trong suốt thời gian viết
+//   - cast_ledger.json: Công cụ commit_chapter tự động cộng dồn tất cả các vai trò hỗ trợ không cốt lõi kèm theo tên
 //
-// MergeAppearances 是幂等的：同一章重复 commit 不会重复累加 AppearanceCount。
+// MergeAppearances là bình thường: các cam kết lặp lại của cùng một chương sẽ không tích lũy AppearanceCount nhiều lần.
 type CastStore struct{ io *IO }
 
 func NewCastStore(io *IO) *CastStore { return &CastStore{io: io} }
 
 const castLedgerPath = "meta/cast_ledger.json"
 
-// Load 读取配角名册。文件不存在时返回空切片。
+// Load đọc danh sách diễn viên phụ. Trả về một lát trống nếu tệp không tồn tại.
 func (s *CastStore) Load() ([]domain.CastEntry, error) {
 	var entries []domain.CastEntry
 	if err := s.io.ReadJSON(castLedgerPath, &entries); err != nil {
@@ -33,25 +33,25 @@ func (s *CastStore) Load() ([]domain.CastEntry, error) {
 	return entries, nil
 }
 
-// Save 整体保存配角名册（原子写入）。
+// Lưu Lưu toàn bộ danh sách diễn viên phụ (viết nguyên tử).
 func (s *CastStore) Save(entries []domain.CastEntry) error {
 	return s.io.WriteJSON(castLedgerPath, entries)
 }
 
-// MergeAppearances 把本章出场记录合并进名册。
+// MergeAppearances Hợp nhất các bản ghi ngoại hình của chương này vào danh sách.
 //
-// 参数:
-//   - chapter: 本章号
-//   - characters: 本章出场名字数组（来自 commit_chapter.Characters）
-//   - intros: Writer 显式声明的新角色简介（首次出场或补全 BriefRole）
-//   - knownCore: characters.json 中已有的核心角色名集合（这些跳过 ledger 写入）
+// tham số:
+//   - chương: số chương
+//   - ký tự: mảng tên xuất hiện trong chương này (từ commit_chapter.Characters)
+//   - phần giới thiệu: Phần giới thiệu vai trò mới được tuyên bố rõ ràng của Người viết (lần đầu xuất hiện hoặc hoàn thành BriefRole)
+//   - knownCore: Một tập hợp các tên nhân vật cốt lõi đã có trong character.json (những tên này bỏ qua việc ghi vào sổ cái)
 //
-// 行为:
-//   - 名字在 knownCore 中：跳过（核心角色档案是其唯一记录入口）
-//   - 名字已在 ledger 且 chapter 已在 AppearanceChapters：完全跳过（幂等）
-//   - 名字已在 ledger 但 chapter 是新的：更新 LastSeenChapter + 追加 chapter + count++
-//   - 名字未在 ledger：新增条目
-//   - intros 中的 BriefRole 仅在 ledger 条目 BriefRole 仍为空时采用，避免覆盖更早的简介
+// Hành vi:
+//   - Tên trong knownCore: bị bỏ qua (tệp ký tự lõi là mục nhập bản ghi duy nhất của nó)
+//   - tên đã có trong sổ cái và chương đã có trong AppearanceChapters: bị bỏ qua hoàn toàn (idempotent)
+//   - tên đã có trong sổ cái nhưng chương mới: cập nhật LastSeenChapter + nối thêm chương + đếm++
+//   - Không có tên trong sổ cái: thêm mục mới
+//   - BriefRole trong phần giới thiệu chỉ được lấy nếu mục sổ cái BriefRole vẫn trống, để tránh ghi đè phần giới thiệu trước đó
 func (s *CastStore) MergeAppearances(
 	chapter int,
 	characters []string,
@@ -123,10 +123,10 @@ func (s *CastStore) MergeAppearances(
 	})
 }
 
-// RecentActive 返回最近活跃的 N 条配角条目（按 LastSeenChapter 倒序）。
-// 用于 novel_context 召回 Writer 写下一章时可能需要的"近期出场配角"。
+// Hoạt động gần đây Trả về N mục nhập ký tự hỗ trợ hoạt động gần đây nhất (theo thứ tự ngược lại của LastSeenChapter).
+// Được sử dụng trong tiểu thuyết_context để nhớ lại "các nhân vật phụ gần đây" mà Người viết có thể cần viết chương tiếp theo.
 //
-// 已升格到 characters.json 的条目（Promoted=true）会被跳过，避免与核心档案重复召回。
+// Các mục nhập đã được thăng cấp lên character.json (Được thăng cấp=true) sẽ bị bỏ qua để tránh bị thu hồi nhiều lần với tệp lõi.
 func (s *CastStore) RecentActive(limit int) ([]domain.CastEntry, error) {
 	if limit <= 0 {
 		return nil, nil

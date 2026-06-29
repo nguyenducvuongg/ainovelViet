@@ -7,24 +7,32 @@ import (
 )
 
 var premiseHeadingAliases = map[string]string{
-	"题材定位":    "题材定位",
-	"题材和基调":   "题材和基调",
-	"核心冲突":    "核心冲突",
-	"主角目标":    "主角目标",
-	"结局方向":    "终局方向",
-	"终局方向":    "终局方向",
-	"写作禁区":    "写作禁区",
-	"差异化卖点":   "差异化卖点",
-	"差异化钩子":   "差异化钩子",
-	"核心兑现承诺":  "核心兑现承诺",
-	"故事引擎":    "故事引擎",
-	"关系/成长主线": "关系/成长主线",
-	"升级路径":    "升级路径",
-	"中段转折":    "中段转折",
-	"中期转向":    "中段转折",
-	"终局命题":    "终局命题",
-	"短篇适配性":   "短篇适配性",
-	"本作为什么适合短篇/单卷收束": "短篇适配性",
+	"định vị chủ đề": "Định vị chủ đề",
+	"chủ đề và giọng điệu": "chủ đề và giọng điệu",
+	"chủ đề và giai điệu": "chủ đề và giọng điệu",
+	"xung đột cốt lõi": "xung đột cốt lõi",
+	"mục tiêu của nhân vật chính": "mục tiêu của nhân vật chính",
+	"hướng kết thúc": "hướng cuối cùng",
+	"hướng đi cuối cùng": "hướng cuối cùng",
+	"hướng cuối cùng": "hướng cuối cùng",
+	"khu vực cấm viết": "Khu vực cấm viết",
+	"vùng hạn chế viết": "Khu vực cấm viết",
+	"vùng cấm viết": "Khu vực cấm viết",
+	"điểm bán hàng khác biệt": "Điểm bán hàng khác biệt",
+	"móc phân biệt": "Móc phân biệt",
+	"cốt lõi thực hiện lời hứa": "Cốt lõi thực hiện lời hứa",
+	"thực hiện cốt lõi những lời hứa": "Cốt lõi thực hiện lời hứa",
+	"công cụ câu chuyện": "công cụ câu chuyện",
+	"mối quan hệ/chủ đề tăng trưởng": "Mối quan hệ/Chủ đề tăng trưởng",
+	"đường dẫn nâng cấp": "Đường dẫn nâng cấp",
+	"giữa lượt": "giữa lượt",
+	"bước ngoặt giữa kỳ": "giữa lượt",
+	"bước ngoặt đoạn giữa": "giữa lượt",
+	"lượt chuyển tiếp giữa kỳ": "giữa lượt",
+	"đề xuất cuối cùng": "đề xuất cuối cùng",
+	"khả năng thích ứng truyện ngắn": "khả năng thích ứng truyện ngắn",
+	"tại sao cuốn sách này phù hợp với truyện ngắn/tập đơn?": "khả năng thích ứng truyện ngắn",
+	"tại sao cuốn sách này lại phù hợp với truyện ngắn/tập đơn?": "khả năng thích ứng truyện ngắn",
 }
 
 func parsePremiseSections(premise string) map[string]string {
@@ -64,10 +72,8 @@ func canonicalPremiseHeading(line string) (string, bool) {
 		return "", false
 	}
 	title := strings.TrimSpace(strings.TrimLeft(line, "#"))
-	if title == "" {
-		return "", false
-	}
-	canonical, ok := premiseHeadingAliases[title]
+	titleLower := strings.ToLower(title)
+	canonical, ok := premiseHeadingAliases[titleLower]
 	return canonical, ok
 }
 
@@ -97,34 +103,34 @@ func premiseStructure(premise string, tier domain.PlanningTier) map[string]any {
 
 func requiredPremiseHeadings(tier domain.PlanningTier) []string {
 	common := []string{
-		"题材和基调",
-		"题材定位",
-		"核心冲突",
-		"主角目标",
-		"终局方向",
-		"写作禁区",
-		"差异化卖点",
-		"差异化钩子",
-		"核心兑现承诺",
+		"chủ đề và giọng điệu",
+		"Định vị chủ đề",
+		"xung đột cốt lõi",
+		"mục tiêu của nhân vật chính",
+		"hướng cuối cùng",
+		"Khu vực cấm viết",
+		"Điểm bán hàng khác biệt",
+		"Móc phân biệt",
+		"Cốt lõi thực hiện lời hứa",
 	}
 
 	switch tier {
 	case domain.PlanningTierLong:
 		return append(common,
-			"故事引擎",
-			"关系/成长主线",
-			"升级路径",
-			"中段转折",
-			"终局命题",
+			"công cụ câu chuyện",
+			"Mối quan hệ/Chủ đề tăng trưởng",
+			"Đường dẫn nâng cấp",
+			"giữa lượt",
+			"đề xuất cuối cùng",
 		)
 	case domain.PlanningTierMid:
 		return append(common,
-			"故事引擎",
-			"中段转折",
+			"công cụ câu chuyện",
+			"giữa lượt",
 		)
 	case domain.PlanningTierShort:
 		return append(common,
-			"短篇适配性",
+			"khả năng thích ứng truyện ngắn",
 		)
 	default:
 		return common

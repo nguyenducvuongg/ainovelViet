@@ -1,10 +1,10 @@
-## 言情风格
+## Phong cách lãng mạn
 
-- **情感递进**：遵循接触→好感→冲突→和解→深入的自然节奏，不急于推进
-- **关系张力**：每个阶段都需要合理的阻碍，阻碍来源要多样（性格、立场、误解、外部压力）
-- **内心描写**：深入角色内心，展现矛盾和挣扎，但避免大段独白式心理分析
-- **互动细节**：用微表情、小动作、不经意的习惯传递情感，比直接告白更有张力
-- **对话节奏**：暧昧期对话留白多，甜蜜期对话轻松自然，冲突期对话尖锐但克制
-- **场景氛围**：环境描写与情感状态呼应，但不过度使用"下雨=悲伤"类刻板隐喻
-- **配角功能**：闺蜜/兄弟角色推动情节发展，不沦为恋爱咨询工具
-- **冲突设计**：误会不能靠"一句话就能解释清楚"维持，矛盾要触及核心价值观差异
+- **Tiến triển về mặt cảm xúc**: Đi theo nhịp điệu tự nhiên của việc tiếp xúc → ấn tượng tốt → xung đột → hòa giải → sâu sắc, và đừng vội tiến lên.
+- **Căng thẳng trong mối quan hệ**: Mỗi giai đoạn đều cần có những trở ngại hợp lý và nguồn gốc của các trở ngại phải đa dạng (tính cách, lập trường, hiểu lầm, áp lực bên ngoài)
+- **Miêu tả nội tâm**: Đi sâu vào nội tâm nhân vật, thể hiện những mâu thuẫn, đấu tranh nhưng tránh phân tích tâm lý kiểu độc thoại dài dòng.
+- **Chi tiết tương tác**: Sử dụng những biểu cảm vi mô, cử động nhỏ và thói quen thông thường để truyền tải cảm xúc, mãnh liệt hơn so với lời tỏ tình trực tiếp.
+- **Nhịp điệu đối thoại**: Trong thời kỳ mơ hồ, đối thoại có nhiều khoảng trống, trong thời kỳ ngọt ngào, đối thoại thoải mái và tự nhiên, còn trong thời kỳ xung đột, đối thoại sắc bén nhưng có kiềm chế.
+- **Không khí cảnh**: Mô tả môi trường phản ánh trạng thái cảm xúc, nhưng không lạm dụng các ẩn dụ rập khuôn như "mưa = nỗi buồn"
+- **Chức năng vai phụ**: Vai bạn thân/anh trai thúc đẩy phát triển cốt truyện và không trở thành công cụ tư vấn tình yêu
+- **Thiết kế xung đột**: Không thể duy trì hiểu lầm bằng cách "giải thích rõ ràng trong một câu". Xung đột phải chạm đến sự khác biệt về giá trị cốt lõi.

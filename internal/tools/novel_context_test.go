@@ -21,7 +21,7 @@ func TestContextToolInjectsStyleStats(t *testing.T) {
 	}
 
 	progress := &domain.Progress{TotalChapters: 10}
-	body := "# 第N章\n他不是迟疑，而是恐惧。沉默了几息。像一道光。\n夜色落下。\n他走了。"
+	body := "Hắn không phải tức giận mà là sợ hãi. Hắn im lặng trong vài hơi thở. Hắn giống như một cái cây."
 	for ch := 1; ch <= 6; ch++ {
 		if err := st.Drafts.SaveFinalChapter(ch, body); err != nil {
 			t.Fatalf("SaveFinalChapter: %v", err)
@@ -116,7 +116,7 @@ func TestContextToolReportsWarningsForCorruptedState(t *testing.T) {
 	if !containsWarning(payload.Warnings, "progress") {
 		t.Fatalf("expected progress warning, got %v", payload.Warnings)
 	}
-	if !strings.Contains(payload.Summary, "告警:") {
+	if !strings.Contains(payload.Summary, "Báo động:") {
 		t.Fatalf("expected loading summary to contain warning count, got %q", payload.Summary)
 	}
 }
@@ -136,37 +136,37 @@ func TestContextToolChapterModeIncludesWorkingAndReferenceFields(t *testing.T) {
 	if err := s.Init(); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	if err := s.Outline.SavePremise(`## 题材和基调
+	if err := s.Outline.SavePremise(`## Chủ đề và giọng điệu
 少年成长，偏紧张压迫。
 
-## 题材定位
+## Định vị chủ đề
 少年升级流
 
-## 核心冲突
+## xung đột cốt lõi
 主角必须在宗门竞争中活下来。
 
-## 主角目标
+## mục tiêu của nhân vật chính
 进入内门。
 
-## 终局方向
+## hướng cuối cùng
 成为真正的执棋者。
 
-## 写作禁区
+## Khu vực cấm viết
 不提前揭露师尊真相。
 
-## 差异化卖点
+## Điểm bán hàng khác biệt
 弱者逆袭。
 
-## 差异化钩子
+## Móc phân biệt
 每阶段都要用更高代价换成长。
 
-## 核心兑现承诺
+## Cốt lõi thực hiện lời hứa
 持续兑现危机与突破。
 
-## 故事引擎
+## công cụ câu chuyện
 试炼、资源争夺与身份升级共同推进。
 
-## 中段转折
+## giữa lượt
 主角被迫转向另一条修行路线。
 `); err != nil {
 		t.Fatalf("SavePremise: %v", err)
@@ -276,46 +276,46 @@ func TestContextToolArchitectModeIncludesPlanningAndFoundation(t *testing.T) {
 	if err := s.Init(); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	if err := s.Outline.SavePremise(`## 题材和基调
+	if err := s.Outline.SavePremise(`## Chủ đề và giọng điệu
 群像冒险，偏冷峻史诗。
 
-## 题材定位
+## Định vị chủ đề
 群像长篇冒险
 
-## 核心冲突
-众人必须在不断失控的旧秩序中寻找新秩序。
+## xung đột cốt lõi
+众人必须在不断失控 of 旧秩序中寻找新秩序。
 
-## 主角目标
+## mục tiêu của nhân vật chính
 抵达真相核心。
 
-## 终局方向
+## hướng cuối cùng
 揭开古老真相并重建秩序。
 
-## 写作禁区
+## Khu vực cấm viết
 不靠天降设定收尾。
 
-## 差异化卖点
+## Điểm bán hàng khác biệt
 群像关系推进。
 
-## 差异化钩子
+## Móc phân biệt
 每卷都改变队伍关系结构。
 
-## 核心兑现承诺
+## Cốt lõi thực hiện lời hứa
 持续提供发现、牺牲与选择。
 
-## 故事引擎
+## công cụ câu chuyện
 旅途推进、真相调查与队伍关系共同驱动。
 
-## 关系/成长主线
+## Mối quan hệ/Chủ đề tăng trưởng
 队伍从互不信任走向分裂再重组。
 
-## 升级路径
+## Đường dẫn nâng cấp
 从地方事件走向世界级危机。
 
-## 中期转向
+## giữa lượt
 真相并非敌人，而是秩序本身有问题。
 
-## 终局命题
+## đề xuất cuối cùng
 秩序应由谁定义。
 `); err != nil {
 		t.Fatalf("SavePremise: %v", err)
@@ -524,10 +524,10 @@ func TestContextToolSelectedMemoryRecallsStoryThreadsAndReviewLessons(t *testing
 	if containsRecallSummary(payload.Selected.StoryThreads, "建议回看第") {
 		t.Fatalf("expected related_chapters not to be duplicated into story_threads, got %+v", payload.Selected.StoryThreads)
 	}
-	if !containsRecallSummary(payload.Selected.ReviewLessons, "contract 漏项") {
+	if !containsRecallSummary(payload.Selected.ReviewLessons, "hợp đồng thiếu mục") {
 		t.Fatalf("expected review lesson recall to mention contract miss, got %+v", payload.Selected.ReviewLessons)
 	}
-	if !strings.Contains(payload.Summary, "线索召回:") || !strings.Contains(payload.Summary, "评审召回:") {
+	if !strings.Contains(payload.Summary, "Gợi ý thu hồi:") || !strings.Contains(payload.Summary, "Đánh giá thu hồi:") {
 		t.Fatalf("expected loading summary to report selected memory, got %q", payload.Summary)
 	}
 }
@@ -588,7 +588,7 @@ func TestContextToolSelectedMemorySurfacesAgingForeshadow(t *testing.T) {
 	if !containsRecallSummary(payload.Selected.StoryThreads, "失落的血脉") {
 		t.Fatalf("expected second aging foreshadow to surface, got %+v", payload.Selected.StoryThreads)
 	}
-	if !containsRecallSummary(payload.Selected.StoryThreads, "未回收") {
+	if !containsRecallSummary(payload.Selected.StoryThreads, "chưa tìm lại được") {
 		t.Fatalf("expected aging item to carry overdue annotation, got %+v", payload.Selected.StoryThreads)
 	}
 	// 近期伏笔（账龄 <30 且不相关）不应被回填。

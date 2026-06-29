@@ -50,12 +50,12 @@ func TestExtractNovelNameFromPremise_Placeholder(t *testing.T) {
 		premise string
 		want    string
 	}{
-		{"真实书名", "# 长夜将明\n\n## 题材", "长夜将明"},
-		{"带书名号", "# 《星河彼岸》\n## 题材", "星河彼岸"},
-		{"占位-书名", "# 书名\n## 题材", ""},
-		{"占位-示例书名", "# 《示例书名》\n## 题材", ""},
-		{"占位-实际书名", "# 实际书名\n## 题材", ""},
-		{"首行非标题", "纯文本第一行\n# 书名", ""},
+		{"tên sách thật", "# Đêm dài sẽ bình minh\n\n##", "Đêm dài sẽ bình minh"},
+		{"Với tựa sách", "# \"Phía bên kia của thiên hà\" \n## Theme", "Phía bên kia của thiên hà"},
+		{"Tiêu đề giữ chỗ của sách", "# Tên sách \n## Chủ đề", ""},
+		{"Trình giữ chỗ - Tiêu đề sách mẫu", "# \"Tiêu đề sách mẫu\" \n## Chủ đề", ""},
+		{"Giữ chỗ-tên sách thực tế", "# Tên sách thực tế \n## Chủ đề", ""},
+		{"Dòng không có tiêu đề đầu tiên", "Dòng đầu tiên của văn bản thuần \n# tên sách", ""},
 	}
 	for _, c := range cases {
 		if got := ExtractNovelNameFromPremise(c.premise); got != c.want {

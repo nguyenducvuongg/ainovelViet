@@ -19,18 +19,18 @@ func TestSaveArcSummaryPersistsStyleRulesDialogueObjects(t *testing.T) {
 	args, err := json.Marshal(map[string]any{
 		"volume":     1,
 		"arc":        2,
-		"title":      "入山",
-		"summary":    "主角完成入山试炼，确认后续追索方向。",
-		"key_events": []string{"通过试炼", "发现旧案线索"},
+		"title":      "Vào núi",
+		"summary":    "Nhân vật chính hoàn thành thử thách trên núi và xác nhận phương hướng truy đuổi tiếp theo.",
+		"key_events": []string{"Vượt qua thử nghiệm", "Khám phá manh mối trong vụ án cũ"},
 		"character_snapshots": []map[string]any{
-			{"name": "沈渊", "status": "存活", "motivation": "追查旧案"},
+			{"name": "Thẩm Viên", "status": "tồn tại", "motivation": "theo đuổi vụ án cũ"},
 		},
 		"style_rules": map[string]any{
-			"prose": []string{"环境描写优先触觉和嗅觉", "动作戏用短句推进", "心理描写不解释结论"},
+			"prose": []string{"Mô tả môi trường ưu tiên chạm và ngửi", "Những cảnh hành động được nâng cao bằng những câu thoại ngắn", "Mô tả tâm lý không giải thích được kết luận"},
 			"dialogue": []map[string]any{
-				{"name": "沈渊", "rules": []string{"对话极简", "少用疑问句"}},
+				{"name": "Thẩm Viên", "rules": []string{"Đối thoại tối giản", "Sử dụng ít câu hỏi hơn"}},
 			},
-			"taboos": []string{"避免章末长独白"},
+			"taboos": []string{"Tránh độc thoại dài dòng ở cuối chương"},
 		},
 	})
 	if err != nil {
@@ -48,7 +48,7 @@ func TestSaveArcSummaryPersistsStyleRulesDialogueObjects(t *testing.T) {
 	if rules == nil || len(rules.Dialogue) != 1 {
 		t.Fatalf("expected one dialogue rule, got %+v", rules)
 	}
-	if rules.Dialogue[0].Name != "沈渊" || len(rules.Dialogue[0].Rules) != 2 {
+	if rules.Dialogue[0].Name != "Thẩm Viên" || len(rules.Dialogue[0].Rules) != 2 {
 		t.Fatalf("unexpected dialogue rule: %+v", rules.Dialogue[0])
 	}
 }
@@ -63,13 +63,13 @@ func TestSaveArcSummaryRejectsDialogueStringArray(t *testing.T) {
 	args, err := json.Marshal(map[string]any{
 		"volume":              1,
 		"arc":                 2,
-		"title":               "入山",
-		"summary":             "主角完成入山试炼，确认后续追索方向。",
-		"key_events":          []string{"通过试炼"},
+		"title":               "Vào núi",
+		"summary":             "Nhân vật chính hoàn thành thử thách trên núi và xác nhận phương hướng truy đuổi tiếp theo.",
+		"key_events":          []string{"Vượt qua thử nghiệm"},
 		"character_snapshots": []map[string]any{},
 		"style_rules": map[string]any{
-			"prose":    []string{"环境描写优先触觉和嗅觉"},
-			"dialogue": []string{"沈渊对话极简"},
+			"prose":    []string{"Mô tả môi trường ưu tiên chạm và ngửi"},
+			"dialogue": []string{"Lời thoại của Shen Yuan tối giản"},
 		},
 	})
 	if err != nil {

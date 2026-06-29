@@ -13,9 +13,9 @@ import (
 	"github.com/voocel/ainovel-cli/internal/store"
 )
 
-// SaveDirectiveTool 持久化用户的长效创作要求（仅 Coordinator 持有）。
-// 落盘到 meta/user_directives.json，novel_context 注入 working_memory.user_directives，
-// 所有子代理每章自动看到——不依赖 Coordinator 派单时人肉转达，跨压缩、跨重启生效。
+// SaveDirectiveTool duy trì các yêu cầu soạn thảo dài hạn của người dùng (chỉ do Điều phối viên nắm giữ).
+// Di chuyển đến meta/user_directives.json, tiểu thuyết_context được đưa vào Working_memory.user_directives,
+// Tất cả các đại lý phụ tự động nhìn thấy từng chương - không phụ thuộc vào Điều phối viên khi gửi đơn đặt hàng, có hiệu lực trong quá trình nén và khởi động lại.
 type SaveDirectiveTool struct {
 	store *store.Store
 }
@@ -25,28 +25,28 @@ func NewSaveDirectiveTool(s *store.Store) *SaveDirectiveTool {
 }
 
 func (t *SaveDirectiveTool) Name() string  { return "save_directive" }
-func (t *SaveDirectiveTool) Label() string { return "保存长效指令" }
+func (t *SaveDirectiveTool) Label() string { return "Lưu hướng dẫn dài hạn" }
 
 func (t *SaveDirectiveTool) Description() string {
-	return "持久化用户的长效创作要求（如\"以后对话占比提高\"\"章节标题只用中文\"）。" +
-		"保存后所有子代理每章都会在 working_memory.user_directives 看到，无需再转达。" +
-		"action=add 追加一条（text 必填，原样保留用户意图，可适当凝练）；" +
-		"action=remove 按序号删除（index 必填，序号见上次返回的列表）。" +
-		"返回更新后的全量列表。只保存状态式要求（任何时候重读都成立的描述）；" +
-		"相对式/动作式指令（如\"增加10章\"）禁止保存——本工具不派发子代理，存了等于没人执行，请走子代理路由立即处理。"
+	return "Yêu cầu tạo lâu dài của người dùng kiên trì (ví dụ: sau \", tỷ lệ hội thoại tăng lên, \", \" và tiêu đề chương chỉ bằng tiếng Trung \")." +
+		"Sau khi lưu, tất cả các tác nhân phụ sẽ thấy từng chương trong Working_memory.user_directives và không cần phải chuyển tiếp lại." +
+		"action=add thêm một mục (văn bản là bắt buộc, giữ nguyên ý định của người dùng và có thể được cô đọng một cách thích hợp);" +
+		"action=remove xóa theo số sê-ri (bắt buộc phải lập chỉ mục, số sê-ri được hiển thị trong danh sách được trả về lần trước)." +
+		"Trả về danh sách đầy đủ được cập nhật. Chỉ các yêu cầu có trạng thái mới được lưu (các mô tả đúng để đọc lại bất kỳ lúc nào);" +
+		"Các hướng dẫn tương đối/hành động (chẳng hạn như \" thêm 10 chương vào \") đều bị cấm lưu - công cụ này không cử các tác nhân phụ. Nếu chúng được lưu, điều đó có nghĩa là sẽ không có ai xử tử chúng. Vui lòng sử dụng lộ trình đại lý phụ để xử lý chúng ngay lập tức."
 }
 
-// 写工具，禁止并发。
+// Viết công cụ để vô hiệu hóa đồng thời.
 func (t *SaveDirectiveTool) ReadOnly(_ json.RawMessage) bool        { return false }
 func (t *SaveDirectiveTool) ConcurrencySafe(_ json.RawMessage) bool { return false }
 
-func (t *SaveDirectiveTool) ActivityDescription(_ json.RawMessage) string { return "保存长效指令" }
+func (t *SaveDirectiveTool) ActivityDescription(_ json.RawMessage) string { return "Lưu hướng dẫn dài hạn" }
 
 func (t *SaveDirectiveTool) Schema() map[string]any {
 	return schema.Object(
-		schema.Property("action", schema.Enum("操作类型", "add", "remove")).Required(),
-		schema.Property("text", schema.String("要求内容（add 时必填）：一句话说清要求，保留用户原意")),
-		schema.Property("index", schema.Int("要删除的条目序号（remove 时必填，1-based，见列表返回的 index）")),
+		schema.Property("action", schema.Enum("Loại hoạt động", "add", "remove")).Required(),
+		schema.Property("text", schema.String("Nội dung bắt buộc (bắt buộc khi thêm): nêu rõ yêu cầu trong một câu và giữ nguyên ý định ban đầu của người dùng")),
+		schema.Property("index", schema.Int("Số sê-ri của mục cần xóa (bắt buộc khi xóa, dựa trên 1, xem chỉ mục được danh sách trả về)")),
 	)
 }
 
@@ -68,7 +68,7 @@ func (t *SaveDirectiveTool) Execute(_ context.Context, args json.RawMessage) (js
 	case "add":
 		text := strings.TrimSpace(a.Text)
 		if text == "" {
-			return nil, fmt.Errorf("add 需要非空 text: %w", errs.ErrToolArgs)
+			return nil, fmt.Errorf("add yêu cầu văn bản không trống: %w", errs.ErrToolArgs)
 		}
 		chapter, total := 0, 0
 		if progress, perr := t.store.Progress.Load(); perr == nil && progress != nil {
@@ -83,7 +83,7 @@ func (t *SaveDirectiveTool) Execute(_ context.Context, args json.RawMessage) (js
 		})
 	case "remove":
 		if a.Index < 1 {
-			return nil, fmt.Errorf("remove 需要 index >= 1: %w", errs.ErrToolArgs)
+			return nil, fmt.Errorf("xóa yêu cầu chỉ mục >= 1: %w", errs.ErrToolArgs)
 		}
 		list, err = t.store.Directives.Remove(a.Index)
 	default:
@@ -101,9 +101,9 @@ func (t *SaveDirectiveTool) Execute(_ context.Context, args json.RawMessage) (js
 	})
 }
 
-// directiveFacts 把长效指令转为给 LLM 的事实视图（工具结果与信封注入同形）：
-// at_* 是下达时的进度快照——指令自 at_chapter 起向后生效，相对式表述可据
-// at_total_chapters 判定是否已满足。created_at 是审计信息，不进 LLM。
+// chỉ thịFacts chuyển đổi các chỉ thị dài hạn thành các chế độ xem thực tế cho LLM (kết quả của công cụ giống như việc chèn phong bì):
+// at_* là ảnh chụp nhanh tiến trình khi được ban hành - hướng dẫn có hiệu lực từ at_chapter trở đi và biểu thức tương đối có thể dựa trên
+// at_total_chapters xác định xem nó có thỏa mãn hay không. create_at là thông tin kiểm tra và không nhập LLM.
 func directiveFacts(list []domain.UserDirective) []map[string]any {
 	items := make([]map[string]any, len(list))
 	for i, d := range list {

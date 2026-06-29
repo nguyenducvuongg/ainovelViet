@@ -13,11 +13,11 @@ import (
 func planArgs(chapter int) json.RawMessage {
 	b, _ := json.Marshal(map[string]any{
 		"chapter":     chapter,
-		"title":       "测试章",
-		"goal":        "推进剧情",
-		"conflict":    "外部阻力",
-		"hook":        "留下悬念",
-		"emotion_arc": "紧张到期待",
+		"title":       "chương kiểm tra",
+		"goal":        "Nâng cao cốt truyện",
+		"conflict":    "sức đề kháng bên ngoài",
+		"hook":        "để lại sự hồi hộp",
+		"emotion_arc": "Đủ hồi hộp để mong chờ",
 	})
 	return b
 }
@@ -32,17 +32,17 @@ func TestPlanChapterRejectsUnexpandedLayeredChapter(t *testing.T) {
 	}
 	if err := st.Outline.SaveLayeredOutline([]domain.VolumeOutline{{
 		Index: 1,
-		Title: "第一卷",
+		Title: "Tập 1",
 		Arcs: []domain.ArcOutline{{
 			Index: 1,
-			Title: "第一弧",
+			Title: "cung đầu tiên",
 			Chapters: []domain.OutlineEntry{
-				{Chapter: 1, Title: "一"},
-				{Chapter: 2, Title: "二"},
+				{Chapter: 1, Title: "một"},
+				{Chapter: 2, Title: "hai"},
 			},
 		}, {
 			Index:             2,
-			Title:             "第二弧",
+			Title:             "cung thứ hai",
 			EstimatedChapters: 3,
 		}},
 	}}); err != nil {
@@ -56,7 +56,7 @@ func TestPlanChapterRejectsUnexpandedLayeredChapter(t *testing.T) {
 	}
 
 	tool := NewPlanChapterTool(st)
-	if _, err := tool.Execute(context.Background(), planArgs(3)); err == nil || !strings.Contains(err.Error(), "expand_arc") {
+	if _, err := tool.Execute(context.Background(), planArgs(3)); err == nil || !strings.Contains(err.Error(), "mở rộng_arc") {
 		t.Fatalf("expected unexpanded chapter rejection, got %v", err)
 	}
 	if p, _ := st.Progress.Load(); p != nil && p.InProgressChapter == 3 {
@@ -74,13 +74,13 @@ func TestPlanChapterAllowsExpandedLayeredChapter(t *testing.T) {
 	}
 	if err := st.Outline.SaveLayeredOutline([]domain.VolumeOutline{{
 		Index: 1,
-		Title: "第一卷",
+		Title: "Tập 1",
 		Arcs: []domain.ArcOutline{{
 			Index: 1,
-			Title: "第一弧",
+			Title: "cung đầu tiên",
 			Chapters: []domain.OutlineEntry{
-				{Chapter: 1, Title: "一"},
-				{Chapter: 2, Title: "二"},
+				{Chapter: 1, Title: "một"},
+				{Chapter: 2, Title: "hai"},
 			},
 		}},
 	}}); err != nil {

@@ -12,13 +12,13 @@ import (
 	"github.com/voocel/ainovel-cli/internal/tools"
 )
 
-// validHookTypes / validStrands 与 commit_chapter schema 保持一致。
+// validHookTypes/validStrands nhất quán với lược đồ commit_chapter.
 var (
 	validHookTypes = map[string]bool{"crisis": true, "mystery": true, "desire": true, "emotion": true, "choice": true}
 	validStrands   = map[string]bool{"quest": true, "fire": true, "constellation": true}
 )
 
-// ChapterAnalysis 是单章反推的结构化产物，字段直接对齐 commit_chapter 入参。
+// ChapterAnalysis là sản phẩm có cấu trúc của phép đảo ngược một chương và các trường được căn chỉnh trực tiếp với tham số đầu vào commit_chapter.
 type ChapterAnalysis struct {
 	Summary             string
 	Characters          []string
@@ -31,8 +31,8 @@ type ChapterAnalysis struct {
 	DominantStrand      string
 }
 
-// AnalyzeChapter 用一次 LLM 调用，从单章正文反推 commit_chapter 所需事实。
-// hooksContext 是已知伏笔池的快照（可空），用于让 LLM 复用既有 ID。
+// Phân tíchChapter sử dụng một lệnh gọi LLM duy nhất để suy ra các dữ kiện mà commit_chapter yêu cầu từ văn bản của một chương.
+// hooksContext là ảnh chụp nhanh của nhóm báo trước đã biết (nullable), được sử dụng để cho phép LLM sử dụng lại các ID hiện có.
 func AnalyzeChapter(
 	ctx context.Context,
 	llm LLMChat,
@@ -69,32 +69,32 @@ func buildAnalyzerUserPrompt(
 	hooks []domain.ForeshadowEntry,
 ) string {
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "请分析第 %d 章正文，输出 9 个 === TAG === 段。\n\n", chapter)
+	fmt.Fprintf(&sb, "Vui lòng phân tích văn bản của Chương %d và xuất ra 9 === TAG === đoạn văn. \n\n", chapter)
 	if title != "" {
-		fmt.Fprintf(&sb, "章节标题：%s\n\n", title)
+		fmt.Fprintf(&sb, "Tiêu đề chương: %s\n\n", title)
 	}
 
 	if strings.TrimSpace(premise) != "" {
-		sb.WriteString("## 故事前提（参考）\n\n")
+		sb.WriteString("## Tiền đề câu chuyện (tham khảo) \n\n")
 		sb.WriteString(premise)
 		sb.WriteString("\n\n")
 	}
 	if strings.TrimSpace(charactersBlock) != "" {
-		sb.WriteString("## 已知角色（参考）\n\n")
+		sb.WriteString("## Ký tự đã biết (tham khảo) \n\n")
 		sb.WriteString(charactersBlock)
 		sb.WriteString("\n\n")
 	}
 
 	if len(hooks) > 0 {
-		sb.WriteString("## 已知伏笔池（请复用 ID，不要新造）\n\n")
+		sb.WriteString("## Nhóm báo trước đã biết (vui lòng sử dụng lại ID, không tạo ID mới) \n\n")
 		for _, h := range hooks {
-			fmt.Fprintf(&sb, "- `%s` [%s]：%s（埋设于第 %d 章）\n",
+			fmt.Fprintf(&sb, "- `%s` [%s]: %s (chôn trong chương %d) \n",
 				h.ID, h.Status, h.Description, h.PlantedAt)
 		}
 		sb.WriteString("\n")
 	}
 
-	sb.WriteString("## 本章正文\n\n")
+	sb.WriteString("## Nội dung của chương này \n\n")
 	sb.WriteString(content)
 	sb.WriteString("\n")
 	return sb.String()
@@ -157,7 +157,7 @@ func parseAnalyzerOutput(text string) (*ChapterAnalysis, error) {
 	return a, nil
 }
 
-// decodeOptionalArray 允许标签缺失或为空字符串；只在非空时解析。
+// giải mãOptionalArray cho phép các thẻ bị thiếu hoặc chuỗi trống; chỉ phân tích cú pháp nếu không trống.
 func decodeOptionalArray(label, body string, out any) error {
 	body = stripFences(body)
 	if body == "" || body == "[]" {
@@ -169,8 +169,8 @@ func decodeOptionalArray(label, body string, out any) error {
 	return nil
 }
 
-// PersistChapter 把分析结果落盘：先写章节草稿，再调 commit_chapter 执行原子三件套。
-// 已完成章节会被 commit_chapter 自身的幂等检查跳过，仍返回 nil 让循环继续。
+// PersistChapter lưu kết quả phân tích vào đĩa: đầu tiên viết bản nháp của chương, sau đó gọi commit_chapter để thực thi bộ ba phần nguyên tử.
+// Các chương đã hoàn thành sẽ bị bỏ qua bằng kiểm tra bình thường của chính commit_chapter và con số 0 sẽ vẫn được trả về để cho phép vòng lặp tiếp tục.
 func PersistChapter(
 	ctx context.Context,
 	st *store.Store,
@@ -186,17 +186,17 @@ func PersistChapter(
 		return fmt.Errorf("nil commit tool")
 	}
 
-	// 1. 落盘草稿（commit_chapter 从 drafts/{ch}.draft.md 读正文）
+	// 1. Cam kết bản nháp (commit_chapter đọc văn bản từ bản nháp/{ch}.draft.md)
 	if err := st.Drafts.SaveDraft(chapter, content); err != nil {
 		return fmt.Errorf("save draft ch%d: %w", chapter, err)
 	}
 
-	// 2. 标记进入写作中（ValidateChapterWork 在 FlowWriting 下不阻塞，但 progress 需要这一步保持一致）
+	// 2. Mark nhập văn bản (ValidateChapterWork không chặn trong FlowWriting, nhưng tiến trình yêu cầu bước này phải nhất quán)
 	if err := st.Progress.StartChapter(chapter); err != nil {
 		return fmt.Errorf("start chapter ch%d: %w", chapter, err)
 	}
 
-	// 3. 构造 commit_chapter 入参（注入 chapter title 仅记录用，commit_chapter 不读 title）
+	// 3. Xây dựng các tham số đầu vào của commit_chapter (việc chèn tiêu đề chương chỉ để ghi, commit_chapter không đọc tiêu đề)
 	args := map[string]any{
 		"chapter":         chapter,
 		"summary":         a.Summary,

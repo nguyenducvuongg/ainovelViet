@@ -1,86 +1,86 @@
-# 通用差异化设计参考
+# Tham khảo chung về thiết kế khác biệt
 
-这份参考用于避免同题材作品自动滑向“最高频模板”。
+Tham chiếu này được sử dụng để ngăn các tác phẩm có cùng chủ đề tự động trượt vào "mẫu tần suất cao nhất".
 
-## 当用户只给出一个大题材词时，不能直接套最常见范式
+## Khi người dùng chỉ đưa ra một từ chủ đề lớn, bạn không thể áp dụng trực tiếp mô hình phổ biến nhất.
 
-例如用户说：
+Ví dụ: người dùng nói:
 
-- 都市
-- 奇幻
-- 修仙
-- 悬疑
-- 言情
-- 科幻
+- đô thị
+- Tưởng tượng
+- Trồng trọt
+- Hồi hộp
+- Lãng mạn
+- Khoa học viễn tưởng
 
-这不等于“照该题材最常见的开局写”。你必须先补足差异化维度。
+Điều này không có nghĩa là “viết theo cách mở đầu thông thường nhất của chủ đề”. Trước tiên, bạn phải điền vào các kích thước khác biệt.
 
-## 差异化的五个维度
+## Năm khía cạnh của sự khác biệt
 
-### 1. 主角维度
+### 1. Chiều hướng nhân vật chính
 
-- 出身是否过于常见
-- 初始优势/劣势是否过于常见
-- 主角最强驱动力是什么
-- 主角最大的盲区是什么
+- Việc nuôi dạy con cái có quá phổ biến không?
+- Điểm mạnh/điểm yếu ban đầu có quá phổ biến không?
+- Động lực mạnh nhất của nhân vật chính là gì?
+- Điểm mù lớn nhất của nhân vật chính là gì?
 
-### 2. 冲突维度
+### 2. Khía cạnh xung đột
 
-- 主冲突是否只是该题材默认矛盾
-- 有没有第二层冲突改变读者预期
-- 冲突是否会在中期转型
+- Xung đột chính chỉ là xung đột mặc định của chủ đề?
+- Có mức độ xung đột thứ hai làm thay đổi mong đợi của độc giả không?
+- Liệu xung đột sẽ chuyển biến trong trung hạn hay không
 
-### 3. 世界维度
+### 3. Chiều kích thế giới
 
-- 世界规则是否真的改变角色行为
-- 社会结构、资源结构、权力结构是否能持续制造问题
-- 世界是否存在非主角视角也合理运转的逻辑
+- Các quy tắc thế giới có thực sự thay đổi hành vi của nhân vật không?
+- Liệu cơ cấu xã hội, cơ cấu nguồn lực và cơ cấu quyền lực có tiếp tục gây ra vấn đề hay không?
+- Có logic nào cho phép thế giới vận hành hợp lý từ góc độ không phải nhân vật chính không?
 
-### 4. 关系维度
+### 4. Chiều kích mối quan hệ
 
-- 主要关系是否只有“队友/恋人/敌人”三个静态功能
-- 是否存在长期互相塑造、互相伤害、互相利用、互相成全的关系
-- 关系线是否会反向推动主线
+- Liệu mối quan hệ chính chỉ có ba chức năng tĩnh là “đồng đội/người yêu/kẻ thù”
+- Có mối quan hệ lâu dài mà nhau định hình, làm tổn thương, khai thác và bổ sung cho nhau không?
+-Liệu đường quan hệ có đẩy đường chính theo hướng ngược lại hay không
 
-### 5. 节奏维度
+### 5. Chiều nhịp điệu
 
-- 爽点是否单一重复
-- 是否规划了不同阶段的阅读驱动力
-- 前期吸引力和中后期吸引力是否一致，还是有自然升级
+- Điểm thú vị có phải là một lần lặp lại hay không
+-Việc đọc động lực ở các giai đoạn khác nhau đã được quy hoạch chưa
+- Sức hấp dẫn giai đoạn đầu có phù hợp với sức hấp dẫn giai đoạn giữa và giai đoạn cuối hay có sự nâng cấp tự nhiên?
 
-## 常见同质化信号
+## Tín hiệu đồng nhất chung
 
-出现越多，越说明作品在滑向通用模板：
+Càng xuất hiện càng chứng tỏ tác phẩm đang trượt về một khuôn mẫu chung:
 
-- 最常见的主角出身设定
-- 最常见的“被看不起”起手
-- 最常见的导师/宗门/学院/豪门/案件开场
-- 最常见的反派动机
-- 最常见的阶段升级节奏
-- 最常见的“发现秘密”型钩子反复出现
+- Bối cảnh xuất xứ phổ biến nhất của nhân vật chính
+- Xuất phát điểm phổ biến nhất của việc “bị coi thường”
+- Gia sư/giáo phái/đại học/gia đình giàu có/mở vụ án phổ biến nhất
+- Động cơ phản diện phổ biến nhất
+- Nhịp điệu nâng cấp giai đoạn phổ biến nhất
+- Kiểu hook "khám phá bí mật" phổ biến nhất xuất hiện lặp đi lặp lại
 
-## 规划时必须主动给自己设限
+## Bạn phải chủ động đặt ra những giới hạn cho bản thân khi lập kế hoạch
 
-在同题材下，至少给出 2-3 条反模板约束。例如：
+Trong cùng một chủ đề, phải đưa ra ít nhất 2-3 ràng buộc chống mẫu. Ví dụ:
 
-- 不使用最常见的开局身份
-- 不使用最常见的金手指/能力来源
-- 不使用最常见的中期升级路径
-- 不让主要关系线停留在单一功能
-- 不让终局只是“打败更大的敌人”
+- Không sử dụng danh tính ban đầu phổ biến nhất
+- Không sử dụng các nguồn gian lận/khả năng phổ biến nhất
+- Không sử dụng đường dẫn nâng cấp giữa chu kỳ phổ biến nhất
+- Đừng để đường quan hệ chính chỉ ở một chức năng duy nhất
+- Đừng để tàn cuộc chỉ là “đánh bại kẻ thù lớn hơn”
 
-## 差异化不是猎奇，而是重新分配重心
+## Khác biệt hóa không phải là tìm kiếm sự mới lạ mà là phân phối lại trọng tâm
 
-有效的差异化通常来自：
+Sự khác biệt hiệu quả thường đến từ:
 
-- 更换主角真正关心的东西
-- 更换长期冲突的来源
-- 更换世界规则的压力点
-- 更换关系线在故事中的功能
-- 更换中期之后的推进方式
+- Thay đổi điều nhân vật chính thực sự quan tâm
+- Thay thế các nguồn xung đột kéo dài
+- Điểm áp lực để thay đổi quy tắc thế giới
+- Thay đổi chức năng của các tuyến quan hệ trong truyện
+- Thay đổi phương thức thăng tiến sau giữa kỳ
 
-## 输出前自问
+## Hãy tự hỏi bản thân trước khi xuất
 
-- 如果把角色名和设定名抹掉，这个故事还像同题材里另外十本书吗？
-- 如果只看前 10 章，读者能说出这本书“独特在哪”吗？
-- 如果写到 50 章后，作品的推进方式会不会和前 10 章完全重复？
+- Nếu xóa tên nhân vật và tên bối cảnh, liệu câu chuyện này có còn giống mười cuốn sách cùng chủ đề khác không?
+- Nếu chỉ đọc 10 chương đầu, liệu người đọc có nhận ra được điều gì “độc đáo” ở cuốn sách này không?
+- Nếu viết 50 chương thì tiến độ tác phẩm có giống hệt như 10 chương đầu không?

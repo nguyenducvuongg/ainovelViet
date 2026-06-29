@@ -82,7 +82,7 @@ func (s *askUserState) choiceLabel(idx int) string {
 	if idx < len(q.Options) {
 		return q.Options[idx].Label
 	}
-	return "自由输入"
+	return "đầu vào miễn phí"
 }
 
 func (s *askUserState) choiceDescription(idx int) string {
@@ -90,7 +90,7 @@ func (s *askUserState) choiceDescription(idx int) string {
 	if idx < len(q.Options) {
 		return q.Options[idx].Description
 	}
-	return "以上都不合适，自己补充"
+	return "Không có điều nào ở trên phù hợp, hãy thêm của riêng bạn"
 }
 
 func (s *askUserState) moveCursor(delta int) {
@@ -196,7 +196,7 @@ func renderAskUserModal(width, height int, state *askUserState) string {
 	}
 
 	var b strings.Builder
-	title := fmt.Sprintf("需要补充信息 %d/%d", state.index+1, len(state.request.questions))
+	title := fmt.Sprintf("Cần thêm thông tin %d/%d", state.index+1, len(state.request.questions))
 	b.WriteString(lipgloss.NewStyle().Foreground(colorAccent).Bold(true).Render(title))
 	b.WriteString("\n\n")
 	if q.Header != "" {
@@ -227,11 +227,11 @@ func renderAskUserModal(width, height int, state *askUserState) string {
 
 	if state.typing || (q.MultiSelect && state.selected[len(q.Options)]) {
 		b.WriteString("\n")
-		b.WriteString(panelTitleStyle.Render("补充内容"))
+		b.WriteString(panelTitleStyle.Render("Nội dung bổ sung"))
 		b.WriteString("\n")
 		content := state.input
 		if content == "" {
-			content = "请输入..."
+			content = "Vui lòng nhập..."
 		}
 		style := lipgloss.NewStyle().
 			Width(boxW-8).
@@ -242,12 +242,12 @@ func renderAskUserModal(width, height int, state *askUserState) string {
 		b.WriteString("\n")
 	}
 
-	hint := "↑↓ 选择 · Enter 确认 · Esc 关闭"
+	hint := "↑↓ Chọn · Nhập để xác nhận · Esc để đóng"
 	if q.MultiSelect {
-		hint = "↑↓ 选择 · Space 勾选 · Enter 提交 · Esc 关闭"
+		hint = "↑↓ Chọn · Dấu cách để kiểm tra · Enter để gửi · Esc để đóng"
 	}
 	if state.typing {
-		hint = "输入补充内容 · Enter 确认 · Esc 返回选项"
+		hint = "Nhập nội dung bổ sung · Enter để xác nhận · Esc để quay lại lựa chọn"
 	}
 	b.WriteString("\n")
 	b.WriteString(lipgloss.NewStyle().Foreground(colorDim).Render(hint))

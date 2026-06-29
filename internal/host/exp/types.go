@@ -1,58 +1,58 @@
-// Package exp 实现已完成章节的导出能力。
+// Gói exp triển khai khả năng xuất các chương đã hoàn thành.
 //
-// 与 imp/ 对称：纯本地 IO，不依赖 LLM，不改 store 状态。导出可以与
-// Coordinator 并发运行（只读 Progress + 章节终稿），属于横向能力。
+// Đối xứng với imp/: IO cục bộ thuần túy, không dựa vào LLM, không thay đổi trạng thái cửa hàng. Xuất khẩu có thể được thực hiện với
+// Điều phối viên chạy đồng thời (Tiến trình chỉ đọc + bản nháp cuối cùng của chương), là khả năng theo chiều ngang.
 //
-// 第一版只支持 TXT；EPUB 留待下一轮。
+// Phiên bản đầu tiên chỉ hỗ trợ TXT; EPUB còn lại cho vòng tiếp theo.
 package exp
 
 import "github.com/voocel/ainovel-cli/internal/store"
 
-// Format 标识导出格式。
+// Định dạng xác định định dạng xuất.
 type Format string
 
 const (
-	// FormatTXT 纯文本输出。
+	// FormatTXT đầu ra văn bản thuần túy.
 	FormatTXT Format = "txt"
-	// FormatEPUB 标准 EPUB 3 容器（zip + xhtml）。
+	// FormatEPUB Bộ chứa EPUB 3 tiêu chuẩn (zip + xhtml).
 	FormatEPUB Format = "epub"
 )
 
-// Options 控制导出行为。zero-value 等价于"导出全本到默认路径，文件存在时报错"。
+// Tùy chọn kiểm soát hành vi xuất. giá trị 0 tương đương với "Xuất toàn bộ tệp sang đường dẫn mặc định và sẽ báo lỗi nếu tệp tồn tại."
 //
-// 版式：《书名》 → 卷分隔 → 章节正文。两类内部数据不进导出：premise（创作蓝图，
-// 含目标读者 / 核心消费点 / 写作禁区等后台元信息，给作者与引擎看，不是读者的序）；
-// 弧分隔（读者视角下弧是过细的内部结构）。书名与卷分隔始终保留。
+// Định dạng: "Tên sách" → Tách tập → Văn bản chương. Hai loại dữ liệu nội bộ không thể được nhập hoặc xuất: tiền đề (bản thiết kế sáng tạo,
+// Chứa thông tin meta nền như trình đọc mục tiêu/điểm tiêu thụ cốt lõi/khu vực hạn chế viết, để tác giả và công cụ xem, không phải cho người đọc);
+// Tách vòng cung (cung là cấu trúc bên trong quá mỏng theo quan điểm của người đọc). Tiêu đề sách và phần tách tập luôn được giữ nguyên.
 type Options struct {
-	// Format 空字符串时由 OutPath 后缀推断（.txt → TXT，.epub → EPUB）；
-	// OutPath 也为空时回退 FormatTXT。SDK 调用方可显式指定以跳过推断。
+	// Khi Định dạng là một chuỗi trống, nó được suy ra từ hậu tố OutPath (.txt → TXT, .epub → EPUB);
+	// Dự phòng về FormatTXT khi OutPath cũng trống. Người gọi SDK có thể chỉ định rõ ràng để bỏ qua suy luận.
 	Format Format
 
-	// OutPath 输出文件路径；空表示 {novelDir}/{NovelName}.{ext}，
-	// ext 由 Format 决定（NovelName 为空则用目录名）。
+	// Đường dẫn tệp đầu ra OutPath; trống có nghĩa là {novelDir}/{NovelName}.{ext},
+	// ext được xác định bởi Định dạng (nếu NovelName trống, tên thư mục sẽ được sử dụng).
 	OutPath string
 
-	// From / To 章节范围，闭区间。0 表示从第 1 章 / 到最后一章。
-	// 范围内未完成的章节会被跳过并写入 Result.Skipped，不视为错误。
+	// Từ / Đến phạm vi chương, khoảng thời gian đóng. 0 nghĩa là từ chương 1/ đến chương cuối cùng.
+	// Các chương chưa hoàn thành trong phạm vi sẽ được bỏ qua và ghi vào Result.Skipped và không bị coi là lỗi.
 	From, To int
 
-	// Overwrite 文件存在时是否覆盖；默认拒绝。
+	// Ghi đè Có ghi đè lên tệp nếu nó tồn tại hay không; bị từ chối theo mặc định.
 	Overwrite bool
 }
 
-// Deps 是 Run 所需依赖。仅 store；导出无需 LLM、prompt、bundle。
+// Deps là các phần phụ thuộc mà Run yêu cầu. Chỉ lưu trữ; không cần LLM, lời nhắc hoặc gói để xuất.
 type Deps struct {
 	Store *store.Store
 }
 
-// Result 是一次成功导出的产物摘要。
+// Kết quả là bảng tổng hợp sản phẩm xuất khẩu thành công.
 type Result struct {
-	// Path 实际写入的文件路径（绝对或调用方传入的相对）。
+	// Đường dẫn Đường dẫn tệp thực tế được ghi (tuyệt đối hoặc tương đối do người gọi truyền vào).
 	Path string
-	// Chapters 实际写入的章节数。
+	// Số chương Số chương thực sự được viết.
 	Chapters int
-	// Bytes 文件字节数（UTF-8）。
+	// Byte Số byte tệp (UTF-8).
 	Bytes int
-	// Skipped 落在请求范围内但未完成的章节号。
+	// Bỏ qua Số chương nằm trong phạm vi được yêu cầu nhưng chưa hoàn thành.
 	Skipped []int
 }

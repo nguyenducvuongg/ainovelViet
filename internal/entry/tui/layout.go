@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// --- 辅助函数 ---
+// ---Chức năng phụ trợ ---
 
 func renderField(label, value string) string {
 	if value == "" {
@@ -48,9 +48,9 @@ func renderContextUsageField(label string, percent float64, tokens, window int) 
 	return fieldLabelStyle.Render(label) + usage + "\n"
 }
 
-// formatContextWindow 把 token 数格式化成紧凑窗口标记："128K" / "200K" / "1M" / "2M"。
-// Gemini 的 1048576 (2^20) 等技术意义上的 1M 会展示为 "1M" 而非 "1.0M"。
-// n<=0 返回空串，调用方应据此决定是否展示。
+// formatContextWindow định dạng số mã thông báo thành mã thông báo cửa sổ nhỏ gọn: "128K" / "200K" / "1M" / "2M".
+// Số 1M kỹ thuật như 1048576 (2^20) của Gemini sẽ được hiển thị là "1M" thay vì "1,0M".
+// n<=0 trả về một chuỗi trống và người gọi sẽ quyết định có hiển thị chuỗi đó hay không.
 func formatContextWindow(n int) string {
 	if n <= 0 {
 		return ""
@@ -69,7 +69,7 @@ func formatContextWindow(n int) string {
 	return fmt.Sprintf("%d", n)
 }
 
-// formatCostUSD 格式化美元成本。<$0.01 用 4 位小数，否则 2 位。0 返回空。
+// formatCostChi phí định dạng USD tính bằng đô la. Sử dụng 4 chữ số thập phân cho <$0,01, nếu không thì 2. 0 trả về trống.
 func formatCostUSD(usd float64) string {
 	if usd <= 0 {
 		return ""
